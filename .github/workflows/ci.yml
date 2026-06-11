@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint and style checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n tests/*.sh
+          python3 -m json.tool mcp-server.json >/dev/null
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Kujo runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --depth 1 https://github.com/kujolang/kujo.git /tmp/kujo-runtime
+          cargo build --release --manifest-path /tmp/kujo-runtime/Cargo.toml --bin kujo
+          /tmp/kujo-runtime/target/release/kujo run --help >/dev/null
+
+      - name: Export runtime environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x /tmp/kujo-runtime/target/release/kujo
+          echo "KUJO_BIN=/tmp/kujo-runtime/target/release/kujo" >> "$GITHUB_ENV"
+          echo "/tmp/kujo-runtime/target/release" >> "$GITHUB_PATH"
+
+      - name: Run all tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tests/run_all_tests.sh

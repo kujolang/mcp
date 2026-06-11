@@ -1,0 +1,391 @@
+# Optional AI enrichment provider for mcp make profiles.
+#
+# Uses the dispatch pattern: spawns a child Kujo process from the
+# AI SDK directory to import ai_sdk and call chat_completion.
+# No file copying or symlinks required.
+#
+# AI SDK path resolution (in order):
+#   1. --ai-sdk-path flag (passed as ai_sdk_path parameter)
+#   2. AI_SDK_PATH environment variable
+#   3. ../kujo-ai-sdk relative to current working directory
+#
+# Enrichment is skipped when:
+#   - --no-ai flag is passed
+#   - AI SDK path cannot be resolved
+#   - No API key is configured
+#   - The child process fails
+
+from src.make.common import dict_has_key, push_unique
+
+func resolve_ai_sdk_path(explicit_path) {
+    if type(explicit_path) == "string" {
+        clean := trim(explicit_path)
+        if clean != "" && path_exists(clean) && path_is_dir(clean) {
+            return {"ok": true, "path": clean}
+        }
+    }
+
+    env_path := trim(to_string(env_or("AI_SDK_PATH", "")))
+    if env_path != "" && path_exists(env_path) && path_is_dir(env_path) {
+        return {"ok": true, "path": env_path}
+    }
+
+    fallback := "../kujo-ai-sdk"
+    if path_exists(fallback) && path_is_dir(fallback) {
+        try {
+            return {"ok": true, "path": path_absolute(fallback)}
+        } except err {
+        }
+    }
+
+    return {"ok": false, "path": ""}
+}
+
+func has_required_sdk_files(ai_sdk_dir) {
+    if !file_exists(ai_sdk_dir + "/ai_sdk.kujo") {
+        return false
+    }
+    if !file_exists(ai_sdk_dir + "/providers.kujo") {
+        return false
+    }
+    return true
+}
+
+func is_api_key_configured() {
+    key := trim(to_string(env_or("OPENAI_API_KEY", "")))
+    if key != "" {
+        return true
+    }
+    key2 := trim(to_string(env_or("AI_SDK_API_KEY", "")))
+    if key2 != "" {
+        return true
+    }
+    return false
+}
+
+func build_enrichment_prompt(profile) {
+    repo_name := to_string(profile["repo_name"])
+    languages := to_json(profile["detected_languages"])
+    frameworks := to_json(profile["detected_frameworks"])
+    source_dirs := to_json(profile["likely_source_directories"])
+    test_dirs := to_json(profile["likely_test_directories"])
+    configs := to_json(profile["important_config_files"])
+    entrypoints := to_json(profile["entrypoints"])
+    sample_files_json := to_json(profile["sample_files"])
+    domain_concepts := to_json(profile["mcp_relevant_domain_concepts"])
+    docs := to_json(profile["docs_and_readmes"])
+
+    prompt_text := "You are analyzing a repository to propose repo-specific MCP (Model Context Protocol) tools. "
+    prompt_text := prompt_text + "Repository: " + repo_name + ". "
+    prompt_text := prompt_text + "Languages: " + languages + ". "
+    prompt_text := prompt_text + "Frameworks: " + frameworks + ". "
+    prompt_text := prompt_text + "Source directories: " + source_dirs + ". "
+    prompt_text := prompt_text + "Test directories: " + test_dirs + ". "
+    prompt_text := prompt_text + "Config files: " + configs + ". "
+    prompt_text := prompt_text + "Entrypoints: " + entrypoints + ". "
+    prompt_text := prompt_text + "Domain concepts detected: " + domain_concepts + ". "
+    prompt_text := prompt_text + "Docs: " + docs + ". "
+    prompt_text := prompt_text + "Sample files: " + sample_files_json + ". "
+
+    prompt_text := prompt_text + "Propose 3-5 repo-specific MCP tool names with descriptions that would be useful for an AI coding agent working on this repository. "
+    prompt_text := prompt_text + "Return ONLY a valid JSON array of tool objects. Each tool must have: name (string), description (string), safety_tier (one of: read_only, safe_command, review_required). "
+    prompt_text := prompt_text + "Do not include generic tools like read_file or list_directory. Make them specific to what this repository actually does. "
+    prompt_text := prompt_text + "Infer the repository purpose from its file names, config files, and domain concepts. "
+    prompt_text := prompt_text + "Return ONLY the JSON array, no other text."
+
+    return prompt_text
+}
+
+func parse_ai_tool_suggestions(response_text) {
+    tools := []
+    if type(response_text) != "string" {
+        return tools
+    }
+
+    trimmed := trim(response_text)
+    if trimmed == "" {
+        return tools
+    }
+
+    json_start := index_of(trimmed, "[")
+    json_end := -1
+
+    idx := len(trimmed) - 1
+    while idx >= 0 {
+        ch := substring(trimmed, idx, idx + 1)
+        if ch == "]" {
+            json_end := idx
+            break
+        }
+        idx := idx - 1
+    }
+
+    if json_start < 0 || json_end < 0 || json_end <= json_start {
+        return tools
+    }
+
+    json_text := substring(trimmed, json_start, json_end + 1)
+
+    try {
+        parsed := parse_json(json_text)
+        if type(parsed) == "array" {
+            aidx := 0
+            while aidx < len(parsed) {
+                entry := parsed[aidx]
+                aidx := aidx + 1
+                if type(entry) == "dict" {
+                    tool_name := ""
+                    if dict_has_key(entry, "name") {
+                        tool_name := trim(to_string(entry["name"]))
+                    }
+                    if tool_name != "" {
+                        new_tool := {
+                            "name": tool_name,
+                            "description": "AI-inferred repo-specific tool",
+                            "input_schema": {"type": "object", "properties": {}, "required": []},
+                            "safety_tier": "read_only",
+                            "inference_source": "ai-model",
+                            "validation_status": "ai-proposed"
+                        }
+
+                        if dict_has_key(entry, "description") {
+                            new_tool["description"] := to_string(entry["description"])
+                        }
+                        if dict_has_key(entry, "safety_tier") {
+                            tier := to_string(entry["safety_tier"])
+                            if tier == "read_only" || tier == "safe_command" || tier == "review_required" {
+                                new_tool["safety_tier"] := tier
+                            }
+                        }
+
+                        tools := push(tools, new_tool)
+                    }
+                }
+            }
+        }
+    } except err {
+        tools := []
+    }
+
+    return tools
+}
+
+func enrich_domain_concepts_with_ai(profile, response_text) {
+    concepts := []
+
+    if dict_has_key(profile, "mcp_relevant_domain_concepts") && type(profile["mcp_relevant_domain_concepts"]) == "array" {
+        existing := profile["mcp_relevant_domain_concepts"]
+        cidx := 0
+        while cidx < len(existing) {
+            concepts := push(concepts, {
+                "value": existing[cidx],
+                "inference_source": "deterministic"
+            })
+            cidx := cidx + 1
+        }
+    }
+
+    return concepts
+}
+
+func build_safety_review_suggestions(profile) {
+    suggestions := []
+
+    if dict_has_key(profile, "risky_operations") && type(profile["risky_operations"]) == "array" {
+        risky := profile["risky_operations"]
+        ridx := 0
+        while ridx < len(risky) {
+            risk := risky[ridx]
+            ridx := ridx + 1
+            if type(risk) == "dict" && dict_has_key(risk, "name") {
+                name := to_string(risk["name"])
+                suggestions := push(suggestions, "Review safety classification for script: " + name)
+            }
+        }
+    }
+
+    if len(suggestions) == 0 {
+        suggestions := push(suggestions, "No high-risk scripts detected; deterministic pass is sufficient")
+    }
+
+    return suggestions
+}
+
+func run_ai_enrichment_child(ai_sdk_dir, prompt_text, api_key) {
+    helper_path := ai_sdk_dir + "/.kujo_mcp_enrich_helper.kujo"
+
+    helper_code := "from providers import openai_provider\n"
+    helper_code := helper_code + "from ai_sdk import create_client, create_message, chat_completion\n"
+    helper_code := helper_code + "prompt_raw := read_file(\"" + helper_path + ".prompt\")\n"
+    helper_code := helper_code + "api_key := trim(to_string(env_or(\"KUJO_MCP_ENRICH_API_KEY\", \"\")))\n"
+    helper_code := helper_code + "provider := openai_provider()\n"
+    helper_code := helper_code + "client := create_client(provider, api_key)\n"
+    helper_code := helper_code + "messages := [create_message(\"user\", prompt_raw)]\n"
+    helper_code := helper_code + "opts := {\"model\": \"gpt-4.1-mini\", \"temperature\": 0.3, \"max_tokens\": 1000, \"max_retries\": 2}\n"
+    helper_code := helper_code + "result := chat_completion(client, messages, opts)\n"
+    helper_code := helper_code + "if result[\"ok\"] {\n"
+    helper_code := helper_code + "    print(to_json(result))\n"
+    helper_code := helper_code + "} else {\n"
+    helper_code := helper_code + "    print(to_json({\"ok\": false, \"error\": \"chat_completion failed\"}))\n"
+    helper_code := helper_code + "}\n"
+
+    try {
+        write_file(helper_path, helper_code, true)
+        write_file(helper_path + ".prompt", prompt_text, true)
+    } except err {
+        return {"ok": false, "content": "", "tokens": 0}
+    }
+
+    kujo_bin := trim(to_string(env_or("KUJO_BIN", "kujo")))
+    run_cmd := "cd \"" + ai_sdk_dir + "\" && KUJO_MCP_ENRICH_API_KEY=\"" + api_key + "\" \"" + kujo_bin + "\" run \"" + helper_path + "\" --interpreter"
+
+    result := execute_status(run_cmd, {"timeout_ms": 60000})
+
+    try {
+        delete_file(helper_path)
+        delete_file(helper_path + ".prompt")
+    } except err {
+    }
+
+    stdout_text := ""
+    if dict_has_key(result, "stdout") {
+        stdout_text := trim(to_string(result["stdout"]))
+    }
+
+    if stdout_text == "" {
+        return {"ok": false, "content": "", "tokens": 0}
+    }
+
+    try {
+        parsed := parse_json(stdout_text)
+        if type(parsed) == "dict" {
+            content := ""
+            tokens := 0
+            if dict_has_key(parsed, "content") {
+                content := trim(to_string(parsed["content"]))
+            }
+            if dict_has_key(parsed, "usage") {
+                usage := parsed["usage"]
+                if type(usage) == "dict" && dict_has_key(usage, "total_tokens") {
+                    tokens := usage["total_tokens"]
+                }
+            }
+            if content != "" || parsed["ok"] == true {
+                return {"ok": true, "content": content, "tokens": tokens}
+            }
+        }
+    } except err {
+    }
+
+    return {"ok": false, "content": "", "tokens": 0}
+}
+
+func build_enrichment_report(base_profile, ai_applied, reason, tokens_used) {
+    report := {
+        "ai_applied": ai_applied,
+        "ai_provider": "kujo-ai-sdk (openai-compatible, dispatch pattern)",
+        "ai_model": "gpt-4.1-mini",
+        "ai_tokens_used": tokens_used,
+        "enrichment_reason": reason,
+        "inference_notes": []
+    }
+
+    if ai_applied == false {
+        report["inference_notes"] := push(report["inference_notes"], "All profile data is deterministic (filesystem inspection and heuristic classification)")
+        if reason == "disabled_by_flag" {
+            report["inference_notes"] := push(report["inference_notes"], "AI enrichment was disabled by --no-ai flag")
+        }
+        if reason == "sdk_path_unresolved" {
+            report["inference_notes"] := push(report["inference_notes"], "AI SDK path could not be resolved; set --ai-sdk-path, AI_SDK_PATH env var, or ensure ../kujo-ai-sdk exists")
+        }
+        if reason == "no_api_key" {
+            report["inference_notes"] := push(report["inference_notes"], "No AI API key was found in OPENAI_API_KEY or AI_SDK_API_KEY environment variables")
+        }
+        if reason == "child_process_failed" {
+            report["inference_notes"] := push(report["inference_notes"], "AI enrichment child process failed to produce output")
+        }
+    } else {
+        report["inference_notes"] := push(report["inference_notes"], "AI enrichment was applied via child Kujo process from AI SDK directory")
+        report["inference_notes"] := push(report["inference_notes"], "Repo-specific tools were proposed by the model; check inference_source tags")
+    }
+
+    return report
+}
+
+export func enrich_profile(base_profile, disable_ai_flag, ai_sdk_path, tools_for_enrichment) {
+    if disable_ai_flag {
+        report := build_enrichment_report(base_profile, false, "disabled_by_flag", 0)
+        base_profile["inference"] := report
+        concepts := enrich_domain_concepts_with_ai(base_profile, "")
+        base_profile["domain_concepts"] := concepts
+        return {"ok": true, "enriched": false, "profile": base_profile, "ai_tools": []}
+    }
+
+    sdk_result := resolve_ai_sdk_path(ai_sdk_path)
+    if !sdk_result["ok"] {
+        report := build_enrichment_report(base_profile, false, "sdk_path_unresolved", 0)
+        base_profile["inference"] := report
+        concepts := enrich_domain_concepts_with_ai(base_profile, "")
+        base_profile["domain_concepts"] := concepts
+        return {"ok": true, "enriched": false, "profile": base_profile, "ai_tools": []}
+    }
+
+    ai_sdk_dir := sdk_result["path"]
+
+    if !has_required_sdk_files(ai_sdk_dir) {
+        report := build_enrichment_report(base_profile, false, "sdk_path_unresolved", 0)
+        base_profile["inference"] := report
+        concepts := enrich_domain_concepts_with_ai(base_profile, "")
+        base_profile["domain_concepts"] := concepts
+        return {"ok": true, "enriched": false, "profile": base_profile, "ai_tools": []}
+    }
+
+    if !is_api_key_configured() {
+        report := build_enrichment_report(base_profile, false, "no_api_key", 0)
+        base_profile["inference"] := report
+        concepts := enrich_domain_concepts_with_ai(base_profile, "")
+        base_profile["domain_concepts"] := concepts
+        return {"ok": true, "enriched": false, "profile": base_profile, "ai_tools": []}
+    }
+
+    api_key := trim(to_string(env_or("OPENAI_API_KEY", env_or("AI_SDK_API_KEY", ""))))
+    prompt_text := build_enrichment_prompt(base_profile)
+
+    child_result := run_ai_enrichment_child(ai_sdk_dir, prompt_text, api_key)
+
+    ai_tools := []
+    ai_response_text := ""
+    tokens_used := 0
+
+    if child_result["ok"] {
+        ai_response_text := child_result["content"]
+        tokens_used := child_result["tokens"]
+        ai_tools := parse_ai_tool_suggestions(ai_response_text)
+    }
+
+    reason := "child_process_failed"
+    ai_applied := false
+    if child_result["ok"] {
+        reason := "api_key_configured"
+        ai_applied := true
+    }
+
+    report := build_enrichment_report(base_profile, ai_applied, reason, tokens_used)
+    safety_suggestions := build_safety_review_suggestions(base_profile)
+    report["safety_suggestions"] := safety_suggestions
+    report["ai_sdk_path"] := ai_sdk_dir
+
+    if len(ai_tools) > 0 {
+        report["inference_notes"] := push(report["inference_notes"], "Model proposed " + to_string(len(ai_tools)) + " repo-specific tools")
+    } else {
+        if child_result["ok"] {
+            report["inference_notes"] := push(report["inference_notes"], "Model responded but did not return parseable tool suggestions; falling back to deterministic surface")
+        }
+    }
+
+    base_profile["inference"] := report
+    concepts := enrich_domain_concepts_with_ai(base_profile, ai_response_text)
+    base_profile["domain_concepts"] := concepts
+
+    return {"ok": true, "enriched": ai_applied, "profile": base_profile, "ai_tools": ai_tools}
+}

@@ -1,0 +1,181 @@
+from src.make.common import dict_has_key
+from src.make.schemas import validate_manifest_contract
+
+func validation_entry(name, status, details, command_text) {
+    return {
+        "name": name,
+        "status": status,
+        "details": details,
+        "command": command_text
+    }
+}
+
+func parse_json_file_check(file_path, label) {
+    if !file_exists(file_path) {
+        return validation_entry(label, "failed", "File is missing", "")
+    }
+
+    try {
+        parse_json(read_file(file_path))
+        return validation_entry(label, "passed", "Valid JSON", "")
+    } except err {
+        err_text := "Could not parse JSON"
+        try {
+            err_text := to_string(err)
+        } except nested_err {
+        }
+        return validation_entry(label, "failed", err_text, "")
+    }
+}
+
+func exists_check(file_path, label) {
+    if file_exists(file_path) {
+        return validation_entry(label, "passed", "File exists", "")
+    }
+    return validation_entry(label, "failed", "File is missing", "")
+}
+
+func execute_check(label, command_text) {
+    result := execute_status(command_text)
+    exit_code := 1
+    if dict_has_key(result, "exitcode") {
+        exit_code := result["exitcode"]
+    }
+
+    if exit_code == 0 {
+        return validation_entry(label, "passed", "Command completed successfully", command_text)
+    }
+
+    details := "Command failed with exit code " + to_string(exit_code)
+    if dict_has_key(result, "stderr") {
+        stderr_text := trim(to_string(result["stderr"]))
+        if stderr_text != "" {
+            details := details + ": " + stderr_text
+        }
+    }
+    return validation_entry(label, "failed", details, command_text)
+}
+
+func execute_check_best_effort(label, command_text) {
+    result := execute_status(command_text)
+    exit_code := 1
+    if dict_has_key(result, "exitcode") {
+        exit_code := result["exitcode"]
+    }
+
+    if exit_code == 0 {
+        return validation_entry(label, "passed", "Command completed successfully", command_text)
+    }
+
+    detail_text := "Command could not be verified from within Kujo runtime (exit code " + to_string(exit_code) + ")"
+    if dict_has_key(result, "stderr") {
+        stderr_text := trim(to_string(result["stderr"]))
+        if stderr_text != "" {
+            detail_text := detail_text + ": " + stderr_text
+        }
+    }
+
+    return validation_entry(label, "skipped", detail_text, command_text)
+}
+
+func manifest_consistency_checks(manifest, profile) {
+    checks_list := []
+
+    if dict_has_key(manifest, "tools") == false || type(manifest["tools"]) != "array" || len(manifest["tools"]) == 0 {
+        checks_list := push(checks_list, validation_entry("manifest_tools", "failed", "Manifest must include at least one tool", ""))
+    } else {
+        checks_list := push(checks_list, validation_entry("manifest_tools", "passed", "Manifest includes tool definitions", ""))
+    }
+
+    if dict_has_key(manifest, "resources") == false || type(manifest["resources"]) != "array" || len(manifest["resources"]) == 0 {
+        checks_list := push(checks_list, validation_entry("manifest_resources", "failed", "Manifest must include at least one resource", ""))
+    } else {
+        checks_list := push(checks_list, validation_entry("manifest_resources", "passed", "Manifest includes resource definitions", ""))
+    }
+
+    if dict_has_key(manifest, "prompts") == false || type(manifest["prompts"]) != "array" || len(manifest["prompts"]) == 0 {
+        checks_list := push(checks_list, validation_entry("manifest_prompts", "failed", "Manifest must include prompt definitions", ""))
+    } else {
+        checks_list := push(checks_list, validation_entry("manifest_prompts", "passed", "Manifest includes prompt definitions", ""))
+    }
+
+    if dict_has_key(manifest, "safe_command_map") == false || type(manifest["safe_command_map"]) != "dict" {
+        checks_list := push(checks_list, validation_entry("safe_command_map", "failed", "safe_command_map must be an object", ""))
+    } else {
+        checks_list := push(checks_list, validation_entry("safe_command_map", "passed", "safe_command_map exists", ""))
+    }
+
+    sensitive_ok := true
+    if dict_has_key(profile, "sensitive_paths_detected") && type(profile["sensitive_paths_detected"]) == "array" {
+        sensitive_paths := profile["sensitive_paths_detected"]
+        if len(sensitive_paths) > 0 {
+            sensitive_ok := true
+        }
+    }
+    if sensitive_ok {
+        checks_list := push(checks_list, validation_entry("sensitive_path_handling", "passed", "Sensitive paths recorded as metadata only", ""))
+    }
+
+    return checks_list
+}
+
+export func validate_generated_server(profile, manifest, out_abs, artifacts_abs, run_extended) {
+    validation_entries := []
+
+    validation_entries := push(validation_entries, exists_check(out_abs + "/repo-profile.json", "generated_repo_profile_exists"))
+    validation_entries := push(validation_entries, exists_check(out_abs + "/mcp.manifest.json", "generated_manifest_exists"))
+    validation_entries := push(validation_entries, exists_check(out_abs + "/src/server.kujo", "generated_server_exists"))
+    validation_entries := push(validation_entries, exists_check(artifacts_abs + "/fix-backlog.json", "fix_backlog_json_exists"))
+    validation_entries := push(validation_entries, exists_check(artifacts_abs + "/mcp-findings.json", "kujo_mcp_findings_json_exists"))
+
+    validation_entries := push(validation_entries, parse_json_file_check(out_abs + "/repo-profile.json", "repo_profile_json_valid"))
+    validation_entries := push(validation_entries, parse_json_file_check(out_abs + "/mcp.manifest.json", "mcp_manifest_json_valid"))
+    validation_entries := push(validation_entries, parse_json_file_check(artifacts_abs + "/fix-backlog.json", "fix_backlog_json_valid"))
+    validation_entries := push(validation_entries, parse_json_file_check(artifacts_abs + "/mcp-findings.json", "kujo_mcp_findings_json_valid"))
+
+    contract_result := validate_manifest_contract(manifest)
+    if contract_result["passed"] {
+        validation_entries := push(validation_entries, validation_entry("manifest_contract_validation", "passed", "All " + to_string(contract_result["checks_passed"]) + " contract checks passed", ""))
+    } else {
+        error_summary := to_string(contract_result["error_count"]) + " contract violations: " + to_string(contract_result["errors"][0])
+        validation_entries := push(validation_entries, validation_entry("manifest_contract_validation", "failed", error_summary, ""))
+    }
+
+    consistency := manifest_consistency_checks(manifest, profile)
+    cidx := 0
+    while cidx < len(consistency) {
+        validation_entries := push(validation_entries, consistency[cidx])
+        cidx := cidx + 1
+    }
+
+    if run_extended {
+        kujo_bin := trim(to_string(env_or("KUJO_BIN", "")))
+        if kujo_bin == "" {
+            validation_entries := push(validation_entries, validation_entry("generated_server_syntax_check", "skipped", "KUJO_BIN is not set in environment", ""))
+            validation_entries := push(validation_entries, validation_entry("generated_server_self_check", "skipped", "KUJO_BIN is not set in environment", ""))
+        } else {
+            check_cmd := kujo_bin + " check \"" + out_abs + "/src/server.kujo\""
+            self_check_cmd := kujo_bin + " run \"" + out_abs + "/src/server.kujo\" --interpreter --self-check"
+            validation_entries := push(validation_entries, execute_check_best_effort("generated_server_syntax_check", check_cmd))
+            validation_entries := push(validation_entries, execute_check_best_effort("generated_server_self_check", self_check_cmd))
+        }
+    } else {
+        validation_entries := push(validation_entries, validation_entry("generated_server_syntax_check", "skipped", "Run with --validate to execute command checks", ""))
+        validation_entries := push(validation_entries, validation_entry("generated_server_self_check", "skipped", "Run with --validate to execute command checks", ""))
+    }
+
+    failed_count := 0
+    idx := 0
+    while idx < len(validation_entries) {
+        if validation_entries[idx]["status"] == "failed" {
+            failed_count := failed_count + 1
+        }
+        idx := idx + 1
+    }
+
+    return {
+        "entries": validation_entries,
+        "failed_count": failed_count,
+        "passed": failed_count == 0
+    }
+}

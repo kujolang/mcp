@@ -1,0 +1,44 @@
+from src.make.enrich import enrich_profile
+
+func dict_has_key(dict_value, key_name) {
+    probe := has_key(dict_value, key_name)
+    if type(probe) == "bool" {
+        return probe
+    }
+    if type(probe) == "int" {
+        return probe == 1
+    }
+    return false
+}
+
+dummy_profile := {
+    "repo_name": "test-repo",
+    "mcp_relevant_domain_concepts": ["api", "test"],
+    "risky_operations": [
+        {"name": "deploy", "command": "npm run deploy", "tier": "blocked", "reason": "Command contains blocked term: deploy"}
+    ],
+    "safe_operations": [
+        {"name": "test", "command": "npm run test", "reason": "Command matches safe hint: test"}
+    ]
+}
+
+enriched_result := enrich_profile(dummy_profile, true, "", [])
+assert(enriched_result["ok"] == true, "enrichment should succeed")
+assert(enriched_result["enriched"] == false, "--no-ai should disable enrichment")
+ep := enriched_result["profile"]
+assert(dict_has_key(ep, "inference"), "profile should have inference block")
+
+assert(dict_has_key(ep, "domain_concepts"), "profile should have domain_concepts block")
+concepts := ep["domain_concepts"]
+assert(type(concepts) == "array", "domain_concepts should be array")
+assert(len(concepts) == 2, "should have two domain concepts")
+
+enriched_default := enrich_profile(dummy_profile, false, "", [])
+assert(enriched_default["ok"] == true, "default enrichment should succeed")
+default_ep := enriched_default["profile"]
+assert(dict_has_key(default_ep, "inference"), "default path should have inference block")
+
+inference := default_ep["inference"]
+assert(type(inference) == "dict", "inference block should be dict")
+
+print("test_06_make_enrich: all assertions passed")

@@ -1,0 +1,28 @@
+from mcp import check_path
+
+allowed_dir := "./demo"
+
+# Glob pattern support: *.md should block writes to markdown files.
+glob_patterns := ["*.md"]
+glob_denied := check_path("./demo/docs/README.md", allowed_dir, glob_patterns, true)
+assert(glob_denied["ok"] == false, "glob *.md should deny markdown writes")
+
+# Explicit extension support: .md should also block markdown writes.
+ext_patterns := [".md"]
+ext_denied := check_path("./demo/docs/guide.md", allowed_dir, ext_patterns, true)
+assert(ext_denied["ok"] == false, "explicit .md extension should deny markdown writes")
+
+# Exact filename support: README.md should block that file only.
+file_patterns := ["README.md"]
+exact_denied := check_path("./demo/docs/README.md", allowed_dir, file_patterns, true)
+assert(exact_denied["ok"] == false, "exact filename should deny matching write")
+
+exact_allowed := check_path("./demo/docs/guide.md", allowed_dir, file_patterns, true)
+assert(exact_allowed["ok"] == true, "exact filename pattern should not block non-matching file")
+
+# In-scope non-matching writes remain allowed.
+combined_patterns := ["*.md", ".txt", "README.md"]
+allowed_write := check_path("./demo/patches/sec_02_patch.kujo", allowed_dir, combined_patterns, true)
+assert(allowed_write["ok"] == true, "non-matching in-scope write should remain allowed")
+
+print("sec_02_read_only_patterns: all assertions passed")

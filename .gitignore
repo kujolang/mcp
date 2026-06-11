@@ -1,0 +1,4 @@
+# MCP Server
+mcp-calls.log
+*.log
+.DS_Store

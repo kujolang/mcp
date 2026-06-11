@@ -1,0 +1,41 @@
+# MCP Framework Compatibility Wrapper
+#
+# Root-level re-exports to keep existing imports stable while implementation
+# lives under src/core/framework.kujo.
+
+from src.core.framework import str_schema, bool_schema, int_schema, arr_schema, obj_schema, check_path, safe_read, safe_write, json_success, json_error
+from src.commands.make import run_make_command
+
+export str_schema := str_schema
+export bool_schema := bool_schema
+export int_schema := int_schema
+export arr_schema := arr_schema
+export obj_schema := obj_schema
+export check_path := check_path
+export safe_read := safe_read
+export safe_write := safe_write
+export json_success := json_success
+export json_error := json_error
+
+cli_args := args()
+if len(cli_args) > 0 {
+	cmd := to_string(cli_args[0])
+	if cmd == "make" {
+		result := run_make_command(cli_args)
+		if result["ok"] {
+			if has_key(result, "summary") == 1 {
+				print(to_string(result["summary"]))
+			}
+			exit(0)
+		}
+
+		print("mcp make error: " + to_string(result["error"]))
+		if has_key(result, "summary") == 1 {
+			summary_text := trim(to_string(result["summary"]))
+			if summary_text != "" {
+				print(summary_text)
+			}
+		}
+		exit(1)
+	}
+}

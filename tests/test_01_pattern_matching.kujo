@@ -1,0 +1,18 @@
+from mcp import check_path
+
+allowed_dir := "./demo"
+patterns := ["*.md", "docs/*", "locked.kujo"]
+
+md_blocked := check_path("./demo/patches/notes.md", allowed_dir, patterns, true)
+assert(md_blocked["ok"] == false, "extension pattern should block markdown writes")
+
+relative_blocked := check_path("./demo/docs/guide.kujo", allowed_dir, patterns, true)
+assert(relative_blocked["ok"] == false, "relative wildcard pattern should block docs writes")
+
+name_blocked := check_path("./demo/patches/locked.kujo", allowed_dir, patterns, true)
+assert(name_blocked["ok"] == false, "exact filename pattern should block matching writes")
+
+allowed_write := check_path("./demo/patches/open.kujo", allowed_dir, patterns, true)
+assert(allowed_write["ok"] == true, "non-matching write path should remain allowed")
+
+print("test_01_pattern_matching: all assertions passed")

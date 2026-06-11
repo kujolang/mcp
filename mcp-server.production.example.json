@@ -1,0 +1,35 @@
+{
+  "server": {
+    "name": "mcp-production",
+    "version": "0.1.0",
+    "description": "MCP Server Production Profile"
+  },
+  "http": {
+    "host": "0.0.0.0",
+    "port": 8931,
+    "max_request_body_bytes": 131072,
+    "rate_limit_enabled": true,
+    "rate_limit_per_minute": 120
+  },
+  "permissions": {
+    "allowed_directories": ["/srv/mcp/workspace"],
+    "max_file_size": 1048576,
+    "read_only_patterns": ["*.md", "*.txt", "*.json", "*.yaml", "*.yml"]
+  },
+  "logging": {
+    "max_entries": 1000,
+    "log_file": "/var/log/mcp/mcp-calls.log"
+  },
+  "tools": {
+    "enabled": true,
+    "default_timeout_ms": 15000
+  },
+  "resources": {
+    "enabled": true
+  },
+  "auth": {
+    "enabled": true,
+    "type": "bearer",
+    "token": "REPLACE_WITH_LONG_RANDOM_SECRET"
+  }
+}

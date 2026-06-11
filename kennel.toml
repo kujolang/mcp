@@ -1,0 +1,54 @@
+[package]
+name = "mcp"
+version = "0.1.0"
+description = "A Kujo-native MCP server framework for tools, resources, and JSON-schema validated tool handlers."
+license = "MIT"
+authors = ["Robert DeVore <me@robertdevore.com>"]
+homepage = ""
+repository = "https://github.com/kujolang/mcp"
+documentation = ""
+keywords = ["kujo", "mcp", "agents", "tooling"]
+categories = ["ai", "developer-tools"]
+readme = "README.md"
+
+[package.status]
+stage = "experimental"
+stability = "early"
+public_api = true
+notes = "Framework and server patterns are usable now, but protocol ergonomics may evolve."
+
+[kujo]
+minimum_version = "0.1.0"
+entry = "server.kujo"
+sources = ["."]
+includes = ["README.md", "demo"]
+excludes = [".git", "kennel_packages", "dist", "build", "node_modules"]
+
+[build]
+command = ""
+output = "dist"
+artifacts = []
+
+[dependencies]
+
+[dev-dependencies]
+
+[scripts]
+server = "kujo run server.kujo"
+demo = "kujo run server.kujo"
+make = "kujo run mcp.kujo --interpreter make"
+
+[package.exports]
+framework = "mcp.kujo"
+
+[package.metadata]
+server_config = "mcp-server.json"
+
+[registry]
+index = ""
+publish = ""
+
+[trust]
+checksum = ""
+signature = ""
+signing_key = ""

@@ -1,0 +1,18 @@
+from src.make.safety import classify_script, detect_sensitive_path
+
+safe_case := classify_script("test", "npm run test")
+assert(safe_case["tier"] == "safe_command", "test scripts should classify as safe_command")
+
+blocked_case := classify_script("deploy", "npm run deploy")
+assert(blocked_case["tier"] == "blocked", "deploy scripts should classify as blocked")
+
+review_case := classify_script("custom", "node scripts/custom-task.js")
+assert(review_case["tier"] == "review_required", "unknown scripts should require review")
+
+sensitive_case := detect_sensitive_path("config/.env.production")
+assert(sensitive_case["sensitive"] == true, ".env files should be flagged as sensitive")
+
+non_sensitive_case := detect_sensitive_path("src/index.ts")
+assert(non_sensitive_case["sensitive"] == false, "normal source files should not be flagged as sensitive")
+
+print("test_04_make_safety: all assertions passed")

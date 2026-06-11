@@ -1,0 +1,320 @@
+from src.make.common import dict_has_key, resolve_absolute_existing, resolve_absolute_output, ensure_dir_recursive, write_output_file
+from src.make.analyze_repo import analyze_repository
+from src.make.generate_server import generate_server_project
+from src.make.write_artifacts import write_artifacts
+from src.make.validate_generated_server import validate_generated_server
+from src.make.enrich import enrich_profile
+
+func usage_text() {
+    return "Usage: kujo run mcp.kujo --interpreter make <repo-path> [--out <dir>] [--artifacts <dir>] [--ai-sdk-path <dir>] [--profile-only] [--artifacts-only] [--no-ai] [--validate] [--dry-run]"
+}
+
+func parse_make_args(raw_args) {
+    opts := {
+        "target": "",
+        "out": "",
+        "artifacts": "",
+        "profile_only": false,
+        "artifacts_only": false,
+        "no_ai": false,
+        "validate": false,
+        "dry_run": false,
+        "ai_sdk_path": ""
+    }
+
+    idx := 1
+    while idx < len(raw_args) {
+        token := to_string(raw_args[idx])
+        idx := idx + 1
+
+        if token == "--out" {
+            if idx >= len(raw_args) {
+                return {"ok": false, "error": "--out requires a value", "options": opts}
+            }
+            opts["out"] := to_string(raw_args[idx])
+            idx := idx + 1
+        } else {
+            if token == "--artifacts" {
+                if idx >= len(raw_args) {
+                    return {"ok": false, "error": "--artifacts requires a value", "options": opts}
+                }
+                opts["artifacts"] := to_string(raw_args[idx])
+                idx := idx + 1
+            } else {
+                if token == "--profile-only" {
+                    opts["profile_only"] := true
+                } else {
+                    if token == "--artifacts-only" {
+                        opts["artifacts_only"] := true
+                    } else {
+                        if token == "--no-ai" {
+                            opts["no_ai"] := true
+                        } else {
+                            if token == "--validate" {
+                                opts["validate"] := true
+                            } else {
+                                if token == "--dry-run" {
+                                    opts["dry_run"] := true
+                                } else {
+                                    if token == "--ai-sdk-path" {
+                                        if idx >= len(raw_args) {
+                                            return {"ok": false, "error": "--ai-sdk-path requires a value", "options": opts}
+                                        }
+                                        opts["ai_sdk_path"] := to_string(raw_args[idx])
+                                        idx := idx + 1
+                                    } else {
+                                        if starts_with(token, "--") {
+                                            return {"ok": false, "error": "Unknown flag: " + token, "options": opts}
+                                        }
+
+                                        if trim(opts["target"]) == "" {
+                                            opts["target"] := token
+                                        } else {
+                                            return {"ok": false, "error": "Only one target repository path is supported", "options": opts}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if trim(opts["target"]) == "" {
+        return {"ok": false, "error": "Target repository path is required", "options": opts}
+    }
+
+    if opts["profile_only"] && opts["artifacts_only"] {
+        return {"ok": false, "error": "--profile-only and --artifacts-only cannot be used together", "options": opts}
+    }
+
+    return {"ok": true, "error": "", "options": opts}
+}
+
+func resolve_output_paths(target_abs, opts) {
+    out_value := trim(to_string(opts["out"]))
+    artifacts_value := trim(to_string(opts["artifacts"]))
+
+    if out_value == "" {
+        out_value := target_abs + "/.mcp/generated-server"
+    }
+    if artifacts_value == "" {
+        artifacts_value := target_abs + "/.mcp/artifacts"
+    }
+
+    out_abs_result := resolve_absolute_output(out_value)
+    if !out_abs_result["ok"] {
+        return {"ok": false, "error": out_abs_result["error"], "out_abs": "", "artifacts_abs": ""}
+    }
+
+    artifacts_abs_result := resolve_absolute_output(artifacts_value)
+    if !artifacts_abs_result["ok"] {
+        return {"ok": false, "error": artifacts_abs_result["error"], "out_abs": "", "artifacts_abs": ""}
+    }
+
+    return {
+        "ok": true,
+        "error": "",
+        "out_abs": out_abs_result["path"],
+        "artifacts_abs": artifacts_abs_result["path"]
+    }
+}
+
+func write_profile_only(profile, out_abs, artifacts_abs) {
+    out_dir := ensure_dir_recursive(out_abs)
+    if !out_dir["ok"] {
+        return {"ok": false, "error": out_dir["error"]}
+    }
+
+    art_dir := ensure_dir_recursive(artifacts_abs)
+    if !art_dir["ok"] {
+        return {"ok": false, "error": art_dir["error"]}
+    }
+
+    profile_path := out_abs + "/repo-profile.json"
+    try {
+        write_file(profile_path, to_json(profile), true)
+    } except err {
+        return {"ok": false, "error": "Could not write profile: " + to_string(err)}
+    }
+
+    return {"ok": true, "error": ""}
+}
+
+func build_profile_only_manifest(profile) {
+    return {
+        "server": {
+            "name": to_string(profile["repo_name"]) + "-profile-only",
+            "version": "0.1.0",
+            "generated_at": format_date(now(), "YYYY-MM-DD HH:mm:ss")
+        },
+        "tools": [],
+        "resources": [],
+        "prompts": [],
+        "safe_command_map": {},
+        "blocked_commands": []
+    }
+}
+
+export func run_make_command(raw_args) {
+    if len(raw_args) == 0 {
+        return {"ok": false, "error": usage_text(), "summary": ""}
+    }
+
+    if to_string(raw_args[0]) != "make" {
+        return {"ok": false, "error": "Unsupported command: " + to_string(raw_args[0]), "summary": usage_text()}
+    }
+
+    parsed := parse_make_args(raw_args)
+    if !parsed["ok"] {
+        return {"ok": false, "error": parsed["error"], "summary": usage_text()}
+    }
+
+    opts := parsed["options"]
+
+    target_resolved := resolve_absolute_existing(opts["target"])
+    if !target_resolved["ok"] {
+        return {"ok": false, "error": target_resolved["error"], "summary": ""}
+    }
+    target_abs := target_resolved["path"]
+    if !path_is_dir(target_abs) {
+        return {"ok": false, "error": "Target path must be a directory", "summary": ""}
+    }
+
+    outputs := resolve_output_paths(target_abs, opts)
+    if !outputs["ok"] {
+        return {"ok": false, "error": outputs["error"], "summary": ""}
+    }
+
+    out_abs := outputs["out_abs"]
+    artifacts_abs := outputs["artifacts_abs"]
+
+    profile_result := analyze_repository(target_abs, opts["no_ai"])
+    if !profile_result["ok"] {
+        return {"ok": false, "error": profile_result["error"], "summary": ""}
+    }
+    profile := profile_result["profile"]
+
+    enrich_outcome := enrich_profile(profile, opts["no_ai"], opts["ai_sdk_path"], [])
+    profile := enrich_outcome["profile"]
+    ai_tools := []
+    if dict_has_key(enrich_outcome, "ai_tools") && type(enrich_outcome["ai_tools"]) == "array" {
+        ai_tools := enrich_outcome["ai_tools"]
+    }
+
+    if opts["dry_run"] {
+        dry_summary := {
+            "mode": "dry_run",
+            "target": target_abs,
+            "out": out_abs,
+            "artifacts": artifacts_abs,
+            "profile_repo": profile["repo_name"],
+            "likely_test_command": profile["likely_test_command"],
+            "likely_lint_command": profile["likely_lint_command"],
+            "safe_operations": profile["safe_operations"],
+            "risky_operations": profile["risky_operations"]
+        }
+
+        return {
+            "ok": true,
+            "error": "",
+            "summary": "Dry run complete\n" + to_json(dry_summary),
+            "out_abs": out_abs,
+            "artifacts_abs": artifacts_abs
+        }
+    }
+
+    if opts["profile_only"] {
+        profile_write := write_profile_only(profile, out_abs, artifacts_abs)
+        if !profile_write["ok"] {
+            return {"ok": false, "error": profile_write["error"], "summary": ""}
+        }
+
+        manifest_profile_only := build_profile_only_manifest(profile)
+        empty_validation := {"entries": [], "failed_count": 0, "passed": true}
+        artifact_profile := write_artifacts(profile, manifest_profile_only, empty_validation, out_abs, artifacts_abs)
+        if !artifact_profile["ok"] {
+            return {"ok": false, "error": artifact_profile["error"], "summary": ""}
+        }
+
+        return {
+            "ok": true,
+            "error": "",
+            "summary": "Profile generated at " + out_abs + "/repo-profile.json",
+            "out_abs": out_abs,
+            "artifacts_abs": artifacts_abs
+        }
+    }
+
+    if opts["artifacts_only"] {
+        profile_write_ao := write_profile_only(profile, out_abs, artifacts_abs)
+        if !profile_write_ao["ok"] {
+            return {"ok": false, "error": profile_write_ao["error"], "summary": ""}
+        }
+
+        manifest_dry := generate_server_project(profile, out_abs, artifacts_abs, true, ai_tools)
+        if !manifest_dry["ok"] {
+            return {"ok": false, "error": manifest_dry["error"], "summary": ""}
+        }
+        manifest_ao := manifest_dry["manifest"]
+
+        validation_ao := validate_generated_server(profile, manifest_ao, out_abs, artifacts_abs, opts["validate"])
+        artifact_result := write_artifacts(profile, manifest_ao, validation_ao, out_abs, artifacts_abs)
+        if !artifact_result["ok"] {
+            return {"ok": false, "error": artifact_result["error"], "summary": ""}
+        }
+
+        return {
+            "ok": true,
+            "error": "",
+            "summary": "Artifacts generated at " + artifacts_abs + " (server scaffold skipped by --artifacts-only)\n- Profile: " + out_abs + "/repo-profile.json\n- Manifest (dry): " + to_string(len(manifest_ao["tools"])) + " tools, " + to_string(len(manifest_ao["resources"])) + " resources",
+            "out_abs": out_abs,
+            "artifacts_abs": artifacts_abs
+        }
+    }
+
+    generated := generate_server_project(profile, out_abs, artifacts_abs, false, ai_tools)
+    if !generated["ok"] {
+        return {"ok": false, "error": generated["error"], "summary": ""}
+    }
+    manifest := generated["manifest"]
+
+    initial_validation := {
+        "entries": [
+            {"name": "validation_pending", "status": "skipped", "details": "Validation not yet executed", "command": ""}
+        ],
+        "failed_count": 0,
+        "passed": true
+    }
+
+    first_artifacts := write_artifacts(profile, manifest, initial_validation, out_abs, artifacts_abs)
+    if !first_artifacts["ok"] {
+        return {"ok": false, "error": first_artifacts["error"], "summary": ""}
+    }
+
+    validation := validate_generated_server(profile, manifest, out_abs, artifacts_abs, opts["validate"])
+
+    second_artifacts := write_artifacts(profile, manifest, validation, out_abs, artifacts_abs)
+    if !second_artifacts["ok"] {
+        return {"ok": false, "error": second_artifacts["error"], "summary": ""}
+    }
+
+    summary := "Generated MCP server for " + to_string(profile["repo_name"]) + "\n"
+    summary := summary + "- Generated server: " + out_abs + "\n"
+    summary := summary + "- Artifacts: " + artifacts_abs + "\n"
+    summary := summary + "- Tools generated: " + to_string(len(manifest["tools"])) + "\n"
+    summary := summary + "- Resources generated: " + to_string(len(manifest["resources"])) + "\n"
+    summary := summary + "- Prompts generated: " + to_string(len(manifest["prompts"])) + "\n"
+    summary := summary + "- Validation failed checks: " + to_string(validation["failed_count"])
+
+    return {
+        "ok": true,
+        "error": "",
+        "summary": summary,
+        "out_abs": out_abs,
+        "artifacts_abs": artifacts_abs,
+        "validation": validation
+    }
+}

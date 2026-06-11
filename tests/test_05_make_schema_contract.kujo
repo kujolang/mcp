@@ -1,0 +1,65 @@
+from src.make.schemas import validate_manifest_contract
+
+func build_valid_manifest() {
+    return {
+        "server": {
+            "name": "test-repo-generated-mcp",
+            "version": "0.1.0",
+            "generated_at": "2026-05-28 00:00:00",
+            "source_repo": "/tmp/test-repo"
+        },
+        "tools": [
+            {
+                "name": "inspect_project_structure",
+                "description": "Summarize repository structure.",
+                "input_schema": {"type": "object", "properties": {}, "required": []},
+                "safety_tier": "read_only",
+                "source_evidence": [],
+                "validation_status": "generated"
+            }
+        ],
+        "resources": [
+            {
+                "uri": "repo://profile",
+                "name": "Repository Profile",
+                "description": "Deterministic profile.",
+                "mime_type": "application/json",
+                "path": "/tmp/out/repo-profile.json"
+            }
+        ],
+        "prompts": [
+            {
+                "name": "prepare_implementation_plan",
+                "description": "Prepare an implementation plan.",
+                "path": "/tmp/out/prompts/plan.md"
+            }
+        ],
+        "safe_command_map": {"run_safe_test_suite": "npm run test"},
+        "blocked_commands": ["deploy"],
+        "safety_tiers": ["read_only", "safe_command", "write_scaffold", "review_required", "blocked"]
+    }
+}
+
+result := validate_manifest_contract(build_valid_manifest())
+assert(result["passed"] == true, "valid manifest should pass contract validation; got " + to_string(result["error_count"]) + " errors: " + to_json(result["errors"]))
+
+missing_tool_case := build_valid_manifest()
+missing_tool_case["tools"] := []
+result_missing := validate_manifest_contract(missing_tool_case)
+assert(result_missing["passed"] == false, "manifest with empty tools should fail")
+
+bad_tier_case := build_valid_manifest()
+tools_arr := bad_tier_case["tools"]
+first_tool := tools_arr[0]
+first_tool["safety_tier"] := "insecure"
+tools_arr[0] := first_tool
+bad_tier_case["tools"] := tools_arr
+result_bad_tier := validate_manifest_contract(bad_tier_case)
+assert(result_bad_tier["passed"] == false, "manifest with invalid safety_tier should fail")
+
+missing_server_case := build_valid_manifest()
+missing_server_case["server"] := {}
+result_missing_server := validate_manifest_contract(missing_server_case)
+assert(result_missing_server["passed"] == false, "manifest with empty server block should fail")
+
+print("test_05_make_schema_contract: all assertions passed")

@@ -1,0 +1,1014 @@
+from src.make.common import dict_has_key, ensure_dir_recursive, write_output_file, push_unique
+from src.make.safety import classify_script
+
+func render_lines(lines) {
+    out := ""
+    idx := 0
+    while idx < len(lines) {
+        out := out + to_string(lines[idx])
+        if idx + 1 < len(lines) {
+            out := out + "\n"
+        }
+        idx := idx + 1
+    }
+    return out
+}
+
+func has_safe_command(profile, command_text) {
+    if command_text == "" {
+        return false
+    }
+
+    if dict_has_key(profile, "safe_operations") == false {
+        return false
+    }
+
+    safe_ops := profile["safe_operations"]
+    if type(safe_ops) != "array" {
+        return false
+    }
+
+    idx := 0
+    while idx < len(safe_ops) {
+        entry := safe_ops[idx]
+        idx := idx + 1
+        if type(entry) == "dict" {
+            if dict_has_key(entry, "command") {
+                if to_string(entry["command"]) == command_text {
+                    return true
+                }
+            }
+        }
+    }
+
+    inferred := classify_script("inferred", command_text)
+    if inferred["tier"] == "safe_command" {
+        return true
+    }
+
+    return false
+}
+
+func build_base_tools(profile) {
+    tools := []
+
+    tools := push(tools, {
+        "name": "inspect_project_structure",
+        "description": "Summarize repository structure, source roots, and test roots.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"repo_name": {"type": "string"}, "top_level_directories": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "list_available_scripts",
+        "description": "List discovered scripts and inferred command safety tiers.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"scripts": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.available_scripts"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "inspect_package_metadata",
+        "description": "Return package manager, build system, and likely install/build/test commands.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"package_manager": {"type": "string"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.package_manager"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "inspect_config_files",
+        "description": "List important config files detected during deterministic repository analysis.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"important_config_files": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.important_config_files"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "summarize_entrypoints",
+        "description": "Summarize likely repository entrypoint files.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"entrypoints": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.entrypoints"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "find_relevant_files_for_task",
+        "description": "Search sampled repository file paths for task-relevant terms.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Search keyword"},
+                "max_results": {"type": "integer", "minimum": 1, "maximum": 200}
+            },
+            "required": ["query"]
+        },
+        "output_shape": {"type": "object", "properties": {"matches": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.sample_files"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "generate_task_context",
+        "description": "Generate concise repository context and suggestions for an implementation task.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "task": {"type": "string", "description": "Task description"}
+            },
+            "required": ["task"]
+        },
+        "output_shape": {"type": "object", "properties": {"context": {"type": "object"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "explain_domain_model",
+        "description": "Explain domain concepts inferred from repo docs and file names.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"domain_concepts": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.mcp_relevant_domain_concepts"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "inspect_recent_changes",
+        "description": "Return conservative recent-change hints based on analysis limitations and assumptions.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"confidence_notes": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.confidence_notes"],
+        "validation_status": "generated"
+    })
+
+    return tools
+}
+
+func build_safe_command_tools(profile, safe_command_map) {
+    safe_tool_defs := []
+
+    likely_test := ""
+    likely_lint := ""
+    likely_build := ""
+    if dict_has_key(profile, "likely_test_command") {
+        likely_test := to_string(profile["likely_test_command"])
+    }
+    if dict_has_key(profile, "likely_lint_command") {
+        likely_lint := to_string(profile["likely_lint_command"])
+    }
+    if dict_has_key(profile, "likely_build_command") {
+        likely_build := to_string(profile["likely_build_command"])
+    }
+
+    if has_safe_command(profile, likely_test) {
+        safe_command_map["run_safe_test_suite"] := likely_test
+        safe_tool_defs := push(safe_tool_defs, {
+            "name": "run_safe_test_suite",
+            "description": "Run allowlisted safe test command inferred from repository metadata.",
+            "input_schema": {"type": "object", "properties": {}, "required": []},
+            "output_shape": {"type": "object", "properties": {"command": {"type": "string"}, "result": {"type": "object"}}},
+            "safety_tier": "safe_command",
+            "source_evidence": ["repo-profile.json.likely_test_command"],
+            "validation_status": "generated"
+        })
+    }
+
+    if has_safe_command(profile, likely_lint) {
+        safe_command_map["run_lint"] := likely_lint
+        safe_tool_defs := push(safe_tool_defs, {
+            "name": "run_lint",
+            "description": "Run allowlisted lint/static-analysis command inferred from repository metadata.",
+            "input_schema": {"type": "object", "properties": {}, "required": []},
+            "output_shape": {"type": "object", "properties": {"command": {"type": "string"}, "result": {"type": "object"}}},
+            "safety_tier": "safe_command",
+            "source_evidence": ["repo-profile.json.likely_lint_command"],
+            "validation_status": "generated"
+        })
+    }
+
+    if has_safe_command(profile, likely_build) {
+        safe_command_map["validate_build"] := likely_build
+        safe_tool_defs := push(safe_tool_defs, {
+            "name": "validate_build",
+            "description": "Run allowlisted build validation command inferred from repository metadata.",
+            "input_schema": {"type": "object", "properties": {}, "required": []},
+            "output_shape": {"type": "object", "properties": {"command": {"type": "string"}, "result": {"type": "object"}}},
+            "safety_tier": "safe_command",
+            "source_evidence": ["repo-profile.json.likely_build_command"],
+            "validation_status": "generated"
+        })
+    }
+
+    return safe_tool_defs
+}
+
+func build_resources(profile, out_abs, artifacts_abs) {
+    resources := []
+
+    resources := push(resources, {
+        "uri": "repo://profile",
+        "name": "Repository Profile",
+        "description": "Deterministic profile produced by kujo mcp make.",
+        "mime_type": "application/json",
+        "path": out_abs + "/repo-profile.json"
+    })
+
+    resources := push(resources, {
+        "uri": "repo://manifest",
+        "name": "Generated MCP Manifest",
+        "description": "Generated tool/resource/prompt manifest.",
+        "mime_type": "application/json",
+        "path": out_abs + "/mcp.manifest.json"
+    })
+
+    resources := push(resources, {
+        "uri": "repo://map",
+        "name": "Repository Map",
+        "description": "Human-readable repository structure map.",
+        "mime_type": "text/markdown",
+        "path": artifacts_abs + "/repo-map.md"
+    })
+
+    resources := push(resources, {
+        "uri": "repo://validation",
+        "name": "Validation Report",
+        "description": "Validation outcomes for generated assets and server.",
+        "mime_type": "text/markdown",
+        "path": artifacts_abs + "/validation-report.md"
+    })
+
+    resources := push(resources, {
+        "uri": "repo://fix-backlog",
+        "name": "Fix Backlog",
+        "description": "Prioritized backlog of concrete repository improvements.",
+        "mime_type": "text/markdown",
+        "path": artifacts_abs + "/fix-backlog.md"
+    })
+
+    docs := []
+    if dict_has_key(profile, "docs_and_readmes") {
+        docs := profile["docs_and_readmes"]
+    }
+
+    if type(docs) == "array" && len(docs) > 0 {
+        root_abs := to_string(profile["repo_path_absolute"])
+        primary_doc_rel := to_string(docs[0])
+        resources := push(resources, {
+            "uri": "repo://primary-doc",
+            "name": "Primary Documentation",
+            "description": "Primary README/docs file detected for this repository.",
+            "mime_type": "text/markdown",
+            "path": root_abs + "/" + primary_doc_rel
+        })
+    }
+
+    return resources
+}
+
+func build_prompts(out_abs) {
+    prompts := []
+
+    prompts := push(prompts, {
+        "name": "prepare_implementation_plan",
+        "description": "Prepare an implementation plan grounded in repository evidence.",
+        "path": out_abs + "/src/prompts/prepare_implementation_plan.md"
+    })
+
+    prompts := push(prompts, {
+        "name": "review_patch",
+        "description": "Review a patch for safety, regressions, and test completeness.",
+        "path": out_abs + "/src/prompts/review_patch.md"
+    })
+
+    prompts := push(prompts, {
+        "name": "write_tests",
+        "description": "Design tests that validate behavior and guard against regressions.",
+        "path": out_abs + "/src/prompts/write_tests.md"
+    })
+
+    prompts := push(prompts, {
+        "name": "investigate_failing_test",
+        "description": "Investigate failing tests with deterministic reproduction and root-cause notes.",
+        "path": out_abs + "/src/prompts/investigate_failing_test.md"
+    })
+
+    prompts := push(prompts, {
+        "name": "produce_agent_handoff",
+        "description": "Produce a handoff packet for another local coding agent.",
+        "path": out_abs + "/src/prompts/produce_agent_handoff.md"
+    })
+
+    return prompts
+}
+
+func render_generated_server_source(manifest_abs, profile_abs) {
+    lines := []
+    lines := push(lines, "MANIFEST_PATH := \"" + manifest_abs + "\"")
+    lines := push(lines, "PROFILE_PATH := \"" + profile_abs + "\"")
+    lines := push(lines, "DEFAULT_PORT := 8941")
+    lines := push(lines, "")
+    lines := push(lines, "func dict_has_key(dict_value, key_name) {")
+    lines := push(lines, "    probe := has_key(dict_value, key_name)")
+    lines := push(lines, "    if type(probe) == \"bool\" {")
+    lines := push(lines, "        return probe")
+    lines := push(lines, "    }")
+    lines := push(lines, "    if type(probe) == \"int\" {")
+    lines := push(lines, "        return probe == 1")
+    lines := push(lines, "    }")
+    lines := push(lines, "    return false")
+    lines := push(lines, "}")
+    lines := push(lines, "")
+    lines := push(lines, "func load_json_file(path_text) {")
+    lines := push(lines, "    raw := read_file(path_text)")
+    lines := push(lines, "    parsed := parse_json(raw)")
+    lines := push(lines, "    if type(parsed) != \"dict\" {")
+    lines := push(lines, "        assert(false, \"Generated JSON file must be an object: \" + path_text)")
+    lines := push(lines, "    }")
+    lines := push(lines, "    return parsed")
+    lines := push(lines, "}")
+    lines := push(lines, "")
+    lines := push(lines, "manifest := load_json_file(MANIFEST_PATH)")
+    lines := push(lines, "profile := load_json_file(PROFILE_PATH)")
+    lines := push(lines, "")
+    lines := push(lines, "tools := []")
+    lines := push(lines, "resources := []")
+    lines := push(lines, "safe_command_map := {}")
+    lines := push(lines, "")
+    lines := push(lines, "if dict_has_key(manifest, \"tools\") && type(manifest[\"tools\"]) == \"array\" {")
+    lines := push(lines, "    tools := manifest[\"tools\"]")
+    lines := push(lines, "}")
+    lines := push(lines, "if dict_has_key(manifest, \"resources\") && type(manifest[\"resources\"]) == \"array\" {")
+    lines := push(lines, "    resources := manifest[\"resources\"]")
+    lines := push(lines, "}")
+    lines := push(lines, "if dict_has_key(manifest, \"safe_command_map\") && type(manifest[\"safe_command_map\"]) == \"dict\" {")
+    lines := push(lines, "    safe_command_map := manifest[\"safe_command_map\"]")
+    lines := push(lines, "}")
+    lines := push(lines, "")
+    lines := push(lines, "func find_tool(tool_name) {")
+    lines := push(lines, "    idx := 0")
+    lines := push(lines, "    while idx < len(tools) {")
+    lines := push(lines, "        candidate := tools[idx]")
+    lines := push(lines, "        idx := idx + 1")
+    lines := push(lines, "        if type(candidate) == \"dict\" {")
+    lines := push(lines, "            if dict_has_key(candidate, \"name\") {")
+    lines := push(lines, "                if to_string(candidate[\"name\"]) == tool_name {")
+    lines := push(lines, "                    return candidate")
+    lines := push(lines, "                }")
+    lines := push(lines, "            }")
+    lines := push(lines, "        }")
+    lines := push(lines, "    }")
+    lines := push(lines, "    return null")
+    lines := push(lines, "}")
+    lines := push(lines, "")
+    lines := push(lines, "func execute_tool(tool_name, tool_args) {")
+    lines := push(lines, "    if tool_name == \"inspect_project_structure\" {")
+    lines := push(lines, "        return {\"ok\": true, \"data\": {")
+    lines := push(lines, "            \"repo_name\": profile[\"repo_name\"],")
+    lines := push(lines, "            \"top_level_directories\": profile[\"top_level_directories\"],")
+    lines := push(lines, "            \"source_directories\": profile[\"likely_source_directories\"],")
+    lines := push(lines, "            \"test_directories\": profile[\"likely_test_directories\"]")
+    lines := push(lines, "        }}")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    if tool_name == \"list_available_scripts\" {")
+    lines := push(lines, "        return {\"ok\": true, \"data\": {\"scripts\": profile[\"available_scripts\"]}}")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    if tool_name == \"inspect_package_metadata\" {")
+    lines := push(lines, "        return {\"ok\": true, \"data\": {")
+    lines := push(lines, "            \"package_manager\": profile[\"package_manager\"],")
+    lines := push(lines, "            \"build_system\": profile[\"build_system\"],")
+    lines := push(lines, "            \"likely_install_command\": profile[\"likely_install_command\"],")
+    lines := push(lines, "            \"likely_test_command\": profile[\"likely_test_command\"],")
+    lines := push(lines, "            \"likely_lint_command\": profile[\"likely_lint_command\"],")
+    lines := push(lines, "            \"likely_build_command\": profile[\"likely_build_command\"]")
+    lines := push(lines, "        }}")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    if tool_name == \"inspect_config_files\" {")
+    lines := push(lines, "        return {\"ok\": true, \"data\": {\"important_config_files\": profile[\"important_config_files\"]}}")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    if tool_name == \"summarize_entrypoints\" {")
+    lines := push(lines, "        return {\"ok\": true, \"data\": {\"entrypoints\": profile[\"entrypoints\"]}}")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    if tool_name == \"explain_domain_model\" {")
+    lines := push(lines, "        return {\"ok\": true, \"data\": {\"domain_concepts\": profile[\"mcp_relevant_domain_concepts\"]}}")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    if tool_name == \"inspect_recent_changes\" {")
+    lines := push(lines, "        return {\"ok\": true, \"data\": {")
+    lines := push(lines, "            \"confidence_notes\": profile[\"confidence_notes\"],")
+    lines := push(lines, "            \"unresolved_assumptions\": profile[\"unresolved_assumptions\"]")
+    lines := push(lines, "        }}")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    if tool_name == \"find_relevant_files_for_task\" {")
+    lines := push(lines, "        query := \"\"")
+    lines := push(lines, "        if dict_has_key(tool_args, \"query\") {")
+    lines := push(lines, "            query := to_lower(trim(to_string(tool_args[\"query\"])))")
+    lines := push(lines, "        }")
+    lines := push(lines, "        if query == \"\" {")
+    lines := push(lines, "            return {\"ok\": false, \"error\": \"query is required\"}")
+    lines := push(lines, "        }")
+    lines := push(lines, "")
+    lines := push(lines, "        max_results := 25")
+    lines := push(lines, "        if dict_has_key(tool_args, \"max_results\") && type(tool_args[\"max_results\"]) == \"int\" {")
+    lines := push(lines, "            if tool_args[\"max_results\"] > 0 {")
+    lines := push(lines, "                max_results := tool_args[\"max_results\"]")
+    lines := push(lines, "            }")
+    lines := push(lines, "        }")
+    lines := push(lines, "")
+    lines := push(lines, "        files := profile[\"sample_files\"]")
+    lines := push(lines, "        matches := []")
+    lines := push(lines, "        idx := 0")
+    lines := push(lines, "        while idx < len(files) {")
+    lines := push(lines, "            file_path := to_string(files[idx])")
+    lines := push(lines, "            idx := idx + 1")
+    lines := push(lines, "            if index_of(to_lower(file_path), query) >= 0 {")
+    lines := push(lines, "                matches := push(matches, file_path)")
+    lines := push(lines, "                if len(matches) >= max_results {")
+    lines := push(lines, "                    break")
+    lines := push(lines, "                }")
+    lines := push(lines, "            }")
+    lines := push(lines, "        }")
+    lines := push(lines, "")
+    lines := push(lines, "        return {\"ok\": true, \"data\": {\"query\": query, \"matches\": matches, \"total_matches\": len(matches)}}")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    if tool_name == \"generate_task_context\" {")
+    lines := push(lines, "        task_text := \"\"")
+    lines := push(lines, "        if dict_has_key(tool_args, \"task\") {")
+    lines := push(lines, "            task_text := trim(to_string(tool_args[\"task\"]))")
+    lines := push(lines, "        }")
+    lines := push(lines, "        if task_text == \"\" {")
+    lines := push(lines, "            return {\"ok\": false, \"error\": \"task is required\"}")
+    lines := push(lines, "        }")
+    lines := push(lines, "")
+    lines := push(lines, "        return {\"ok\": true, \"data\": {\"context\": {")
+    lines := push(lines, "            \"task\": task_text,")
+    lines := push(lines, "            \"entrypoints\": profile[\"entrypoints\"],")
+    lines := push(lines, "            \"likely_test_command\": profile[\"likely_test_command\"],")
+    lines := push(lines, "            \"likely_lint_command\": profile[\"likely_lint_command\"],")
+    lines := push(lines, "            \"relevant_concepts\": profile[\"mcp_relevant_domain_concepts\"],")
+    lines := push(lines, "            \"missing_tests\": profile[\"missing_tests\"]")
+    lines := push(lines, "        }}}")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    if dict_has_key(safe_command_map, tool_name) {")
+    lines := push(lines, "        command_text := to_string(safe_command_map[tool_name])")
+    lines := push(lines, "        result := execute_status(command_text, {\"timeout_ms\": 120000})")
+    lines := push(lines, "        return {\"ok\": true, \"data\": {\"command\": command_text, \"result\": result}}")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    return {\"ok\": false, \"error\": \"Tool not implemented: \" + tool_name}")
+    lines := push(lines, "}")
+    lines := push(lines, "")
+    lines := push(lines, "func read_resource(uri) {")
+    lines := push(lines, "    idx := 0")
+    lines := push(lines, "    while idx < len(resources) {")
+    lines := push(lines, "        entry := resources[idx]")
+    lines := push(lines, "        idx := idx + 1")
+    lines := push(lines, "        if type(entry) == \"dict\" && dict_has_key(entry, \"uri\") {")
+    lines := push(lines, "            if to_string(entry[\"uri\"]) == uri {")
+    lines := push(lines, "                file_path := to_string(entry[\"path\"])")
+    lines := push(lines, "                if !file_exists(file_path) {")
+    lines := push(lines, "                    return {\"ok\": false, \"error\": \"Resource file does not exist: \" + file_path}")
+    lines := push(lines, "                }")
+    lines := push(lines, "                if file_size(file_path) > 1048576 {")
+    lines := push(lines, "                    return {\"ok\": false, \"error\": \"Resource exceeds max read size\"}")
+    lines := push(lines, "                }")
+    lines := push(lines, "                return {\"ok\": true, \"data\": {")
+    lines := push(lines, "                    \"mime_type\": to_string(entry[\"mime_type\"]),")
+    lines := push(lines, "                    \"text\": read_file(file_path)")
+    lines := push(lines, "                }}")
+    lines := push(lines, "            }")
+    lines := push(lines, "        }")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    return {\"ok\": false, \"error\": \"Resource not found: \" + uri}")
+    lines := push(lines, "}")
+    lines := push(lines, "")
+    lines := push(lines, "if len(args()) > 0 {")
+    lines := push(lines, "    if args()[0] == \"--self-check\" {")
+    lines := push(lines, "        print(to_json({")
+    lines := push(lines, "            \"ok\": true,")
+    lines := push(lines, "            \"tools\": len(tools),")
+    lines := push(lines, "            \"resources\": len(resources),")
+    lines := push(lines, "            \"server\": to_string(manifest[\"server\"][\"name\"])")
+    lines := push(lines, "        }))")
+    lines := push(lines, "        exit(0)")
+    lines := push(lines, "    }")
+    lines := push(lines, "}")
+    lines := push(lines, "")
+    lines := push(lines, "HOST := \"127.0.0.1\"")
+    lines := push(lines, "server := http_listen(HOST, DEFAULT_PORT)")
+    lines := push(lines, "")
+    lines := push(lines, "server := server.route(\"GET\", \"/mcp/v1/health\", func(req) {")
+    lines := push(lines, "    return json_response(200, {\"status\": \"ok\", \"server\": manifest[\"server\"][\"name\"], \"version\": manifest[\"server\"][\"version\"]})")
+    lines := push(lines, "})")
+    lines := push(lines, "")
+    lines := push(lines, "server := server.route(\"POST\", \"/mcp/v1/tools/list\", func(req) {")
+    lines := push(lines, "    return json_response(200, {\"jsonrpc\": \"2.0\", \"result\": {\"tools\": tools}})")
+    lines := push(lines, "})")
+    lines := push(lines, "")
+    lines := push(lines, "server := server.route(\"POST\", \"/mcp/v1/tools/call\", func(req) {")
+    lines := push(lines, "    payload := {}")
+    lines := push(lines, "    try {")
+    lines := push(lines, "        payload := parse_json(req[\"body\"])")
+    lines := push(lines, "    } except err {")
+    lines := push(lines, "        return json_response(200, {\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32600, \"message\": \"Invalid JSON request body\"}})")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    if !dict_has_key(payload, \"params\") || type(payload[\"params\"]) != \"dict\" {")
+    lines := push(lines, "        return json_response(200, {\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32602, \"message\": \"Missing params object\"}})")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    params := payload[\"params\"]")
+    lines := push(lines, "    if !dict_has_key(params, \"name\") {")
+    lines := push(lines, "        return json_response(200, {\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32602, \"message\": \"Missing params.name\"}})")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    tool_name := trim(to_string(params[\"name\"]))")
+    lines := push(lines, "    if tool_name == \"\" {")
+    lines := push(lines, "        return json_response(200, {\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32602, \"message\": \"params.name must be a non-empty string\"}})")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    tool_def := find_tool(tool_name)")
+    lines := push(lines, "    if tool_def == null {")
+    lines := push(lines, "        return json_response(200, {\"jsonrpc\": \"2.0\", \"error\": {\"code\": -1, \"message\": \"Tool not found: \" + tool_name}})")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    tool_args := {}")
+    lines := push(lines, "    if dict_has_key(params, \"arguments\") && type(params[\"arguments\"]) == \"dict\" {")
+    lines := push(lines, "        tool_args := params[\"arguments\"]")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    result := execute_tool(tool_name, tool_args)")
+    lines := push(lines, "    if result[\"ok\"] {")
+    lines := push(lines, "        return json_response(200, {\"jsonrpc\": \"2.0\", \"result\": result[\"data\"]})")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    return json_response(200, {\"jsonrpc\": \"2.0\", \"error\": {\"code\": -1, \"message\": result[\"error\"]}})")
+    lines := push(lines, "})")
+    lines := push(lines, "")
+    lines := push(lines, "server := server.route(\"POST\", \"/mcp/v1/resources/list\", func(req) {")
+    lines := push(lines, "    return json_response(200, {\"jsonrpc\": \"2.0\", \"result\": {\"resources\": resources}})")
+    lines := push(lines, "})")
+    lines := push(lines, "")
+    lines := push(lines, "server := server.route(\"POST\", \"/mcp/v1/resources/read\", func(req) {")
+    lines := push(lines, "    payload := {}")
+    lines := push(lines, "    try {")
+    lines := push(lines, "        payload := parse_json(req[\"body\"])")
+    lines := push(lines, "    } except err {")
+    lines := push(lines, "        return json_response(200, {\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32600, \"message\": \"Invalid JSON request body\"}})")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    if !dict_has_key(payload, \"params\") || type(payload[\"params\"]) != \"dict\" {")
+    lines := push(lines, "        return json_response(200, {\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32602, \"message\": \"Missing params object\"}})")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    params := payload[\"params\"]")
+    lines := push(lines, "    if !dict_has_key(params, \"uri\") {")
+    lines := push(lines, "        return json_response(200, {\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32602, \"message\": \"Missing params.uri\"}})")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    uri := trim(to_string(params[\"uri\"]))")
+    lines := push(lines, "    if uri == \"\" {")
+    lines := push(lines, "        return json_response(200, {\"jsonrpc\": \"2.0\", \"error\": {\"code\": -32602, \"message\": \"params.uri must be a non-empty string\"}})")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    result := read_resource(uri)")
+    lines := push(lines, "    if result[\"ok\"] {")
+    lines := push(lines, "        return json_response(200, {\"jsonrpc\": \"2.0\", \"result\": {\"contents\": [{\"uri\": uri, \"mimeType\": result[\"data\"][\"mime_type\"], \"text\": result[\"data\"][\"text\"]}]}})")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
+    lines := push(lines, "    return json_response(200, {\"jsonrpc\": \"2.0\", \"error\": {\"code\": -2, \"message\": result[\"error\"]}})")
+    lines := push(lines, "})")
+    lines := push(lines, "")
+    lines := push(lines, "print(\"Generated MCP server listening on http://\" + HOST + \":\" + to_string(DEFAULT_PORT) + \"/mcp/v1\")")
+    lines := push(lines, "server.listen()")
+
+    return render_lines(lines)
+}
+
+func render_generated_readme(profile, out_abs) {
+    lines := []
+    lines := push(lines, "# Generated MCP Server")
+    lines := push(lines, "")
+    lines := push(lines, "This server was generated by `kujo mcp make` for repository **" + to_string(profile["repo_name"]) + "**.")
+    lines := push(lines, "")
+    lines := push(lines, "## Quick Start")
+    lines := push(lines, "")
+    lines := push(lines, "```bash")
+    lines := push(lines, "kujo run " + out_abs + "/src/server.kujo --interpreter --self-check")
+    lines := push(lines, "kujo run " + out_abs + "/src/server.kujo --interpreter")
+    lines := push(lines, "```")
+    lines := push(lines, "")
+    lines := push(lines, "Default endpoint: `http://127.0.0.1:8941/mcp/v1`.")
+    lines := push(lines, "")
+    lines := push(lines, "## Safety")
+    lines := push(lines, "")
+    lines := push(lines, "- Read-only inspection tools are enabled by default.")
+    lines := push(lines, "- Safe-command tools are limited to allowlisted commands in `mcp.manifest.json`.")
+    lines := push(lines, "- Arbitrary shell command execution is not exposed.")
+    lines := push(lines, "- Write operations are limited to generated output directories only.")
+
+    return render_lines(lines)
+}
+
+func render_prompt_content(title, profile) {
+    lines := []
+    lines := push(lines, "# " + title)
+    lines := push(lines, "")
+    lines := push(lines, "Repository: " + to_string(profile["repo_name"]))
+    lines := push(lines, "")
+    lines := push(lines, "Use deterministic evidence from `repo-profile.json` and artifacts before proposing changes.")
+    lines := push(lines, "If assumptions are uncertain, label them explicitly.")
+    return render_lines(lines)
+}
+
+func render_smoke_script(out_abs) {
+    lines := []
+    lines := push(lines, "#!/usr/bin/env bash")
+    lines := push(lines, "set -euo pipefail")
+    lines := push(lines, "")
+    lines := push(lines, "KUJO_BIN=kujo")
+    lines := push(lines, "")
+    lines := push(lines, "$KUJO_BIN run \"" + out_abs + "/src/server.kujo\" --interpreter --self-check")
+    lines := push(lines, "echo \"generated server smoke: ok\"")
+    return render_lines(lines)
+}
+
+export func generate_server_project(profile, out_abs, artifacts_abs, dry_run, ai_tools) {
+    write_roots := [out_abs, artifacts_abs]
+
+    ensure_out := ensure_dir_recursive(out_abs)
+    if !ensure_out["ok"] {
+        return {"ok": false, "error": ensure_out["error"], "manifest": {}}
+    }
+
+    ensure_art := ensure_dir_recursive(artifacts_abs)
+    if !ensure_art["ok"] {
+        return {"ok": false, "error": ensure_art["error"], "manifest": {}}
+    }
+
+    ensure_src := ensure_dir_recursive(out_abs + "/src")
+    if !ensure_src["ok"] {
+        return {"ok": false, "error": ensure_src["error"], "manifest": {}}
+    }
+
+    ensure_tools := ensure_dir_recursive(out_abs + "/src/tools")
+    if !ensure_tools["ok"] {
+        return {"ok": false, "error": ensure_tools["error"], "manifest": {}}
+    }
+
+    ensure_resources := ensure_dir_recursive(out_abs + "/src/resources")
+    if !ensure_resources["ok"] {
+        return {"ok": false, "error": ensure_resources["error"], "manifest": {}}
+    }
+
+    ensure_prompts := ensure_dir_recursive(out_abs + "/src/prompts")
+    if !ensure_prompts["ok"] {
+        return {"ok": false, "error": ensure_prompts["error"], "manifest": {}}
+    }
+
+    ensure_safety := ensure_dir_recursive(out_abs + "/src/safety")
+    if !ensure_safety["ok"] {
+        return {"ok": false, "error": ensure_safety["error"], "manifest": {}}
+    }
+
+    ensure_tests := ensure_dir_recursive(out_abs + "/tests")
+    if !ensure_tests["ok"] {
+        return {"ok": false, "error": ensure_tests["error"], "manifest": {}}
+    }
+
+    ensure_examples := ensure_dir_recursive(out_abs + "/examples")
+    if !ensure_examples["ok"] {
+        return {"ok": false, "error": ensure_examples["error"], "manifest": {}}
+    }
+
+    safe_command_map := {}
+    tools := []
+
+    tools := push(tools, {
+        "name": "inspect_project_structure",
+        "description": "Summarize repository structure, source roots, and test roots.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"repo_name": {"type": "string"}, "top_level_directories": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "list_available_scripts",
+        "description": "List discovered scripts and inferred command safety tiers.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"scripts": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.available_scripts"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "inspect_package_metadata",
+        "description": "Return package manager, build system, and likely install/build/test commands.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"package_manager": {"type": "string"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.package_manager"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "inspect_config_files",
+        "description": "List important config files detected during deterministic repository analysis.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"important_config_files": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.important_config_files"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "summarize_entrypoints",
+        "description": "Summarize likely repository entrypoint files.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"entrypoints": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.entrypoints"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "find_relevant_files_for_task",
+        "description": "Search sampled repository file paths for task-relevant terms.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Search keyword"},
+                "max_results": {"type": "integer", "minimum": 1, "maximum": 200}
+            },
+            "required": ["query"]
+        },
+        "output_shape": {"type": "object", "properties": {"matches": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.sample_files"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "generate_task_context",
+        "description": "Generate concise repository context and suggestions for an implementation task.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "task": {"type": "string", "description": "Task description"}
+            },
+            "required": ["task"]
+        },
+        "output_shape": {"type": "object", "properties": {"context": {"type": "object"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "explain_domain_model",
+        "description": "Explain domain concepts inferred from repo docs and file names.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"domain_concepts": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.mcp_relevant_domain_concepts"],
+        "validation_status": "generated"
+    })
+
+    tools := push(tools, {
+        "name": "inspect_recent_changes",
+        "description": "Return conservative recent-change hints based on analysis limitations and assumptions.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "output_shape": {"type": "object", "properties": {"confidence_notes": {"type": "array"}}},
+        "safety_tier": "read_only",
+        "source_evidence": ["repo-profile.json.confidence_notes"],
+        "validation_status": "generated"
+    })
+
+    safe_tools := build_safe_command_tools(profile, safe_command_map)
+    safe_idx := 0
+    while safe_idx < len(safe_tools) {
+        tools := push(tools, safe_tools[safe_idx])
+        safe_idx := safe_idx + 1
+    }
+
+    deduped_tools := []
+    seen_tool_names := {}
+    dedupe_idx := 0
+    while dedupe_idx < len(tools) {
+        tool_entry := tools[dedupe_idx]
+        dedupe_idx := dedupe_idx + 1
+        if type(tool_entry) == "dict" && dict_has_key(tool_entry, "name") {
+            tool_name := to_string(tool_entry["name"])
+            if dict_has_key(seen_tool_names, tool_name) == false {
+                seen_tool_names[tool_name] := true
+                deduped_tools := push(deduped_tools, tool_entry)
+            }
+        }
+    }
+    tools := deduped_tools
+
+    tools := deduped_tools
+
+    if type(ai_tools) == "array" {
+        ai_idx := 0
+        while ai_idx < len(ai_tools) {
+            ai_tool := ai_tools[ai_idx]
+            ai_idx := ai_idx + 1
+            if type(ai_tool) == "dict" && dict_has_key(ai_tool, "name") {
+                ai_name := to_string(ai_tool["name"])
+                if dict_has_key(seen_tool_names, ai_name) == false {
+                    seen_tool_names[ai_name] := true
+                    tools := push(tools, ai_tool)
+                }
+            }
+        }
+    }
+
+    resources := build_resources(profile, out_abs, artifacts_abs)
+    prompts := build_prompts(out_abs)
+
+    blocked_commands := []
+    if dict_has_key(profile, "risky_operations") {
+        risky := profile["risky_operations"]
+        if type(risky) == "array" {
+            ridx := 0
+            while ridx < len(risky) {
+                rentry := risky[ridx]
+                ridx := ridx + 1
+                if type(rentry) == "dict" {
+                    if dict_has_key(rentry, "name") {
+                        blocked_commands := push_unique(blocked_commands, to_string(rentry["name"]))
+                    }
+                }
+            }
+        }
+    }
+
+    manifest := {
+        "server": {
+            "name": to_string(profile["repo_name"]) + "-generated-mcp",
+            "version": "0.1.0",
+            "generated_at": format_date(now(), "YYYY-MM-DD HH:mm:ss"),
+            "source_repo": to_string(profile["repo_path_absolute"])
+        },
+        "tools": tools,
+        "resources": resources,
+        "prompts": prompts,
+        "safe_command_map": safe_command_map,
+        "blocked_commands": blocked_commands,
+        "safety_tiers": ["read_only", "safe_command", "write_scaffold", "review_required", "blocked"]
+    }
+
+    if dry_run {
+        return {
+            "ok": true,
+            "error": "",
+            "manifest": manifest,
+            "generated_files": [],
+            "note": "Dry run enabled; no files were written"
+        }
+    }
+
+    generated_files := []
+
+    profile_json := to_json(profile)
+    manifest_json := to_json(manifest)
+
+    write_profile := write_output_file(out_abs + "/repo-profile.json", profile_json, write_roots)
+    if !write_profile["ok"] {
+        return {"ok": false, "error": write_profile["error"], "manifest": manifest}
+    }
+    generated_files := push(generated_files, out_abs + "/repo-profile.json")
+
+    write_manifest := write_output_file(out_abs + "/mcp.manifest.json", manifest_json, write_roots)
+    if !write_manifest["ok"] {
+        return {"ok": false, "error": write_manifest["error"], "manifest": manifest}
+    }
+    generated_files := push(generated_files, out_abs + "/mcp.manifest.json")
+
+    mcp_server_json := to_json({
+        "server": {
+            "name": to_string(manifest["server"]["name"]),
+            "version": "0.1.0",
+            "description": "Generated MCP server"
+        },
+        "http": {
+            "host": "127.0.0.1",
+            "port": 8941
+        },
+        "permissions": {
+            "allowed_directories": [to_string(profile["repo_path_absolute"]), out_abs, artifacts_abs],
+            "max_file_size": 1048576,
+            "read_only_patterns": ["*.md", "*.json", "*.yaml", "*.yml", "*.toml", "*.lock", "*.env", "*.pem", "*.key"]
+        }
+    })
+
+    write_cfg := write_output_file(out_abs + "/mcp-server.json", mcp_server_json, write_roots)
+    if !write_cfg["ok"] {
+        return {"ok": false, "error": write_cfg["error"], "manifest": manifest}
+    }
+    generated_files := push(generated_files, out_abs + "/mcp-server.json")
+
+    server_source := render_generated_server_source(out_abs + "/mcp.manifest.json", out_abs + "/repo-profile.json")
+    write_server := write_output_file(out_abs + "/src/server.kujo", server_source, write_roots)
+    if !write_server["ok"] {
+        return {"ok": false, "error": write_server["error"], "manifest": manifest}
+    }
+    generated_files := push(generated_files, out_abs + "/src/server.kujo")
+
+    readme_text := render_generated_readme(profile, out_abs)
+    write_readme := write_output_file(out_abs + "/README.md", readme_text, write_roots)
+    if !write_readme["ok"] {
+        return {"ok": false, "error": write_readme["error"], "manifest": manifest}
+    }
+    generated_files := push(generated_files, out_abs + "/README.md")
+
+    safety_text := "# Safety Policy\n\nThis generated server is read-only by default and allows only allowlisted safe commands defined in mcp.manifest.json.\n"
+    write_safety := write_output_file(out_abs + "/src/safety/policy.md", safety_text, write_roots)
+    if !write_safety["ok"] {
+        return {"ok": false, "error": write_safety["error"], "manifest": manifest}
+    }
+    generated_files := push(generated_files, out_abs + "/src/safety/policy.md")
+
+    tools_notes := "# Generated Tools\n\nSee mcp.manifest.json for generated tool definitions.\n"
+    write_tools_notes := write_output_file(out_abs + "/src/tools/README.md", tools_notes, write_roots)
+    if !write_tools_notes["ok"] {
+        return {"ok": false, "error": write_tools_notes["error"], "manifest": manifest}
+    }
+    generated_files := push(generated_files, out_abs + "/src/tools/README.md")
+
+    resource_notes := "# Generated Resources\n\nSee mcp.manifest.json for generated resource definitions.\n"
+    write_res_notes := write_output_file(out_abs + "/src/resources/README.md", resource_notes, write_roots)
+    if !write_res_notes["ok"] {
+        return {"ok": false, "error": write_res_notes["error"], "manifest": manifest}
+    }
+    generated_files := push(generated_files, out_abs + "/src/resources/README.md")
+
+    prompt_idx := 0
+    while prompt_idx < len(prompts) {
+        prompt := prompts[prompt_idx]
+        prompt_idx := prompt_idx + 1
+        prompt_name := to_string(prompt["name"])
+        prompt_path := to_string(prompt["path"])
+        prompt_content := render_prompt_content(prompt_name, profile)
+        write_prompt := write_output_file(prompt_path, prompt_content, write_roots)
+        if !write_prompt["ok"] {
+            return {"ok": false, "error": write_prompt["error"], "manifest": manifest}
+        }
+        generated_files := push(generated_files, prompt_path)
+    }
+
+    smoke_text := render_smoke_script(out_abs)
+    write_smoke := write_output_file(out_abs + "/tests/smoke.sh", smoke_text, write_roots)
+    if !write_smoke["ok"] {
+        return {"ok": false, "error": write_smoke["error"], "manifest": manifest}
+    }
+    generated_files := push(generated_files, out_abs + "/tests/smoke.sh")
+
+    examples_client := "# Client Usage\n\n1. Start server: `kujo run src/server.kujo --interpreter`\n2. Call `/mcp/v1/tools/list` and `/mcp/v1/tools/call`.\n"
+    write_client := write_output_file(out_abs + "/examples/client-usage.md", examples_client, write_roots)
+    if !write_client["ok"] {
+        return {"ok": false, "error": write_client["error"], "manifest": manifest}
+    }
+    generated_files := push(generated_files, out_abs + "/examples/client-usage.md")
+
+    examples_calls := "# Sample Calls\n\n- `inspect_project_structure`\n- `list_available_scripts`\n- `find_relevant_files_for_task`\n"
+    write_calls := write_output_file(out_abs + "/examples/sample-calls.md", examples_calls, write_roots)
+    if !write_calls["ok"] {
+        return {"ok": false, "error": write_calls["error"], "manifest": manifest}
+    }
+    generated_files := push(generated_files, out_abs + "/examples/sample-calls.md")
+
+    return {
+        "ok": true,
+        "error": "",
+        "manifest": manifest,
+        "generated_files": generated_files,
+        "note": "Generated server project written successfully"
+    }
+}

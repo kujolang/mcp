@@ -1,0 +1,391 @@
+from src.make.common import dict_has_key, write_output_file, render_markdown_bullets, render_markdown_numbered
+
+func render_validation_report(validation) {
+    lines := "# Validation Report\n\n"
+    lines := lines + "This report records attempted validations for generated outputs.\n\n"
+
+    if dict_has_key(validation, "entries") == false || type(validation["entries"]) != "array" {
+        lines := lines + "No validation entries were recorded.\n"
+        return lines
+    }
+
+    entries := validation["entries"]
+    idx := 0
+    while idx < len(entries) {
+        entry := entries[idx]
+        idx := idx + 1
+
+        name := to_string(entry["name"])
+        status := to_string(entry["status"])
+        details := to_string(entry["details"])
+        command_text := to_string(entry["command"])
+
+        lines := lines + "## " + name + "\n\n"
+        lines := lines + "- Status: **" + status + "**\n"
+        lines := lines + "- Details: " + details + "\n"
+        if trim(command_text) != "" {
+            lines := lines + "- Command: `" + command_text + "`\n"
+        } else {
+            lines := lines + "- Command: not applicable\n"
+        }
+        lines := lines + "\n"
+    }
+
+    return lines
+}
+
+func build_fix_backlog(profile) {
+    items := []
+
+    if dict_has_key(profile, "missing_or_stale_docs") && type(profile["missing_or_stale_docs"]) == "array" {
+        missing_docs := profile["missing_or_stale_docs"]
+        idx := 0
+        while idx < len(missing_docs) {
+            note := to_string(missing_docs[idx])
+            idx := idx + 1
+            items := push(items, {
+                "title": "Documentation gap: " + note,
+                "severity": "medium",
+                "affected_files": [],
+                "evidence": note,
+                "suggested_implementation_path": "Add or refresh repository documentation and verify setup instructions.",
+                "validation_command": "Manual docs review",
+                "safe_for_agent": true
+            })
+        }
+    }
+
+    if dict_has_key(profile, "missing_tests") && type(profile["missing_tests"]) == "array" {
+        missing_tests := profile["missing_tests"]
+        idx2 := 0
+        while idx2 < len(missing_tests) {
+            note2 := to_string(missing_tests[idx2])
+            idx2 := idx2 + 1
+            items := push(items, {
+                "title": "Testing gap: " + note2,
+                "severity": "high",
+                "affected_files": [],
+                "evidence": note2,
+                "suggested_implementation_path": "Add baseline tests and wire them into CI.",
+                "validation_command": to_string(profile["likely_test_command"]),
+                "safe_for_agent": true
+            })
+        }
+    }
+
+    if dict_has_key(profile, "risky_operations") && type(profile["risky_operations"]) == "array" {
+        risky := profile["risky_operations"]
+        ridx := 0
+        while ridx < len(risky) {
+            risk := risky[ridx]
+            ridx := ridx + 1
+            if type(risk) == "dict" {
+                items := push(items, {
+                    "title": "Risky script exposure: " + to_string(risk["name"]),
+                    "severity": "critical",
+                    "affected_files": ["package.json"],
+                    "evidence": to_string(risk["command"]),
+                    "suggested_implementation_path": "Keep this script blocked or gate behind explicit review-required policy.",
+                    "validation_command": "Review command allowlist in generated safety-review.md",
+                    "safe_for_agent": false
+                })
+            }
+        }
+    }
+
+    if len(items) == 0 {
+        items := push(items, {
+            "title": "No blocking repository fixes detected by deterministic pass",
+            "severity": "low",
+            "affected_files": [],
+            "evidence": "No missing docs/tests or blocked commands detected",
+            "suggested_implementation_path": "Run deeper project-specific checks if needed",
+            "validation_command": "n/a",
+            "safe_for_agent": true
+        })
+    }
+
+    return items
+}
+
+func render_fix_backlog_md(items) {
+    out := "# Fix Backlog\n\n"
+    idx := 0
+    while idx < len(items) {
+        item := items[idx]
+        idx := idx + 1
+        out := out + "## " + to_string(item["title"]) + "\n\n"
+        out := out + "- Severity: **" + to_string(item["severity"]) + "**\n"
+        out := out + "- Affected files: " + to_json(item["affected_files"]) + "\n"
+        out := out + "- Evidence: " + to_string(item["evidence"]) + "\n"
+        out := out + "- Suggested implementation path: " + to_string(item["suggested_implementation_path"]) + "\n"
+        out := out + "- Validation command: `" + to_string(item["validation_command"]) + "`\n"
+        out := out + "- Safe for agent: " + to_string(item["safe_for_agent"]) + "\n\n"
+    }
+    return out
+}
+
+func build_kujo_mcp_findings(profile) {
+    findings := []
+
+    findings := push(findings, {
+        "title": "Kujo runtime does not expose a native `kujo mcp` subcommand",
+        "severity": "medium",
+        "evidence": "Current runtime help output lacks an `mcp` command.",
+        "workaround": "Use `kujo run mcp.kujo --interpreter make <repo>`.",
+        "recommended_refactor": "Add a first-party `mcp` subcommand in the Kujo runtime command table.",
+        "test_to_add": "CLI integration test for `kujo mcp make` dispatch"
+    })
+
+    findings := push(findings, {
+        "title": "AI enrichment is optional and currently unavailable in primitive-only flow",
+        "severity": "low",
+        "evidence": "Generated profile marks AI enrichment as not applied.",
+        "workaround": "Use deterministic profile output and manual review.",
+        "recommended_refactor": "Introduce bounded AI enrichment provider interface with explicit inference labels.",
+        "test_to_add": "Contract test ensuring inferred fields are tagged with provenance"
+    })
+
+    return findings
+}
+
+func render_findings_md(findings) {
+    out := "# MCP Findings\n\n"
+    idx := 0
+    while idx < len(findings) {
+        finding := findings[idx]
+        idx := idx + 1
+        out := out + "## " + to_string(finding["title"]) + "\n\n"
+        out := out + "- Severity: **" + to_string(finding["severity"]) + "**\n"
+        out := out + "- Evidence: " + to_string(finding["evidence"]) + "\n"
+        out := out + "- Workaround: " + to_string(finding["workaround"]) + "\n"
+        out := out + "- Recommended refactor: " + to_string(finding["recommended_refactor"]) + "\n"
+        out := out + "- Test to add: " + to_string(finding["test_to_add"]) + "\n\n"
+    }
+    return out
+}
+
+func render_repo_map(profile) {
+    lines := "# Repo Map\n\n"
+    lines := lines + "Repository: **" + to_string(profile["repo_name"]) + "**\n\n"
+    lines := lines + "## Top-level directories\n\n"
+    lines := lines + render_markdown_bullets(profile["top_level_directories"]) + "\n"
+    lines := lines + "## Likely source directories\n\n"
+    lines := lines + render_markdown_bullets(profile["likely_source_directories"]) + "\n"
+    lines := lines + "## Likely test directories\n\n"
+    lines := lines + render_markdown_bullets(profile["likely_test_directories"]) + "\n"
+    lines := lines + "## Entrypoints\n\n"
+    lines := lines + render_markdown_bullets(profile["entrypoints"]) + "\n"
+    lines := lines + "## Docs and readmes\n\n"
+    lines := lines + render_markdown_bullets(profile["docs_and_readmes"]) + "\n"
+    return lines
+}
+
+func render_mcp_surface_plan(manifest) {
+    lines := "# MCP Surface Plan\n\n"
+    lines := lines + "## Tools\n\n"
+
+    if dict_has_key(manifest, "tools") && type(manifest["tools"]) == "array" {
+        tools := manifest["tools"]
+        idx := 0
+        while idx < len(tools) {
+            tool := tools[idx]
+            idx := idx + 1
+            lines := lines + "- `" + to_string(tool["name"]) + "` (`" + to_string(tool["safety_tier"]) + "`): " + to_string(tool["description"]) + "\n"
+        }
+        lines := lines + "\n"
+    }
+
+    lines := lines + "## Resources\n\n"
+    if dict_has_key(manifest, "resources") && type(manifest["resources"]) == "array" {
+        resources := manifest["resources"]
+        ridx := 0
+        while ridx < len(resources) {
+            resource := resources[ridx]
+            ridx := ridx + 1
+            lines := lines + "- `" + to_string(resource["uri"]) + "`: " + to_string(resource["description"]) + "\n"
+        }
+        lines := lines + "\n"
+    }
+
+    lines := lines + "## Prompts\n\n"
+    if dict_has_key(manifest, "prompts") && type(manifest["prompts"]) == "array" {
+        prompts := manifest["prompts"]
+        pidx := 0
+        while pidx < len(prompts) {
+            prompt := prompts[pidx]
+            pidx := pidx + 1
+            lines := lines + "- `" + to_string(prompt["name"]) + "`: " + to_string(prompt["description"]) + "\n"
+        }
+        lines := lines + "\n"
+    }
+
+    return lines
+}
+
+func render_safety_review(profile, manifest) {
+    lines := "# Safety Review\n\n"
+    lines := lines + "## Safe command allowlist\n\n"
+
+    if dict_has_key(manifest, "safe_command_map") && type(manifest["safe_command_map"]) == "dict" {
+        command_map := manifest["safe_command_map"]
+        names := keys(command_map)
+        idx := 0
+        while idx < len(names) {
+            name := names[idx]
+            idx := idx + 1
+            lines := lines + "- `" + to_string(name) + "` -> `" + to_string(command_map[name]) + "`\n"
+        }
+        lines := lines + "\n"
+    }
+
+    lines := lines + "## Blocked or review-required commands\n\n"
+    if dict_has_key(profile, "risky_operations") && type(profile["risky_operations"]) == "array" {
+        risky := profile["risky_operations"]
+        ridx := 0
+        while ridx < len(risky) {
+            risk := risky[ridx]
+            ridx := ridx + 1
+            lines := lines + "- `" + to_string(risk["name"]) + "` (`" + to_string(risk["tier"]) + "`): `" + to_string(risk["command"]) + "`\n"
+        }
+        lines := lines + "\n"
+    }
+
+    lines := lines + "## Sensitive paths detected (path only)\n\n"
+    if dict_has_key(profile, "sensitive_paths_detected") && type(profile["sensitive_paths_detected"]) == "array" {
+        lines := lines + render_markdown_bullets(profile["sensitive_paths_detected"]) + "\n"
+    }
+
+    lines := lines + "## Exposure decisions\n\n"
+    lines := lines + "- Enabled by default: `read_only` tools/resources and allowlisted `safe_command` tools.\n"
+    lines := lines + "- Disabled by default: `review_required` and `blocked` operations.\n"
+    lines := lines + "- No arbitrary shell execution is exposed through tool input.\n"
+
+    return lines
+}
+
+func render_agent_handoff(profile, out_abs, artifacts_abs) {
+    prompt_lines := []
+    prompt_lines := push(prompt_lines, "Implement fixes listed in fix-backlog.md for repository " + to_string(profile["repo_name"]) + ".")
+    prompt_lines := push(prompt_lines, "Inspect repo-profile.json, repo-map.md, and safety-review.md before making changes.")
+    prompt_lines := push(prompt_lines, "Prioritize high severity fixes first.")
+    prompt_lines := push(prompt_lines, "Run likely test command: " + to_string(profile["likely_test_command"]))
+    prompt_lines := push(prompt_lines, "Do not execute blocked commands from safety-review.md.")
+    prompt_lines := push(prompt_lines, "Deliverables: patch summary, tests added/updated, validation command output, and residual risks.")
+
+    out := "# Agent Handoff\n\n"
+    out := out + "## Context\n\n"
+    out := out + "- Repository: `" + to_string(profile["repo_path_absolute"]) + "`\n"
+    out := out + "- Generated server: `" + out_abs + "`\n"
+    out := out + "- Artifacts: `" + artifacts_abs + "`\n\n"
+    out := out + "## Copy/Paste Prompt\n\n"
+    out := out + "```text\n"
+    out := out + render_markdown_numbered(prompt_lines)
+    out := out + "```\n"
+    return out
+}
+
+func render_patchbrief(profile, out_abs, artifacts_abs) {
+    out := "# PatchBrief\n\n"
+    out := out + "## What Changed\n\n"
+    out := out + "Generated a repo-specific MCP server scaffold and review artifacts for **" + to_string(profile["repo_name"]) + "**.\n\n"
+    out := out + "## Why It Matters\n\n"
+    out := out + "This enables deterministic repository inspection, safe command execution allowlists, and repeatable MCP onboarding outputs.\n\n"
+    out := out + "## Review Guide\n\n"
+    out := out + "- Inspect generated server files in `" + out_abs + "`.\n"
+    out := out + "- Review safety decisions in `" + artifacts_abs + "/safety-review.md`.\n"
+    out := out + "- Verify validation outcomes in `" + artifacts_abs + "/validation-report.md`.\n"
+    return out
+}
+
+func render_shipcheck(profile, validation) {
+    failed_count := 0
+    if dict_has_key(validation, "failed_count") {
+        failed_count := validation["failed_count"]
+    }
+
+    score := 85 - (failed_count * 10)
+    if score < 0 {
+        score := 0
+    }
+
+    out := "# ShipCheck\n\n"
+    out := out + "Readiness score: **" + to_string(score) + "/100**\n\n"
+    out := out + "## Blockers\n\n"
+    if failed_count > 0 {
+        out := out + "- Validation failures present; see validation-report.md.\n"
+    } else {
+        out := out + "- No hard blockers detected in deterministic validation pass.\n"
+    }
+
+    out := out + "\n## Test Gaps\n\n"
+    out := out + render_markdown_bullets(profile["missing_tests"]) + "\n"
+    out := out + "## Doc Gaps\n\n"
+    out := out + render_markdown_bullets(profile["missing_or_stale_docs"]) + "\n"
+    out := out + "## Unsafe Assumptions\n\n"
+    out := out + render_markdown_bullets(profile["unresolved_assumptions"]) + "\n"
+    return out
+}
+
+func render_howto(out_abs, artifacts_abs) {
+    out := "# How To Use Generated Server\n\n"
+    out := out + "1. Run self-check:\n\n"
+    out := out + "```bash\n"
+    out := out + "kujo run " + out_abs + "/src/server.kujo --interpreter --self-check\n"
+    out := out + "```\n\n"
+    out := out + "2. Start server:\n\n"
+    out := out + "```bash\n"
+    out := out + "kujo run " + out_abs + "/src/server.kujo --interpreter\n"
+    out := out + "```\n\n"
+    out := out + "3. Validate endpoints:\n\n"
+    out := out + "```bash\n"
+    out := out + "curl -s http://127.0.0.1:8941/mcp/v1/health\n"
+    out := out + "curl -s -X POST http://127.0.0.1:8941/mcp/v1/tools/list -H 'Content-Type: application/json' -d '{}'\n"
+    out := out + "```\n\n"
+    out := out + "4. Review generated artifacts in `" + artifacts_abs + "`.\n\n"
+    out := out + "Commands listed above were generated for local validation; if any were not run, review validation-report.md for explicit skip/failure notes.\n"
+    return out
+}
+
+export func write_artifacts(profile, manifest, validation, out_abs, artifacts_abs) {
+    write_roots := [out_abs, artifacts_abs]
+
+    fix_backlog := build_fix_backlog(profile)
+    fix_backlog_md := render_fix_backlog_md(fix_backlog)
+    fix_backlog_json := to_json({"items": fix_backlog})
+
+    findings := build_kujo_mcp_findings(profile)
+    findings_md := render_findings_md(findings)
+    findings_json := to_json({"findings": findings})
+
+    files_to_write := [
+        {"path": artifacts_abs + "/README.md", "content": "# MCP Make Artifacts\n\nGenerated artifacts for repository-specific MCP server generation and review.\n"},
+        {"path": artifacts_abs + "/repo-map.md", "content": render_repo_map(profile)},
+        {"path": artifacts_abs + "/mcp-surface-plan.md", "content": render_mcp_surface_plan(manifest)},
+        {"path": artifacts_abs + "/safety-review.md", "content": render_safety_review(profile, manifest)},
+        {"path": artifacts_abs + "/validation-report.md", "content": render_validation_report(validation)},
+        {"path": artifacts_abs + "/fix-backlog.md", "content": fix_backlog_md},
+        {"path": artifacts_abs + "/fix-backlog.json", "content": fix_backlog_json},
+        {"path": artifacts_abs + "/agent-handoff.md", "content": render_agent_handoff(profile, out_abs, artifacts_abs)},
+        {"path": artifacts_abs + "/patchbrief.md", "content": render_patchbrief(profile, out_abs, artifacts_abs)},
+        {"path": artifacts_abs + "/shipcheck.md", "content": render_shipcheck(profile, validation)},
+        {"path": artifacts_abs + "/howto.md", "content": render_howto(out_abs, artifacts_abs)},
+        {"path": artifacts_abs + "/mcp-findings.md", "content": findings_md},
+        {"path": artifacts_abs + "/mcp-findings.json", "content": findings_json}
+    ]
+
+    idx := 0
+    written := []
+    while idx < len(files_to_write) {
+        entry := files_to_write[idx]
+        idx := idx + 1
+
+        write_result := write_output_file(entry["path"], entry["content"], write_roots)
+        if !write_result["ok"] {
+            return {"ok": false, "error": write_result["error"], "written": written, "fix_backlog": fix_backlog, "findings": findings}
+        }
+        written := push(written, entry["path"])
+    }
+
+    return {"ok": true, "error": "", "written": written, "fix_backlog": fix_backlog, "findings": findings}
+}

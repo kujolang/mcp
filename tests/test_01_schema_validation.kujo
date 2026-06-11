@@ -1,0 +1,24 @@
+from mcp import str_schema, bool_schema, int_schema, arr_schema, obj_schema
+
+name_schema := str_schema("Name field", ["alpha", "beta"])
+assert(name_schema["type"] == "string", "str_schema should set type=string")
+assert(name_schema["enum"][0] == "alpha", "str_schema should preserve enum values")
+
+flag_schema := bool_schema("Boolean flag")
+assert(flag_schema["type"] == "boolean", "bool_schema should set type=boolean")
+
+count_schema := int_schema("Count", 1, 10)
+assert(count_schema["type"] == "integer", "int_schema should set type=integer")
+assert(count_schema["minimum"] == 1, "int_schema should preserve minimum")
+assert(count_schema["maximum"] == 10, "int_schema should preserve maximum")
+
+items_schema := arr_schema("Items", "string")
+assert(items_schema["type"] == "array", "arr_schema should set type=array")
+assert(items_schema["items"]["type"] == "string", "arr_schema should set item type")
+
+object_schema := obj_schema("Payload", {"name": name_schema, "count": count_schema}, ["name"])
+assert(object_schema["type"] == "object", "obj_schema should set type=object")
+assert(object_schema["required"][0] == "name", "obj_schema should preserve required fields")
+assert(object_schema["properties"]["count"]["type"] == "integer", "obj_schema should preserve nested schemas")
+
+print("test_01_schema_validation: all assertions passed")

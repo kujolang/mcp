@@ -1,0 +1,41 @@
+from src.make.analyze_repo import analyze_repository
+
+tmp_root := "/tmp/kujo_mcp_make_profile_repo"
+if !path_exists(tmp_root) {
+    create_dir(tmp_root)
+}
+
+if !path_exists(tmp_root + "/src") {
+    create_dir(tmp_root + "/src")
+}
+if !path_exists(tmp_root + "/tests") {
+    create_dir(tmp_root + "/tests")
+}
+
+write_file(tmp_root + "/README.md", "# Make Profile Test\n")
+write_file(tmp_root + "/.env", "SECRET_TOKEN=super-secret\n")
+write_file(tmp_root + "/src/main.ts", "console.log('hello')\n")
+write_file(tmp_root + "/tests/main.test.ts", "test('ok', () => {})\n")
+write_file(tmp_root + "/package.json", "{\"name\":\"make-profile\",\"scripts\":{\"test\":\"npm run unit\",\"lint\":\"eslint .\",\"deploy\":\"npm run deploy\"}}")
+
+analysis := analyze_repository(tmp_root, true)
+assert(analysis["ok"] == true, "analyze_repository should succeed")
+
+profile := analysis["profile"]
+assert(profile["repo_name"] == "kujo_mcp_make_profile_repo", "repo_name should match directory basename")
+assert(profile["package_manager"] == "npm", "package manager should detect npm")
+assert(len(profile["available_scripts"]) >= 3, "scripts should be detected from package.json")
+assert(len(profile["safe_operations"]) >= 1, "safe operations should include test/lint commands")
+assert(len(profile["risky_operations"]) >= 1, "risky operations should include deploy command")
+assert(len(profile["sensitive_paths_detected"]) >= 1, "sensitive file paths should be detected")
+
+delete_file(tmp_root + "/package.json")
+delete_file(tmp_root + "/tests/main.test.ts")
+delete_file(tmp_root + "/src/main.ts")
+delete_file(tmp_root + "/.env")
+delete_file(tmp_root + "/README.md")
+os_rmdir(tmp_root + "/tests")
+os_rmdir(tmp_root + "/src")
+os_rmdir(tmp_root)
+
+print("test_04_make_profile: all assertions passed")

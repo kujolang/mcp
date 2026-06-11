@@ -1,0 +1,18 @@
+from mcp import check_path
+
+allowed_dir := "./demo"
+read_only_patterns := ["*.md", "*.txt", "*.json", "*.yaml", "*.yml"]
+
+allowed_read := check_path("./demo/docs/README.md", allowed_dir, read_only_patterns, false)
+assert(allowed_read["ok"] == true, "in-scope read should be allowed")
+
+allowed_write := check_path("./demo/patches/test_01_allowed.kujo", allowed_dir, read_only_patterns, true)
+assert(allowed_write["ok"] == true, "in-scope write should be allowed")
+
+traversal_read := check_path("./demo/docs/../../README.md", allowed_dir, read_only_patterns, false)
+assert(traversal_read["ok"] == false, "traversal read should be denied")
+
+outside_write := check_path("./outside_test_01.kujo", allowed_dir, read_only_patterns, true)
+assert(outside_write["ok"] == false, "write outside allowed boundary should be denied")
+
+print("test_01_permission_checks: all assertions passed")
