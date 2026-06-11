@@ -2,9 +2,12 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-KUJO_BIN="$("$ROOT_DIR/scripts/find_kujo_runtime.sh")"
 
 cd "$ROOT_DIR"
+
+bash tests/arc_00_runtime_resolution.sh
+
+KUJO_BIN="$("$ROOT_DIR/scripts/find_kujo_runtime.sh")"
 export KUJO_BIN
 
 bash tests/arc_01_layout_smoke.sh
