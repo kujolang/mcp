@@ -2,6 +2,8 @@
 
 This playbook defines how contributors and coding agents should implement checklist items safely and consistently.
 
+Prioritize copyable examples over tests: examples should model the most token-efficient idioms we want agents to imitate.
+
 ## Branch Strategy
 
 - Use a short-lived branch per checklist item or tightly related item group.
@@ -31,6 +33,13 @@ A checklist item is done only when all conditions below are met:
 - README/checklist updates are accurate and current.
 - Work Log entry includes files changed and validation evidence.
 - The branch has one clean commit for the loop item.
+
+## Search Hygiene
+
+- Treat `README.md`, `docs/`, `demo/README.md`, and `demo/docs/` as canonical copyable examples.
+- Treat `tests/` as behavior contracts; keep repeated request payloads when they make expected behavior explicit.
+- Treat `.kujo_cache/`, `.mcp/`, logs, and generated output directories as bulk/generated paths. Exclude generated/bulk paths from the main sweep unless the task explicitly targets them; document the search exclusions you used.
+- Clearly label stale, legacy, generated, or expected-fail examples instead of letting them look canonical.
 
 ## Pull Request Expectations
 

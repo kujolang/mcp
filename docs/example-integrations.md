@@ -65,15 +65,18 @@ Any MCP-compatible HTTP client can follow this sequence. This is an example flow
 ### Example Calls
 
 ```bash
-curl -s http://127.0.0.1:8931/mcp/v1/health
+MCP_URL=http://127.0.0.1:8931/mcp/v1
+mcp_post() { curl -s -X POST "$MCP_URL/$1" -H 'Content-Type: application/json' -d "$2"; }
 
-curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/list \
-  -H 'Content-Type: application/json' \
-  -d '{}'
+curl -s "$MCP_URL/health"
+mcp_post tools/list '{}'
+mcp_post tools/call '{"params":{"name":"search_files","arguments":{"pattern":"README","mode":"filename"}}}'
+```
 
-curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call \
-  -H 'Content-Type: application/json' \
-  -d '{"params":{"name":"search_files","arguments":{"pattern":"README","mode":"filename"}}}'
+Expected health response shape:
+
+```json
+{"status":"ok","server":"mcp-demo","version":"0.1.0"}
 ```
 
 ## Security and Validation Notes for Integrators

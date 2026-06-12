@@ -24,29 +24,40 @@ It demonstrates:
 
 	`bash scripts/run_server.sh`
 
-2. Check server health:
+2. Set a compact endpoint helper:
 
-	`curl -s http://127.0.0.1:8931/mcp/v1/health`
+	```bash
+	MCP_URL=http://127.0.0.1:8931/mcp/v1
+	mcp_post() { curl -s -X POST "$MCP_URL/$1" -H 'Content-Type: application/json' -d "$2"; }
+	```
 
-3. List tools and resources:
+3. Check server health:
 
-	`curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/list -H 'Content-Type: application/json' -d '{}'`
+	`curl -s "$MCP_URL/health"`
 
-	`curl -s -X POST http://127.0.0.1:8931/mcp/v1/resources/list -H 'Content-Type: application/json' -d '{}'`
+	Expected: `{"status":"ok","server":"mcp-demo","version":"0.1.0"}`
 
-4. Read and search docs:
+4. List tools and resources:
 
-	`curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"read_project_docs","arguments":{"file_name":"README"}}}'`
+	`mcp_post tools/list '{}'`
 
-	`curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"search_files","arguments":{"pattern":"workflow","mode":"content","directory":"docs","recursive":true}}}'`
+	`mcp_post resources/list '{}'`
 
-5. Write a safe patch in `patches/`:
+5. Read and search docs:
 
-	`curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"write_safe_patch","arguments":{"file_path":"patches/demo_note.kujo","content":"demo message","description":"demo write"}}}'`
+	`mcp_post tools/call '{"params":{"name":"read_project_docs","arguments":{"file_name":"README"}}}'`
 
-6. Verify logs:
+	`mcp_post tools/call '{"params":{"name":"search_files","arguments":{"pattern":"workflow","mode":"content","directory":"docs","recursive":true}}}'`
 
-	`curl -s http://127.0.0.1:8931/mcp/v1/logs`
+6. Write a safe patch in `patches/`:
+
+	`mcp_post tools/call '{"params":{"name":"write_safe_patch","arguments":{"file_path":"patches/demo_note.kujo","content":"demo message","description":"demo write"}}}'`
+
+	Expected: a JSON-RPC `result` containing the written file path.
+
+7. Verify logs:
+
+	`curl -s "$MCP_URL/logs"`
 
 ## Safety Boundaries In This Demo
 

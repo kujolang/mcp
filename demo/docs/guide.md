@@ -8,51 +8,88 @@ Run a full demo loop in a few minutes: discover capabilities, read docs, search 
 
 From repository root:
 
-`bash scripts/run_server.sh`
+```bash
+bash scripts/run_server.sh
+```
+
+In another shell:
+
+```bash
+MCP_URL=http://127.0.0.1:8931/mcp/v1
+mcp_post() { curl -s -X POST "$MCP_URL/$1" -H 'Content-Type: application/json' -d "$2"; }
+```
 
 Health check:
 
-`curl -s http://127.0.0.1:8931/mcp/v1/health`
+```bash
+curl -s "$MCP_URL/health"
+```
+
+Expected:
+
+```json
+{"status":"ok","server":"mcp-demo","version":"0.1.0"}
+```
 
 ## 2. Discover Capabilities
 
 List tools:
 
-`curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/list -H 'Content-Type: application/json' -d '{}'`
+```bash
+mcp_post tools/list '{}'
+```
 
 List resources:
 
-`curl -s -X POST http://127.0.0.1:8931/mcp/v1/resources/list -H 'Content-Type: application/json' -d '{}'`
+```bash
+mcp_post resources/list '{}'
+```
 
 ## 3. Read and Search Docs
 
 Read demo docs:
 
-`curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"read_project_docs","arguments":{"file_name":"README"}}}'`
+```bash
+mcp_post tools/call '{"params":{"name":"read_project_docs","arguments":{"file_name":"README"}}}'
+```
 
 Search for content:
 
-`curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"search_files","arguments":{"pattern":"guardrail","mode":"content","directory":"docs","recursive":true}}}'`
+```bash
+mcp_post tools/call '{"params":{"name":"search_files","arguments":{"pattern":"guardrail","mode":"content","directory":"docs","recursive":true}}}'
+```
 
 ## 4. Write Safely
 
 Create a patch file inside the writable sandbox:
 
-`curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"write_safe_patch","arguments":{"file_path":"patches/demo_update.kujo","content":"demo content","description":"demo write"}}}'`
+```bash
+mcp_post tools/call '{"params":{"name":"write_safe_patch","arguments":{"file_path":"patches/demo_update.kujo","content":"demo content","description":"demo write"}}}'
+```
+
+Expected: a JSON-RPC `result` containing `patches/demo_update.kujo`.
 
 Read a line range from that file:
 
-`curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"read_text_range","arguments":{"file_path":"patches/demo_update.kujo","start_line":1,"end_line":1}}}'`
+```bash
+mcp_post tools/call '{"params":{"name":"read_text_range","arguments":{"file_path":"patches/demo_update.kujo","start_line":1,"end_line":1}}}'
+```
 
 ## 5. Validate Safety Behavior
 
 Try an out-of-scope write (should fail):
 
-`curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"write_safe_patch","arguments":{"file_path":"../escape.kujo","content":"blocked","description":"path escape attempt"}}}'`
+```bash
+mcp_post tools/call '{"params":{"name":"write_safe_patch","arguments":{"file_path":"../escape.kujo","content":"blocked","description":"path escape attempt"}}}'
+```
+
+Expected: a JSON-RPC `error` response.
 
 ## 6. Inspect Logs
 
-`curl -s http://127.0.0.1:8931/mcp/v1/logs`
+```bash
+curl -s "$MCP_URL/logs"
+```
 
 ## Next Steps
 

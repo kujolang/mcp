@@ -48,6 +48,12 @@ bash scripts/run_server.sh
 
 Default endpoint: `http://127.0.0.1:8931/mcp/v1`
 
+Expected health response shape:
+
+```json
+{"status":"ok","server":"mcp-demo","version":"0.1.0"}
+```
+
 If you want to run the binary directly, resolve the runtime path first:
 
 ```bash
