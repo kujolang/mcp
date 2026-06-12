@@ -1,4 +1,4 @@
-from src.make.common import dict_has_key, write_output_file, render_markdown_bullets, render_markdown_numbered
+from src.make.common import dict_has_key, write_output_file, render_markdown_bullets, render_markdown_numbered, render_lines
 
 func render_validation_report(validation) {
     lines := "# Validation Report\n\n"
@@ -339,8 +339,12 @@ func render_howto(out_abs, artifacts_abs) {
     out := out + "```\n\n"
     out := out + "3. Validate endpoints:\n\n"
     out := out + "```bash\n"
-    out := out + "curl -s http://127.0.0.1:8941/mcp/v1/health\n"
-    out := out + "curl -s -X POST http://127.0.0.1:8941/mcp/v1/tools/list -H 'Content-Type: application/json' -d '{}'\n"
+    out := out + render_lines([
+        "MCP_URL=http://127.0.0.1:8941/mcp/v1",
+        "mcp_post() { curl -s -X POST \"$MCP_URL/$1\" -H 'Content-Type: application/json' -d \"$2\"; }",
+        "curl -s \"$MCP_URL/health\"",
+        "mcp_post tools/list '{}'"
+    ]) + "\n"
     out := out + "```\n\n"
     out := out + "4. Review generated artifacts in `" + artifacts_abs + "`.\n\n"
     out := out + "Commands listed above were generated for local validation; if any were not run, review validation-report.md for explicit skip/failure notes.\n"

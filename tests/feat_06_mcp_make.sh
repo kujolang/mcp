@@ -72,6 +72,12 @@ grep -q 'inspect_project_structure' "$GEN_DIR/mcp.manifest.json"
 grep -q 'run_safe_test_suite' "$GEN_DIR/mcp.manifest.json"
 grep -q 'deploy' "$ART_DIR/safety-review.md"
 grep -q 'blocked' "$ART_DIR/safety-review.md"
+grep -q '^MCP_URL=http://127.0.0.1:8941/mcp/v1$' "$ART_DIR/howto.md"
+grep -q '^mcp_post tools/list '\''{}'\''$' "$ART_DIR/howto.md"
+grep -q '^Generated MCP server for sample-repo$' /tmp/kujo_mcp_feat06.log
+grep -q '^- Generated server: .*/sample-repo/.mcp/generated-server$' /tmp/kujo_mcp_feat06.log
+grep -q '^- Artifacts: .*/sample-repo/.mcp/artifacts$' /tmp/kujo_mcp_feat06.log
+grep -q '^- Validation failed checks: 0$' /tmp/kujo_mcp_feat06.log
 
 if grep -R "do-not-leak" "$TARGET_REPO/.mcp" >/dev/null 2>&1; then
 	echo "secret value leaked into generated outputs"

@@ -1,4 +1,4 @@
-from src.make.common import dict_has_key, resolve_absolute_existing, resolve_absolute_output, ensure_dir_recursive, write_output_file
+from src.make.common import dict_has_key, resolve_absolute_existing, resolve_absolute_output, ensure_dir_recursive, write_output_file, render_lines
 from src.make.analyze_repo import analyze_repository
 from src.make.generate_server import generate_server_project
 from src.make.write_artifacts import write_artifacts
@@ -301,13 +301,15 @@ export func run_make_command(raw_args) {
         return {"ok": false, "error": second_artifacts["error"], "summary": ""}
     }
 
-    summary := "Generated MCP server for " + to_string(profile["repo_name"]) + "\n"
-    summary := summary + "- Generated server: " + out_abs + "\n"
-    summary := summary + "- Artifacts: " + artifacts_abs + "\n"
-    summary := summary + "- Tools generated: " + to_string(len(manifest["tools"])) + "\n"
-    summary := summary + "- Resources generated: " + to_string(len(manifest["resources"])) + "\n"
-    summary := summary + "- Prompts generated: " + to_string(len(manifest["prompts"])) + "\n"
-    summary := summary + "- Validation failed checks: " + to_string(validation["failed_count"])
+    summary := render_lines([
+        "Generated MCP server for " + to_string(profile["repo_name"]),
+        "- Generated server: " + out_abs,
+        "- Artifacts: " + artifacts_abs,
+        "- Tools generated: " + to_string(len(manifest["tools"])),
+        "- Resources generated: " + to_string(len(manifest["resources"])),
+        "- Prompts generated: " + to_string(len(manifest["prompts"])),
+        "- Validation failed checks: " + to_string(validation["failed_count"])
+    ])
 
     return {
         "ok": true,

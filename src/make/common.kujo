@@ -212,3 +212,16 @@ export func render_markdown_numbered(lines) {
     }
     return output
 }
+
+export func render_lines(lines) {
+    output := ""
+    idx := 0
+    while idx < len(lines) {
+        if idx > 0 {
+            output := output + "\n"
+        }
+        output := output + to_string(lines[idx])
+        idx := idx + 1
+    }
+    return output
+}
