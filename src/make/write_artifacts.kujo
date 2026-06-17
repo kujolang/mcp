@@ -1,5 +1,21 @@
 from src.make.common import dict_has_key, write_output_file, render_markdown_bullets, render_markdown_numbered, render_lines
 
+func markdown_field(label, value) {
+    return "- " + label + ": " + to_string(value) + "\n"
+}
+
+func markdown_bold_field(label, value) {
+    return markdown_field(label, "**" + to_string(value) + "**")
+}
+
+func markdown_code_field(label, value) {
+    return markdown_field(label, "`" + to_string(value) + "`")
+}
+
+func render_bullet_section(title, values) {
+    return "## " + title + "\n\n" + render_markdown_bullets(values) + "\n"
+}
+
 func render_validation_report(validation) {
     lines := "# Validation Report\n\n"
     lines := lines + "This report records attempted validations for generated outputs.\n\n"
@@ -21,12 +37,12 @@ func render_validation_report(validation) {
         command_text := to_string(entry["command"])
 
         lines := lines + "## " + name + "\n\n"
-        lines := lines + "- Status: **" + status + "**\n"
-        lines := lines + "- Details: " + details + "\n"
+        lines := lines + markdown_bold_field("Status", status)
+        lines := lines + markdown_field("Details", details)
         if trim(command_text) != "" {
-            lines := lines + "- Command: `" + command_text + "`\n"
+            lines := lines + markdown_code_field("Command", command_text)
         } else {
-            lines := lines + "- Command: not applicable\n"
+            lines := lines + markdown_field("Command", "not applicable")
         }
         lines := lines + "\n"
     }
@@ -115,12 +131,12 @@ func render_fix_backlog_md(items) {
         item := items[idx]
         idx := idx + 1
         out := out + "## " + to_string(item["title"]) + "\n\n"
-        out := out + "- Severity: **" + to_string(item["severity"]) + "**\n"
-        out := out + "- Affected files: " + to_json(item["affected_files"]) + "\n"
-        out := out + "- Evidence: " + to_string(item["evidence"]) + "\n"
-        out := out + "- Suggested implementation path: " + to_string(item["suggested_implementation_path"]) + "\n"
-        out := out + "- Validation command: `" + to_string(item["validation_command"]) + "`\n"
-        out := out + "- Safe for agent: " + to_string(item["safe_for_agent"]) + "\n\n"
+        out := out + markdown_bold_field("Severity", item["severity"])
+        out := out + markdown_field("Affected files", to_json(item["affected_files"]))
+        out := out + markdown_field("Evidence", item["evidence"])
+        out := out + markdown_field("Suggested implementation path", item["suggested_implementation_path"])
+        out := out + markdown_code_field("Validation command", item["validation_command"])
+        out := out + markdown_field("Safe for agent", item["safe_for_agent"]) + "\n"
     }
     return out
 }
@@ -156,11 +172,11 @@ func render_findings_md(findings) {
         finding := findings[idx]
         idx := idx + 1
         out := out + "## " + to_string(finding["title"]) + "\n\n"
-        out := out + "- Severity: **" + to_string(finding["severity"]) + "**\n"
-        out := out + "- Evidence: " + to_string(finding["evidence"]) + "\n"
-        out := out + "- Workaround: " + to_string(finding["workaround"]) + "\n"
-        out := out + "- Recommended refactor: " + to_string(finding["recommended_refactor"]) + "\n"
-        out := out + "- Test to add: " + to_string(finding["test_to_add"]) + "\n\n"
+        out := out + markdown_bold_field("Severity", finding["severity"])
+        out := out + markdown_field("Evidence", finding["evidence"])
+        out := out + markdown_field("Workaround", finding["workaround"])
+        out := out + markdown_field("Recommended refactor", finding["recommended_refactor"])
+        out := out + markdown_field("Test to add", finding["test_to_add"]) + "\n"
     }
     return out
 }
@@ -168,16 +184,11 @@ func render_findings_md(findings) {
 func render_repo_map(profile) {
     lines := "# Repo Map\n\n"
     lines := lines + "Repository: **" + to_string(profile["repo_name"]) + "**\n\n"
-    lines := lines + "## Top-level directories\n\n"
-    lines := lines + render_markdown_bullets(profile["top_level_directories"]) + "\n"
-    lines := lines + "## Likely source directories\n\n"
-    lines := lines + render_markdown_bullets(profile["likely_source_directories"]) + "\n"
-    lines := lines + "## Likely test directories\n\n"
-    lines := lines + render_markdown_bullets(profile["likely_test_directories"]) + "\n"
-    lines := lines + "## Entrypoints\n\n"
-    lines := lines + render_markdown_bullets(profile["entrypoints"]) + "\n"
-    lines := lines + "## Docs and readmes\n\n"
-    lines := lines + render_markdown_bullets(profile["docs_and_readmes"]) + "\n"
+    lines := lines + render_bullet_section("Top-level directories", profile["top_level_directories"])
+    lines := lines + render_bullet_section("Likely source directories", profile["likely_source_directories"])
+    lines := lines + render_bullet_section("Likely test directories", profile["likely_test_directories"])
+    lines := lines + render_bullet_section("Entrypoints", profile["entrypoints"])
+    lines := lines + render_bullet_section("Docs and readmes", profile["docs_and_readmes"])
     return lines
 }
 
@@ -257,27 +268,30 @@ func render_safety_review(profile, manifest) {
     }
 
     lines := lines + "## Exposure decisions\n\n"
-    lines := lines + "- Enabled by default: `read_only` tools/resources and allowlisted `safe_command` tools.\n"
-    lines := lines + "- Disabled by default: `review_required` and `blocked` operations.\n"
-    lines := lines + "- No arbitrary shell execution is exposed through tool input.\n"
+    lines := lines + render_markdown_bullets([
+        "Enabled by default: `read_only` tools/resources and allowlisted `safe_command` tools.",
+        "Disabled by default: `review_required` and `blocked` operations.",
+        "No arbitrary shell execution is exposed through tool input."
+    ])
 
     return lines
 }
 
 func render_agent_handoff(profile, out_abs, artifacts_abs) {
-    prompt_lines := []
-    prompt_lines := push(prompt_lines, "Implement fixes listed in fix-backlog.md for repository " + to_string(profile["repo_name"]) + ".")
-    prompt_lines := push(prompt_lines, "Inspect repo-profile.json, repo-map.md, and safety-review.md before making changes.")
-    prompt_lines := push(prompt_lines, "Prioritize high severity fixes first.")
-    prompt_lines := push(prompt_lines, "Run likely test command: " + to_string(profile["likely_test_command"]))
-    prompt_lines := push(prompt_lines, "Do not execute blocked commands from safety-review.md.")
-    prompt_lines := push(prompt_lines, "Deliverables: patch summary, tests added/updated, validation command output, and residual risks.")
+    prompt_lines := [
+        "Implement fixes listed in fix-backlog.md for repository " + to_string(profile["repo_name"]) + ".",
+        "Inspect repo-profile.json, repo-map.md, and safety-review.md before making changes.",
+        "Prioritize high severity fixes first.",
+        "Run likely test command: " + to_string(profile["likely_test_command"]),
+        "Do not execute blocked commands from safety-review.md.",
+        "Deliverables: patch summary, tests added/updated, validation command output, and residual risks."
+    ]
 
     out := "# Agent Handoff\n\n"
     out := out + "## Context\n\n"
-    out := out + "- Repository: `" + to_string(profile["repo_path_absolute"]) + "`\n"
-    out := out + "- Generated server: `" + out_abs + "`\n"
-    out := out + "- Artifacts: `" + artifacts_abs + "`\n\n"
+    out := out + markdown_code_field("Repository", profile["repo_path_absolute"])
+    out := out + markdown_code_field("Generated server", out_abs)
+    out := out + markdown_code_field("Artifacts", artifacts_abs) + "\n"
     out := out + "## Copy/Paste Prompt\n\n"
     out := out + "```text\n"
     out := out + render_markdown_numbered(prompt_lines)
@@ -292,9 +306,11 @@ func render_patchbrief(profile, out_abs, artifacts_abs) {
     out := out + "## Why It Matters\n\n"
     out := out + "This enables deterministic repository inspection, safe command execution allowlists, and repeatable MCP onboarding outputs.\n\n"
     out := out + "## Review Guide\n\n"
-    out := out + "- Inspect generated server files in `" + out_abs + "`.\n"
-    out := out + "- Review safety decisions in `" + artifacts_abs + "/safety-review.md`.\n"
-    out := out + "- Verify validation outcomes in `" + artifacts_abs + "/validation-report.md`.\n"
+    out := out + render_markdown_bullets([
+        "Inspect generated server files in `" + out_abs + "`.",
+        "Review safety decisions in `" + artifacts_abs + "/safety-review.md`.",
+        "Verify validation outcomes in `" + artifacts_abs + "/validation-report.md`."
+    ])
     return out
 }
 
@@ -318,12 +334,9 @@ func render_shipcheck(profile, validation) {
         out := out + "- No hard blockers detected in deterministic validation pass.\n"
     }
 
-    out := out + "\n## Test Gaps\n\n"
-    out := out + render_markdown_bullets(profile["missing_tests"]) + "\n"
-    out := out + "## Doc Gaps\n\n"
-    out := out + render_markdown_bullets(profile["missing_or_stale_docs"]) + "\n"
-    out := out + "## Unsafe Assumptions\n\n"
-    out := out + render_markdown_bullets(profile["unresolved_assumptions"]) + "\n"
+    out := out + "\n" + render_bullet_section("Test Gaps", profile["missing_tests"])
+    out := out + render_bullet_section("Doc Gaps", profile["missing_or_stale_docs"])
+    out := out + render_bullet_section("Unsafe Assumptions", profile["unresolved_assumptions"])
     return out
 }
 

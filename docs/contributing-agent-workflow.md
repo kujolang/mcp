@@ -41,6 +41,12 @@ A checklist item is done only when all conditions below are met:
 - Treat `.kujo_cache/`, `.mcp/`, logs, and generated output directories as bulk/generated paths. Exclude generated/bulk paths from the main sweep unless the task explicitly targets them; document the search exclusions you used.
 - Clearly label stale, legacy, generated, or expected-fail examples instead of letting them look canonical.
 
+## Kujo Output Style
+
+- Keep first-run examples direct; a single `print(...)` is clearer than a helper.
+- When a Kujo file has repeated banners, menus, or status blocks, prefer small local helpers such as `print_lines(...)` or a local summary helper.
+- Do not move test fixture output behind helpers unless it improves the behavior contract.
+
 ## Pull Request Expectations
 
 - Include a concise summary of behavior changes.

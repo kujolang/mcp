@@ -481,6 +481,23 @@ func list_resources() {
 }
 
 # =============================================================================
+# Startup output helpers
+# =============================================================================
+
+func print_lines(lines) {
+    for line in lines {
+        print(line)
+    }
+}
+
+func print_registry_summary(title, entries, description_key) {
+    print(" " + title + ":")
+    for entry_name in keys(entries) {
+        print("   - " + entry_name + ": " + entries[entry_name][description_key])
+    }
+}
+
+# =============================================================================
 # Define demo tools and resources via modular registries
 # =============================================================================
 
@@ -532,12 +549,14 @@ if RESOURCES_ENABLED {
 # MCP route handlers
 # =============================================================================
 
-print("")
-print("╔════════════════════════════════════════════════╗")
-print("║        MCP Server                        ║")
-print("║        http://" + HOST + ":" + to_string(PORT) + "                    ║")
-print("╚════════════════════════════════════════════════╝")
-print("")
+print_lines([
+    "",
+    "╔════════════════════════════════════════════════╗",
+    "║        MCP Server                        ║",
+    "║        http://" + HOST + ":" + to_string(PORT) + "                    ║",
+    "╚════════════════════════════════════════════════╝",
+    ""
+])
 
 server := http_listen(HOST, PORT)
 
@@ -810,21 +829,15 @@ server := server.route("GET", "/mcp/v1/logs", func(req) {
 # Print startup info and start
 # =============================================================================
 
-print(" Tools:")
-for n in keys(tools) {
-    print("   - " + n + ": " + tools[n]["description"])
-}
-
+print_registry_summary("Tools", tools, "description")
 print("")
-print(" Resources:")
-for u in keys(resources) {
-    print("   - " + u + ": " + resources[u]["desc"])
-}
-
-print("")
-print(" Logging to: " + LOG_FILE)
-print("")
-print(" Press Ctrl+C to stop")
-print("")
+print_registry_summary("Resources", resources, "desc")
+print_lines([
+    "",
+    " Logging to: " + LOG_FILE,
+    "",
+    " Press Ctrl+C to stop",
+    ""
+])
 
 server.listen()
