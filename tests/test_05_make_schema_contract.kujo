@@ -62,4 +62,14 @@ missing_server_case["server"] := {}
 result_missing_server := validate_manifest_contract(missing_server_case)
 assert(result_missing_server["passed"] == false, "manifest with empty server block should fail")
 
+empty_safe_command_case := build_valid_manifest()
+empty_safe_command_case["safe_command_map"] := {"run_safe_test_suite": ""}
+result_empty_safe_command := validate_manifest_contract(empty_safe_command_case)
+assert(result_empty_safe_command["passed"] == false, "manifest with empty safe command value should fail")
+
+bad_blocked_command_case := build_valid_manifest()
+bad_blocked_command_case["blocked_commands"] := ["deploy", ""]
+result_bad_blocked_command := validate_manifest_contract(bad_blocked_command_case)
+assert(result_bad_blocked_command["passed"] == false, "manifest with empty blocked command value should fail")
+
 print("test_05_make_schema_contract: all assertions passed")

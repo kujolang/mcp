@@ -249,14 +249,40 @@ func validate_safe_command_map(safe_command_map) {
     if type(safe_command_map) != "dict" {
         return [{"ok": false, "error": "manifest.safe_command_map must be an object"}]
     }
-    return [{"ok": true, "error": ""}]
+
+    results := [{"ok": true, "error": ""}]
+    command_names := keys(safe_command_map)
+    idx := 0
+    while idx < len(command_names) {
+        command_name := to_string(command_names[idx])
+        idx := idx + 1
+
+        if trim(command_name) == "" {
+            results := push(results, {"ok": false, "error": "manifest.safe_command_map keys must be non-empty tool names"})
+        } else {
+            command_value := safe_command_map[command_name]
+            value_check := validate_non_empty_string(command_value, "manifest.safe_command_map." + command_name)
+            results := push(results, value_check)
+        }
+    }
+
+    return results
 }
 
 func validate_blocked_commands(blocked_commands) {
     if type(blocked_commands) != "array" {
         return [{"ok": false, "error": "manifest.blocked_commands must be an array"}]
     }
-    return [{"ok": true, "error": ""}]
+
+    results := [{"ok": true, "error": ""}]
+    idx := 0
+    while idx < len(blocked_commands) {
+        blocked := blocked_commands[idx]
+        results := push(results, validate_non_empty_string(blocked, "manifest.blocked_commands[" + to_string(idx) + "]"))
+        idx := idx + 1
+    }
+
+    return results
 }
 
 func validate_safety_tiers(safety_tiers) {

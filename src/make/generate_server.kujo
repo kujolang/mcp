@@ -302,11 +302,14 @@ func build_prompts(out_abs) {
     return prompts
 }
 
-func render_generated_server_source(manifest_abs, profile_abs) {
+func render_generated_server_source(manifest_abs, profile_abs, out_abs, artifacts_abs) {
     lines := []
     lines := push(lines, "MANIFEST_PATH := \"" + manifest_abs + "\"")
     lines := push(lines, "PROFILE_PATH := \"" + profile_abs + "\"")
+    lines := push(lines, "GENERATED_SERVER_ROOT := \"" + out_abs + "\"")
+    lines := push(lines, "GENERATED_ARTIFACTS_ROOT := \"" + artifacts_abs + "\"")
     lines := push(lines, "DEFAULT_PORT := 8941")
+    lines := push(lines, "MAX_REQUEST_BODY_BYTES := 262144")
     lines := push(lines, "")
     lines := push(lines, "func dict_has_key(dict_value, key_name) {")
     lines := push(lines, "    probe := has_key(dict_value, key_name)")
@@ -330,6 +333,7 @@ func render_generated_server_source(manifest_abs, profile_abs) {
     lines := push(lines, "")
     lines := push(lines, "manifest := load_json_file(MANIFEST_PATH)")
     lines := push(lines, "profile := load_json_file(PROFILE_PATH)")
+    lines := push(lines, "RESOURCE_ROOTS := [to_string(profile[\"repo_path_absolute\"]), GENERATED_SERVER_ROOT, GENERATED_ARTIFACTS_ROOT]")
     lines := push(lines, "")
     lines := push(lines, "tools := []")
     lines := push(lines, "resources := []")
@@ -343,6 +347,38 @@ func render_generated_server_source(manifest_abs, profile_abs) {
     lines := push(lines, "}")
     lines := push(lines, "if dict_has_key(manifest, \"safe_command_map\") && type(manifest[\"safe_command_map\"]) == \"dict\" {")
     lines := push(lines, "    safe_command_map := manifest[\"safe_command_map\"]")
+    lines := push(lines, "}")
+    lines := push(lines, "")
+    lines := push(lines, "func is_path_inside_root(candidate_abs, root_abs) {")
+    lines := push(lines, "    if candidate_abs == root_abs {")
+    lines := push(lines, "        return true")
+    lines := push(lines, "    }")
+    lines := push(lines, "    return starts_with(candidate_abs, root_abs + \"/\")")
+    lines := push(lines, "}")
+    lines := push(lines, "")
+    lines := push(lines, "func is_resource_path_allowed(file_path) {")
+    lines := push(lines, "    candidate_abs := path_absolute(file_path)")
+    lines := push(lines, "    idx := 0")
+    lines := push(lines, "    while idx < len(RESOURCE_ROOTS) {")
+    lines := push(lines, "        root_abs := path_absolute(to_string(RESOURCE_ROOTS[idx]))")
+    lines := push(lines, "        idx := idx + 1")
+    lines := push(lines, "        if is_path_inside_root(candidate_abs, root_abs) {")
+    lines := push(lines, "            return true")
+    lines := push(lines, "        }")
+    lines := push(lines, "    }")
+    lines := push(lines, "    return false")
+    lines := push(lines, "}")
+    lines := push(lines, "")
+    lines := push(lines, "func enforce_request_body_limit(req) {")
+    lines := push(lines, "    body_size := 0")
+    lines := push(lines, "    try {")
+    lines := push(lines, "        body_size := len(to_string(req[\"body\"]))")
+    lines := push(lines, "    } except err {")
+    lines := push(lines, "    }")
+    lines := push(lines, "    if body_size > MAX_REQUEST_BODY_BYTES {")
+    lines := push(lines, "        return {\"ok\": false, \"status\": 413, \"body\": {\"error\": \"Request body exceeds configured maximum\"}}")
+    lines := push(lines, "    }")
+    lines := push(lines, "    return {\"ok\": true, \"status\": 200, \"body\": {}}")
     lines := push(lines, "}")
     lines := push(lines, "")
     lines := push(lines, "func find_tool(tool_name) {")
@@ -477,6 +513,9 @@ func render_generated_server_source(manifest_abs, profile_abs) {
     lines := push(lines, "                if !file_exists(file_path) {")
     lines := push(lines, "                    return {\"ok\": false, \"error\": \"Resource file does not exist: \" + file_path}")
     lines := push(lines, "                }")
+    lines := push(lines, "                if !is_resource_path_allowed(file_path) {")
+    lines := push(lines, "                    return {\"ok\": false, \"error\": \"Resource path is outside generated server resource roots\"}")
+    lines := push(lines, "                }")
     lines := push(lines, "                if file_size(file_path) > 1048576 {")
     lines := push(lines, "                    return {\"ok\": false, \"error\": \"Resource exceeds max read size\"}")
     lines := push(lines, "                }")
@@ -511,10 +550,20 @@ func render_generated_server_source(manifest_abs, profile_abs) {
     lines := push(lines, "})")
     lines := push(lines, "")
     lines := push(lines, "server := server.route(\"POST\", \"/mcp/v1/tools/list\", func(req) {")
+    lines := push(lines, "    limits := enforce_request_body_limit(req)")
+    lines := push(lines, "    if limits[\"ok\"] == false {")
+    lines := push(lines, "        return json_response(limits[\"status\"], limits[\"body\"])")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
     lines := push(lines, "    return json_response(200, {\"jsonrpc\": \"2.0\", \"result\": {\"tools\": tools}})")
     lines := push(lines, "})")
     lines := push(lines, "")
     lines := push(lines, "server := server.route(\"POST\", \"/mcp/v1/tools/call\", func(req) {")
+    lines := push(lines, "    limits := enforce_request_body_limit(req)")
+    lines := push(lines, "    if limits[\"ok\"] == false {")
+    lines := push(lines, "        return json_response(limits[\"status\"], limits[\"body\"])")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
     lines := push(lines, "    payload := {}")
     lines := push(lines, "    try {")
     lines := push(lines, "        payload := parse_json(req[\"body\"])")
@@ -555,10 +604,20 @@ func render_generated_server_source(manifest_abs, profile_abs) {
     lines := push(lines, "})")
     lines := push(lines, "")
     lines := push(lines, "server := server.route(\"POST\", \"/mcp/v1/resources/list\", func(req) {")
+    lines := push(lines, "    limits := enforce_request_body_limit(req)")
+    lines := push(lines, "    if limits[\"ok\"] == false {")
+    lines := push(lines, "        return json_response(limits[\"status\"], limits[\"body\"])")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
     lines := push(lines, "    return json_response(200, {\"jsonrpc\": \"2.0\", \"result\": {\"resources\": resources}})")
     lines := push(lines, "})")
     lines := push(lines, "")
     lines := push(lines, "server := server.route(\"POST\", \"/mcp/v1/resources/read\", func(req) {")
+    lines := push(lines, "    limits := enforce_request_body_limit(req)")
+    lines := push(lines, "    if limits[\"ok\"] == false {")
+    lines := push(lines, "        return json_response(limits[\"status\"], limits[\"body\"])")
+    lines := push(lines, "    }")
+    lines := push(lines, "")
     lines := push(lines, "    payload := {}")
     lines := push(lines, "    try {")
     lines := push(lines, "        payload := parse_json(req[\"body\"])")
@@ -790,12 +849,27 @@ export func generate_server_project(profile, out_abs, artifacts_abs, dry_run, ai
         },
         "http": {
             "host": "127.0.0.1",
-            "port": 8941
+            "port": 8941,
+            "max_request_body_bytes": 262144,
+            "rate_limit_enabled": true,
+            "rate_limit_per_minute": 300
+        },
+        "auth": {
+            "enabled": false,
+            "type": "bearer",
+            "token": ""
         },
         "permissions": {
             "allowed_directories": [to_string(profile["repo_path_absolute"]), out_abs, artifacts_abs],
             "max_file_size": 1048576,
             "read_only_patterns": ["*.md", "*.json", "*.yaml", "*.yml", "*.toml", "*.lock", "*.env", "*.pem", "*.key"]
+        },
+        "tools": {
+            "enabled": true,
+            "default_timeout_ms": 120000
+        },
+        "resources": {
+            "enabled": true
         }
     })
 
@@ -805,7 +879,7 @@ export func generate_server_project(profile, out_abs, artifacts_abs, dry_run, ai
     }
     generated_files := write_cfg["generated_files"]
 
-    server_source := render_generated_server_source(out_abs + "/mcp.manifest.json", out_abs + "/repo-profile.json")
+    server_source := render_generated_server_source(out_abs + "/mcp.manifest.json", out_abs + "/repo-profile.json", out_abs, artifacts_abs)
     write_server := write_generated_file(out_abs + "/src/server.kujo", server_source, write_roots, generated_files)
     if !write_server["ok"] {
         return {"ok": false, "error": write_server["error"], "manifest": manifest}
