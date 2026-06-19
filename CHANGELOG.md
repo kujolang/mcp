@@ -11,6 +11,8 @@ All notable changes to this project are documented in this file.
 	- `repo-profile.json` and `mcp.manifest.json`
 	- safety-classified tools/resources/prompts with allowlisted safe commands
 	- full artifact packet under `.mcp/artifacts` including backlog, validation, handoff, and MCP findings files.
+- Added generated-server resource-root enforcement, bounded generated POST request bodies, and stricter manifest allowlist validation.
+- Added `docs/MCP_REVIEW_BACKLOG_2026_06_19.md` to capture the next production-readiness, security, performance, functionality, and presentation pass.
 - Added modular make pipeline modules under `src/make/` and command orchestration in `src/commands/make.kujo`.
 - Added new test coverage for make safety/profile units and full generation integration (`tests/test_04_make_*.kujo`, `tests/feat_06_mcp_make.sh`).
 

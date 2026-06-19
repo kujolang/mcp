@@ -35,6 +35,8 @@ This document defines trust boundaries, threat assumptions, and hardening defaul
 - Configurable host policy and optional `bearer`/`api_key` auth checks are available.
 - Tool timeout defaults are enforced from `tools.default_timeout_ms` where timeout-aware handlers are implemented.
 - Request body size and per-minute request-rate guardrails are enforced from HTTP config.
+- Generated servers constrain manifest-declared resource reads to the analyzed repository, generated server directory, and artifact directory.
+- Generated servers enforce a bounded POST request body size in addition to the primary demo server's configurable request guardrails.
 
 ## Validation and Regression Coverage
 
@@ -47,6 +49,7 @@ This document defines trust boundaries, threat assumptions, and hardening defaul
   - `tests/sec_05_file_size_limits.sh`
   - `tests/sec_06_network_auth.sh`
   - `tests/sec_07_tool_argument_validation.sh`
+  - `tests/feat_06_mcp_make.sh` verifies generated-server resource-root and request-size guardrail emission.
 
 ## Operational Guidance
 

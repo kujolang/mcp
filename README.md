@@ -9,12 +9,25 @@ Build MCP (Model Context Protocol) servers in [Kujo](https://github.com/kujolang
 
 This project gives you a local MCP server foundation with configurable tools/resources, bounded file operations, and documented guardrails for controlled remote deployments.
 
+## Readiness at a Glance
+
+`mcp` is ready to use as a local MCP server framework, demo implementation, and guarded repo-specific server generator. It is not a universal enterprise certification package by itself; remote production use still needs environment-specific review of auth, network ingress, secret custody, observability, and capacity limits.
+
+| Area | Current status |
+|------|----------------|
+| Local MCP server | Ready for local development and integration testing |
+| File tools/resources | Guarded by configured roots, read-only patterns, size limits, and argument validation |
+| `mcp make` generator | Ready for deterministic repo profiling, generated scaffolds, and review artifacts |
+| Remote deployment | Baseline guidance and config template provided; operators must validate their own ingress, TLS, auth, and rate limiting |
+| Enterprise operations | Strong foundation, but not a completed managed platform with SSO, centralized audit retention, distributed limits, or formal security certification |
+
 ## Why Use This
 
 - Build MCP tools and resources directly in Kujo
 - Start fast with a working server and demo workspace
 - Ship safer defaults with path guards, request limits, and auth controls
 - Scale from local development to reverse-proxy deployments
+- Generate reviewable repo-specific MCP scaffolds that showcase Kujo's configuration, safety, and artifact-generation strengths
 
 ## Who This Is For
 
@@ -149,6 +162,8 @@ Safety defaults in generated servers:
 - Arbitrary shell command input is not exposed.
 - Risky commands are marked blocked/review-required in artifacts.
 - Sensitive files are recorded by path only; secret values are not copied into generated outputs.
+- Generated resource reads are constrained to the analyzed repository, generated server directory, and artifact directory.
+- Generated POST endpoints enforce a bounded request body size.
 
 See detailed command reference: `docs/mcp-make.md`.
 
@@ -173,6 +188,7 @@ See full deployment guidance: `docs/production-deployment.md`.
 - `docs/contributing-agent-workflow.md`: contributor workflow and completion criteria
 - `docs/release-versioning-policy.md`: release and versioning conventions
 - `docs/MCP_REBOOT_CHECKLIST.md`: implementation and hardening backlog
+- `docs/MCP_REVIEW_BACKLOG_2026_06_19.md`: next-session production-readiness backlog
 
 ## Project Structure
 
@@ -200,4 +216,4 @@ bash tests/run_all_tests.sh
 
 ## Readiness
 
-This repository is launch-honest as a local protocol-compatible MCP server foundation and remote-deployment baseline. Production use still requires environment-specific validation, especially for auth, ingress, and rate-limit settings described in `docs/production-deployment.md` and `docs/security-model.md`.
+This repository is launch-honest as a local protocol-compatible MCP server foundation, repo-specific scaffold generator, and remote-deployment baseline. Production use still requires environment-specific validation, especially for auth, ingress, rate-limit, monitoring, backup, and incident-response settings described in `docs/production-deployment.md`, `docs/security-model.md`, and `docs/MCP_REVIEW_BACKLOG_2026_06_19.md`.
