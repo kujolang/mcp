@@ -1,9 +1,10 @@
 # MCP Server Framework
 
+[![Version](https://img.shields.io/badge/version-1.0.0-black)](https://github.com/kujolang/mcp)
+[![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
+[![built with Kujo](https://img.shields.io/badge/built%20with-Kujo-white.svg)](https://github.com/kujolang/kujo)
 [![CI](https://github.com/kujolang/mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/kujolang/mcp/actions/workflows/ci.yml)
-![Language: Kujo](https://img.shields.io/badge/language-Kujo-2ea44f)
 ![Protocol: MCP](https://img.shields.io/badge/protocol-MCP-0969da)
-![Deployment Baseline](https://img.shields.io/badge/profile-deployment%20baseline-brightgreen)
 
 Build MCP (Model Context Protocol) servers in [Kujo](https://github.com/kujolang/kujo).
 
