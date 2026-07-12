@@ -17,7 +17,7 @@ blocked_actions:
 
 eval_gates:
   - id: kujo_checks
-    command: "for f in server.kujo src/core/*.kujo src/make/*.kujo src/tools/*.kujo src/resources/*.kujo tests/*.kujo; do /Users/robertdevore/2026/Kujolang/kujo-repos/kujo/target/debug/kujo check \"$f\" >/dev/null || exit 1; done"
+    command: "for f in server.kujo src/core/*.kujo src/make/*.kujo src/tools/*.kujo src/resources/*.kujo tests/*.kujo; do /Users/robertdevore/2026/Kujolang/kujo-repos/kujo/target/debug/kujo check $f >/dev/null || exit 1; done"
   - id: regression_tests
     command: "KUJO_BIN=/Users/robertdevore/2026/Kujolang/kujo-repos/kujo/target/debug/kujo bash tests/run_all_tests.sh"
   - id: diff_check

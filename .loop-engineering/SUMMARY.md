@@ -2,25 +2,25 @@
 
 ## Verdict
 
-not-run
+blocked
 
 ## Completed
 
-- none
+- configured loop run completed through iteration 3
 
 ## Verification
 
-- passed: none
+- passed: regression_tests, diff_check, diff_check, regression_tests, diff_check, diff_check, regression_tests, diff_check, diff_check
 - blocked: none
-- failed: none
+- failed: kujo_checks, kujo_checks, kujo_checks
 
 ## Commits
 
-- none
+- Loop engineering: Audit HLP-001 safe_write and HLP-004 CLI parsing; preserve boundary, overwrite, and capability policy where no native contract is equivalent.
 
 ## Remaining
 
-- configure objective/checklist_file in loop.yml
+- none
 
 ## External Blockers
 
@@ -28,4 +28,4 @@ not-run
 
 ## Next Start
 
-- scripts/run-workflow.sh --config .loop-engineering/loop.yml
+- repeated-failure: required gate failed 3 times
