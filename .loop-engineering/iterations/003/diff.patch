@@ -1,8 +1,191 @@
+diff --git a/.loop-engineering/iterations/001/context.md b/.loop-engineering/iterations/001/context.md
+index 107664b..d39ddc4 100644
+--- a/.loop-engineering/iterations/001/context.md
++++ b/.loop-engineering/iterations/001/context.md
+@@ -1,6 +1,6 @@
+ # Context
+ 
+ - objective: Audit HLP-001 safe_write and HLP-004 CLI parsing; preserve boundary, overwrite, and capability policy where no native contract is equivalent.
+-- git_head: 06be93f
++- git_head: 1420197
+ - changed_files:
+   - none
+diff --git a/.loop-engineering/iterations/001/diff.patch b/.loop-engineering/iterations/001/diff.patch
+index e69de29..b6f7231 100644
+--- a/.loop-engineering/iterations/001/diff.patch
++++ b/.loop-engineering/iterations/001/diff.patch
+@@ -0,0 +1,12 @@
++diff --git a/.loop-engineering/iterations/001/context.md b/.loop-engineering/iterations/001/context.md
++index 107664b..d39ddc4 100644
++--- a/.loop-engineering/iterations/001/context.md
+++++ b/.loop-engineering/iterations/001/context.md
++@@ -1,6 +1,6 @@
++ # Context
++ 
++ - objective: Audit HLP-001 safe_write and HLP-004 CLI parsing; preserve boundary, overwrite, and capability policy where no native contract is equivalent.
++-- git_head: 06be93f
+++- git_head: 1420197
++ - changed_files:
++   - none
+diff --git a/.loop-engineering/iterations/001/verdict.yml b/.loop-engineering/iterations/001/verdict.yml
+index 5eace62..30640a2 100644
+--- a/.loop-engineering/iterations/001/verdict.yml
++++ b/.loop-engineering/iterations/001/verdict.yml
+@@ -1,6 +1,6 @@
+ iteration: 1
+ verdict: failed
+ progress: 0
+-required_failures: 1
++required_failures: 2
+ external_blockers: 0
+ stop_reason: "required gate failed"
+diff --git a/.loop-engineering/iterations/002/context.md b/.loop-engineering/iterations/002/context.md
+index 107664b..65c236f 100644
+--- a/.loop-engineering/iterations/002/context.md
++++ b/.loop-engineering/iterations/002/context.md
+@@ -1,6 +1,7 @@
+ # Context
+ 
+ - objective: Audit HLP-001 safe_write and HLP-004 CLI parsing; preserve boundary, overwrite, and capability policy where no native contract is equivalent.
+-- git_head: 06be93f
++- git_head: 1420197
+ - changed_files:
+-  - none
++  - .loop-engineering/iterations/001/context.md
++  - .loop-engineering/iterations/001/diff.patch
+diff --git a/.loop-engineering/iterations/002/diff.patch b/.loop-engineering/iterations/002/diff.patch
+index d1c2beb..94b45f2 100644
+--- a/.loop-engineering/iterations/002/diff.patch
++++ b/.loop-engineering/iterations/002/diff.patch
+@@ -1,7 +1,76 @@
++diff --git a/.loop-engineering/iterations/001/context.md b/.loop-engineering/iterations/001/context.md
++index 107664b..d39ddc4 100644
++--- a/.loop-engineering/iterations/001/context.md
+++++ b/.loop-engineering/iterations/001/context.md
++@@ -1,6 +1,6 @@
++ # Context
++ 
++ - objective: Audit HLP-001 safe_write and HLP-004 CLI parsing; preserve boundary, overwrite, and capability policy where no native contract is equivalent.
++-- git_head: 06be93f
+++- git_head: 1420197
++ - changed_files:
++   - none
++diff --git a/.loop-engineering/iterations/001/diff.patch b/.loop-engineering/iterations/001/diff.patch
++index e69de29..b6f7231 100644
++--- a/.loop-engineering/iterations/001/diff.patch
+++++ b/.loop-engineering/iterations/001/diff.patch
++@@ -0,0 +1,12 @@
+++diff --git a/.loop-engineering/iterations/001/context.md b/.loop-engineering/iterations/001/context.md
+++index 107664b..d39ddc4 100644
+++--- a/.loop-engineering/iterations/001/context.md
++++++ b/.loop-engineering/iterations/001/context.md
+++@@ -1,6 +1,6 @@
+++ # Context
+++ 
+++ - objective: Audit HLP-001 safe_write and HLP-004 CLI parsing; preserve boundary, overwrite, and capability policy where no native contract is equivalent.
+++-- git_head: 06be93f
++++- git_head: 1420197
+++ - changed_files:
+++   - none
++diff --git a/.loop-engineering/iterations/001/verdict.yml b/.loop-engineering/iterations/001/verdict.yml
++index 5eace62..30640a2 100644
++--- a/.loop-engineering/iterations/001/verdict.yml
+++++ b/.loop-engineering/iterations/001/verdict.yml
++@@ -1,6 +1,6 @@
++ iteration: 1
++ verdict: failed
++ progress: 0
++-required_failures: 1
+++required_failures: 2
++ external_blockers: 0
++ stop_reason: "required gate failed"
++diff --git a/.loop-engineering/iterations/002/context.md b/.loop-engineering/iterations/002/context.md
++index 107664b..65c236f 100644
++--- a/.loop-engineering/iterations/002/context.md
+++++ b/.loop-engineering/iterations/002/context.md
++@@ -1,6 +1,7 @@
++ # Context
++ 
++ - objective: Audit HLP-001 safe_write and HLP-004 CLI parsing; preserve boundary, overwrite, and capability policy where no native contract is equivalent.
++-- git_head: 06be93f
+++- git_head: 1420197
++ - changed_files:
++-  - none
+++  - .loop-engineering/iterations/001/context.md
+++  - .loop-engineering/iterations/001/diff.patch
++diff --git a/.loop-engineering/iterations/002/diff.patch b/.loop-engineering/iterations/002/diff.patch
++index d1c2beb..e69de29 100644
++--- a/.loop-engineering/iterations/002/diff.patch
+++++ b/.loop-engineering/iterations/002/diff.patch
++@@ -1,7 +0,0 @@
++-diff --git a/.loop-engineering/ledger.tsv b/.loop-engineering/ledger.tsv
++-index dafd866..4c16fa3 100644
++---- a/.loop-engineering/ledger.tsv
++-+++ b/.loop-engineering/ledger.tsv
++-@@ -1 +1,2 @@
++- iteration	action	verdict	progress	evidence	justification
++-+001	configured-gates	failed	0	iterations/001/eval.log	required gate failed
+ diff --git a/.loop-engineering/ledger.tsv b/.loop-engineering/ledger.tsv
+-index dafd866..4c16fa3 100644
++index 58d34e4..e44f278 100644
+ --- a/.loop-engineering/ledger.tsv
+ +++ b/.loop-engineering/ledger.tsv
+-@@ -1 +1,2 @@
+- iteration	action	verdict	progress	evidence	justification
++@@ -2,3 +2,4 @@ iteration	action	verdict	progress	evidence	justification
++ 001	configured-gates	failed	0	iterations/001/eval.log	required gate failed
++ 002	configured-gates	failed	0	iterations/002/eval.log	required gate failed
++ 003	configured-gates	failed	0	iterations/003/eval.log	required gate failed
+ +001	configured-gates	failed	0	iterations/001/eval.log	required gate failed
+diff --git a/.loop-engineering/iterations/002/verdict.yml b/.loop-engineering/iterations/002/verdict.yml
+index 115b1f6..a9c297f 100644
+--- a/.loop-engineering/iterations/002/verdict.yml
++++ b/.loop-engineering/iterations/002/verdict.yml
+@@ -1,6 +1,6 @@
+ iteration: 2
+ verdict: failed
+ progress: 0
+-required_failures: 1
++required_failures: 2
+ external_blockers: 0
+ stop_reason: "required gate failed"
+diff --git a/.loop-engineering/iterations/003/context.md b/.loop-engineering/iterations/003/context.md
+index a82e126..c09872e 100644
+--- a/.loop-engineering/iterations/003/context.md
++++ b/.loop-engineering/iterations/003/context.md
+@@ -1,6 +1,11 @@
+ # Context
+ 
+ - objective: Audit HLP-001 safe_write and HLP-004 CLI parsing; preserve boundary, overwrite, and capability policy where no native contract is equivalent.
+-- git_head: 06be93f
++- git_head: 9d3a1d7
+ - changed_files:
++  - .loop-engineering/iterations/001/context.md
++  - .loop-engineering/iterations/001/diff.patch
++  - .loop-engineering/iterations/001/verdict.yml
++  - .loop-engineering/iterations/002/context.md
++  - .loop-engineering/iterations/002/diff.patch
+   - .loop-engineering/ledger.tsv
+diff --git a/.loop-engineering/iterations/003/diff.patch b/.loop-engineering/iterations/003/diff.patch
+index 975ff39..defb300 100644
+--- a/.loop-engineering/iterations/003/diff.patch
++++ b/.loop-engineering/iterations/003/diff.patch
+@@ -1,8 +0,0 @@
+-diff --git a/.loop-engineering/ledger.tsv b/.loop-engineering/ledger.tsv
+-index dafd866..17b32a2 100644
+---- a/.loop-engineering/ledger.tsv
+-+++ b/.loop-engineering/ledger.tsv
+-@@ -1 +1,3 @@
+- iteration	action	verdict	progress	evidence	justification
+-+001	configured-gates	failed	0	iterations/001/eval.log	required gate failed
+-+002	configured-gates	failed	0	iterations/002/eval.log	required gate failed
 diff --git a/.loop-engineering/ledger.tsv b/.loop-engineering/ledger.tsv
-index dafd866..17b32a2 100644
+index 58d34e4..b99c282 100644
 --- a/.loop-engineering/ledger.tsv
 +++ b/.loop-engineering/ledger.tsv
-@@ -1 +1,3 @@
- iteration	action	verdict	progress	evidence	justification
+@@ -2,3 +2,5 @@ iteration	action	verdict	progress	evidence	justification
+ 001	configured-gates	failed	0	iterations/001/eval.log	required gate failed
+ 002	configured-gates	failed	0	iterations/002/eval.log	required gate failed
+ 003	configured-gates	failed	0	iterations/003/eval.log	required gate failed
 +001	configured-gates	failed	0	iterations/001/eval.log	required gate failed
 +002	configured-gates	failed	0	iterations/002/eval.log	required gate failed

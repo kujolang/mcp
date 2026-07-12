@@ -1,0 +1,12 @@
+diff --git a/.loop-engineering/iterations/001/context.md b/.loop-engineering/iterations/001/context.md
+index 107664b..d39ddc4 100644
+--- a/.loop-engineering/iterations/001/context.md
++++ b/.loop-engineering/iterations/001/context.md
+@@ -1,6 +1,6 @@
+ # Context
+ 
+ - objective: Audit HLP-001 safe_write and HLP-004 CLI parsing; preserve boundary, overwrite, and capability policy where no native contract is equivalent.
+-- git_head: 06be93f
++- git_head: 1420197
+ - changed_files:
+   - none
