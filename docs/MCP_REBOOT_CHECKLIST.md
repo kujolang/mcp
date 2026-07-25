@@ -234,7 +234,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Replaced lexical prefix checks with canonical absolute-path boundary validation in both runtime and framework permission helpers.
 - Files changed: server.kujo, mcp.kujo, tests/sec_01_path_guard.kujo, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: /path/to/kujo/target/release/kujo run tests/sec_01_path_guard.kujo --interpreter; API negative checks for traversal/sibling bypass on tools/call; required MCP smoke checks for health, tools/list, tools/call, resources/list, resources/read
+- Validation run: kujo run tests/sec_01_path_guard.kujo --interpreter; API negative checks for traversal/sibling bypass on tools/call; required MCP smoke checks for health, tools/list, tools/call, resources/list, resources/read
 - README updated: yes - added Canonical Path Guard feature note
 - Follow-ups: SEC-02 read_only_patterns are still suffix-checked and require true pattern matching
 
@@ -242,7 +242,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Replaced literal suffix checks with wildcard-aware read-only matching and validated glob, extension, and exact-file behavior for write protection.
 - Files changed: server.kujo, mcp.kujo, tests/sec_02_read_only_patterns.kujo, tests/sec_01_path_guard.kujo, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: /path/to/kujo/target/release/kujo run tests/sec_02_read_only_patterns.kujo --interpreter; /path/to/kujo/target/release/kujo run tests/sec_01_path_guard.kujo --interpreter; API deny/allow checks for write_safe_patch with read-only patterns; MCP smoke checks for health, tools/list, tools/call, resources/list, resources/read
+- Validation run: kujo run tests/sec_02_read_only_patterns.kujo --interpreter; kujo run tests/sec_01_path_guard.kujo --interpreter; API deny/allow checks for write_safe_patch with read-only patterns; MCP smoke checks for health, tools/list, tools/call, resources/list, resources/read
 - README updated: yes - documented read_only_patterns matching modes
 - Follow-ups: SEC-04 remains open for full request validation hardening and broader JSON-RPC negative cases
 
@@ -250,7 +250,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Added explicit per-tool path argument sanitization for read_project_docs, search_files, and write_safe_patch before filesystem operations.
 - Files changed: server.kujo, tests/sec_03_tool_path_sanitization.sh, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: bash tests/sec_03_tool_path_sanitization.sh; /path/to/kujo/target/release/kujo run tests/sec_01_path_guard.kujo --interpreter; /path/to/kujo/target/release/kujo run tests/sec_02_read_only_patterns.kujo --interpreter; MCP smoke checks for health, tools/list, tools/call, resources/list, resources/read
+- Validation run: bash tests/sec_03_tool_path_sanitization.sh; kujo run tests/sec_01_path_guard.kujo --interpreter; kujo run tests/sec_02_read_only_patterns.kujo --interpreter; MCP smoke checks for health, tools/list, tools/call, resources/list, resources/read
 - README updated: yes - clarified sanitization behavior for read_project_docs/search_files/write_safe_patch
 - Follow-ups: SEC-04 should expand malformed/invalid request-path test coverage for structured JSON-RPC errors
 
@@ -258,7 +258,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Added deterministic request-body and params-shape validation for tools/call and resources/read with structured JSON-RPC error responses.
 - Files changed: server.kujo, tests/sec_04_request_validation.sh, tests/sec_03_tool_path_sanitization.sh, tests/sec_01_path_guard.kujo, tests/sec_02_read_only_patterns.kujo, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; /path/to/kujo/target/release/kujo run tests/sec_01_path_guard.kujo --interpreter; /path/to/kujo/target/release/kujo run tests/sec_02_read_only_patterns.kujo --interpreter; MCP smoke checks for health, tools/list, tools/call, resources/list, resources/read
+- Validation run: bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; kujo run tests/sec_01_path_guard.kujo --interpreter; kujo run tests/sec_02_read_only_patterns.kujo --interpreter; MCP smoke checks for health, tools/list, tools/call, resources/list, resources/read
 - README updated: yes - added deterministic request validation behavior note
 - Follow-ups: SEC-05 should enforce max_file_size limits in both read and write paths
 
@@ -266,7 +266,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Enforced max_file_size limits for both safe reads and safe writes in server and shared framework helpers.
 - Files changed: server.kujo, mcp.kujo, tests/sec_05_file_size_limits.sh, tests/sec_04_request_validation.sh, tests/sec_03_tool_path_sanitization.sh, tests/sec_02_read_only_patterns.kujo, tests/sec_01_path_guard.kujo, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: bash tests/sec_05_file_size_limits.sh; bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; /path/to/kujo/target/release/kujo run tests/sec_02_read_only_patterns.kujo --interpreter; /path/to/kujo/target/release/kujo run tests/sec_01_path_guard.kujo --interpreter; MCP smoke checks for health, tools/list, tools/call, resources/list, resources/read
+- Validation run: bash tests/sec_05_file_size_limits.sh; bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; kujo run tests/sec_02_read_only_patterns.kujo --interpreter; kujo run tests/sec_01_path_guard.kujo --interpreter; MCP smoke checks for health, tools/list, tools/call, resources/list, resources/read
 - README updated: yes - documented max_file_size enforcement behavior
 - Follow-ups: SEC-06 should add host-binding enforcement and optional auth for non-local use
 
@@ -274,7 +274,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Added host-policy enforcement from config and optional bearer/api_key authentication checks across MCP endpoints.
 - Files changed: server.kujo, mcp-server.json, tests/sec_06_network_auth.sh, tests/sec_05_file_size_limits.sh, tests/sec_04_request_validation.sh, tests/sec_03_tool_path_sanitization.sh, tests/sec_02_read_only_patterns.kujo, tests/sec_01_path_guard.kujo, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: bash tests/sec_06_network_auth.sh; bash tests/sec_05_file_size_limits.sh; bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; /path/to/kujo/target/release/kujo run tests/sec_02_read_only_patterns.kujo --interpreter; /path/to/kujo/target/release/kujo run tests/sec_01_path_guard.kujo --interpreter; MCP smoke checks for health, tools/list, tools/call, resources/list, resources/read
+- Validation run: bash tests/sec_06_network_auth.sh; bash tests/sec_05_file_size_limits.sh; bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; kujo run tests/sec_02_read_only_patterns.kujo --interpreter; kujo run tests/sec_01_path_guard.kujo --interpreter; MCP smoke checks for health, tools/list, tools/call, resources/list, resources/read
 - README updated: yes - documented host policy and optional auth behavior
 - Follow-ups: ARC-01 should restructure code into modular layout to reduce single-file complexity
 
@@ -282,7 +282,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Moved core implementation into src/core and src/server with thin root bootstrap/wrapper files and created src/tools/src/resources directories.
 - Files changed: src/core/framework.kujo, src/server/runtime.kujo, src/tools/.gitkeep, src/resources/.gitkeep, server.kujo, mcp.kujo, tests/arc_01_layout_smoke.sh, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: bash tests/arc_01_layout_smoke.sh; bash tests/sec_06_network_auth.sh; bash tests/sec_05_file_size_limits.sh; bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; /path/to/kujo/target/release/kujo run tests/sec_02_read_only_patterns.kujo --interpreter; /path/to/kujo/target/release/kujo run tests/sec_01_path_guard.kujo --interpreter
+- Validation run: bash tests/arc_01_layout_smoke.sh; bash tests/sec_06_network_auth.sh; bash tests/sec_05_file_size_limits.sh; bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; kujo run tests/sec_02_read_only_patterns.kujo --interpreter; kujo run tests/sec_01_path_guard.kujo --interpreter
 - README updated: yes - updated architecture layout to reflect src/ structure
 - Follow-ups: ARC-02 should remove duplicate helper implementations by making runtime consume shared core helpers directly
 
@@ -290,7 +290,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Removed duplicated schema/permission/safe-I/O helper blocks from runtime and wired runtime behavior to shared framework helpers in src/core/framework.kujo.
 - Files changed: src/server/runtime.kujo, tests/arc_02_shared_helpers.sh, tests/arc_01_layout_smoke.sh, tests/sec_06_network_auth.sh, tests/sec_05_file_size_limits.sh, tests/sec_04_request_validation.sh, tests/sec_03_tool_path_sanitization.sh, tests/sec_02_read_only_patterns.kujo, tests/sec_01_path_guard.kujo, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: bash tests/arc_02_shared_helpers.sh; bash tests/arc_01_layout_smoke.sh; bash tests/sec_06_network_auth.sh; bash tests/sec_05_file_size_limits.sh; bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; /path/to/kujo/target/release/kujo run tests/sec_02_read_only_patterns.kujo --interpreter; /path/to/kujo/target/release/kujo run tests/sec_01_path_guard.kujo --interpreter
+- Validation run: bash tests/arc_02_shared_helpers.sh; bash tests/arc_01_layout_smoke.sh; bash tests/sec_06_network_auth.sh; bash tests/sec_05_file_size_limits.sh; bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; kujo run tests/sec_02_read_only_patterns.kujo --interpreter; kujo run tests/sec_01_path_guard.kujo --interpreter
 - README updated: yes - documented shared core helper consumption
 - Follow-ups: ARC-03 should formalize config validation/fail-fast startup rules now that shared core consumption is centralized
 
@@ -298,7 +298,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Added typed config loading and fail-fast validation with explicit required keys and clear startup errors for invalid values.
 - Files changed: src/server/runtime.kujo, tests/arc_03_config_validation.sh, tests/arc_02_shared_helpers.sh, tests/arc_01_layout_smoke.sh, tests/sec_06_network_auth.sh, tests/sec_05_file_size_limits.sh, tests/sec_04_request_validation.sh, tests/sec_03_tool_path_sanitization.sh, tests/sec_02_read_only_patterns.kujo, tests/sec_01_path_guard.kujo, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: bash tests/arc_03_config_validation.sh; bash tests/arc_02_shared_helpers.sh; bash tests/arc_01_layout_smoke.sh; bash tests/sec_06_network_auth.sh; bash tests/sec_05_file_size_limits.sh; bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; /path/to/kujo/target/release/kujo run tests/sec_02_read_only_patterns.kujo --interpreter; /path/to/kujo/target/release/kujo run tests/sec_01_path_guard.kujo --interpreter
+- Validation run: bash tests/arc_03_config_validation.sh; bash tests/arc_02_shared_helpers.sh; bash tests/arc_01_layout_smoke.sh; bash tests/sec_06_network_auth.sh; bash tests/sec_05_file_size_limits.sh; bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; kujo run tests/sec_02_read_only_patterns.kujo --interpreter; kujo run tests/sec_01_path_guard.kujo --interpreter
 - README updated: yes - documented fail-fast config validation behavior
 - Follow-ups: ARC-04 should modularize tool/resource registration for add/remove extensibility
 
@@ -306,7 +306,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Modularized tool and resource registration into dedicated registry modules with centralized runtime loading and dispatcher-based execution paths.
 - Files changed: src/server/runtime.kujo, src/tools/registry.kujo, src/resources/registry.kujo, tests/arc_04_plugin_registration.sh, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: bash tests/arc_04_plugin_registration.sh; bash tests/arc_03_config_validation.sh; bash tests/arc_02_shared_helpers.sh; bash tests/arc_01_layout_smoke.sh; bash tests/sec_06_network_auth.sh; bash tests/sec_05_file_size_limits.sh; bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; /path/to/kujo/target/release/kujo run tests/sec_02_read_only_patterns.kujo --interpreter; /path/to/kujo/target/release/kujo run tests/sec_01_path_guard.kujo --interpreter
+- Validation run: bash tests/arc_04_plugin_registration.sh; bash tests/arc_03_config_validation.sh; bash tests/arc_02_shared_helpers.sh; bash tests/arc_01_layout_smoke.sh; bash tests/sec_06_network_auth.sh; bash tests/sec_05_file_size_limits.sh; bash tests/sec_04_request_validation.sh; bash tests/sec_03_tool_path_sanitization.sh; kujo run tests/sec_02_read_only_patterns.kujo --interpreter; kujo run tests/sec_01_path_guard.kujo --interpreter
 - README updated: yes - documented plugin-style tool/resource registration modules in architecture/features sections
 - Follow-ups: FEAT-01 can now extend tool/resource modules without editing runtime registration block
 
@@ -314,7 +314,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Added reusable file toolkit tools (`read_text_range`, `write_text_safe`, `list_tree_recursive`, `grep_text`) with path-boundary and max-file-size guard enforcement through shared safe I/O helpers.
 - Files changed: src/tools/registry.kujo, src/server/runtime.kujo, tests/feat_01_file_toolkit_expansion.sh, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: scripts/run_tests.kujo not present; bash tests/feat_01_file_toolkit_expansion.sh; bash tests/arc_04_plugin_registration.sh; API smoke checks for health/tools list/tool call/resources list/resources read using /path/to/kujo/target/debug/kujo run server.kujo --interpreter
+- Validation run: scripts/run_tests.kujo not present; bash tests/feat_01_file_toolkit_expansion.sh; bash tests/arc_04_plugin_registration.sh; API smoke checks for health/tools list/tool call/resources list/resources read using kujo run server.kujo --interpreter
 - README updated: yes - added File Toolkit feature note and tool table entries for FEAT-01 tools
 - Follow-ups: FEAT-02 can build on `grep_text` and recursive tree traversal internals for richer search semantics
 
@@ -322,7 +322,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Enhanced `search_files` with filename/content modes, recursive traversal toggle, bounded `max_results`, and enforced timeout budget semantics.
 - Files changed: src/tools/registry.kujo, tests/feat_02_search_semantics.sh, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: scripts/run_tests.kujo not present; bash tests/feat_02_search_semantics.sh; bash tests/feat_01_file_toolkit_expansion.sh; KUJO_BIN=/path/to/kujo/target/debug/kujo bash tests/arc_04_plugin_registration.sh; API smoke checks for health/tools list/tool call/resources list/resources read using /path/to/kujo/target/debug/kujo run server.kujo --interpreter
+- Validation run: scripts/run_tests.kujo not present; bash tests/feat_02_search_semantics.sh; bash tests/feat_01_file_toolkit_expansion.sh; KUJO_BIN=kujo bash tests/arc_04_plugin_registration.sh; API smoke checks for health/tools list/tool call/resources list/resources read using kujo run server.kujo --interpreter
 - README updated: yes - documented `search_files` modes and cap/timeout behavior in features and tool table
 - Follow-ups: FEAT-04 can reuse the timeout budget pattern for consistent per-tool timeout enforcement
 
@@ -330,7 +330,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Added reusable onboarding and checklist workflow MCP resources with discoverable URIs and markdown-backed readers.
 - Files changed: src/resources/registry.kujo, src/server/runtime.kujo, docs/onboarding-prompt.md, docs/checklist-loop-workflow.md, tests/feat_03_prompt_workflow_resources.sh, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: scripts/run_tests.kujo not present; bash tests/feat_03_prompt_workflow_resources.sh; KUJO_BIN=/path/to/kujo/target/debug/kujo bash tests/arc_04_plugin_registration.sh; resource-focused API smoke checks for health/resources list/resources read using /path/to/kujo/target/debug/kujo run server.kujo --interpreter
+- Validation run: scripts/run_tests.kujo not present; bash tests/feat_03_prompt_workflow_resources.sh; KUJO_BIN=kujo bash tests/arc_04_plugin_registration.sh; resource-focused API smoke checks for health/resources list/resources read using kujo run server.kujo --interpreter
 - README updated: yes - added prompt/workflow resources to the Available Resources section
 - Follow-ups: DOC-04 can reference these URIs as concrete integration examples
 
@@ -338,7 +338,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Activated config-driven timeout defaults for tool execution paths and converted timeout conditions into explicit MCP tool errors.
 - Files changed: src/server/runtime.kujo, src/tools/registry.kujo, tests/feat_04_tool_timeout_controls.sh, tests/feat_02_search_semantics.sh, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: scripts/run_tests.kujo not present; bash tests/feat_04_tool_timeout_controls.sh; bash tests/feat_02_search_semantics.sh; bash tests/feat_01_file_toolkit_expansion.sh; KUJO_BIN=/path/to/kujo/target/debug/kujo bash tests/arc_04_plugin_registration.sh; API smoke checks for health/tools list/tools call timeout-path using /path/to/kujo/target/debug/kujo run server.kujo --interpreter
+- Validation run: scripts/run_tests.kujo not present; bash tests/feat_04_tool_timeout_controls.sh; bash tests/feat_02_search_semantics.sh; bash tests/feat_01_file_toolkit_expansion.sh; KUJO_BIN=kujo bash tests/arc_04_plugin_registration.sh; API smoke checks for health/tools list/tools call timeout-path using kujo run server.kujo --interpreter
 - README updated: yes - documented default timeout behavior and timeout-aware search/grep tool semantics
 - Follow-ups: FEAT-05 should consider cooperative cancellation tokens for long-running tools beyond step-budget enforcement
 
@@ -346,7 +346,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Added a baseline unit-test harness with focused Kujo tests for permission checks, read-only pattern matching, schema helper validation, and integrated config-validation coverage.
 - Files changed: tests/test_01_unit_harness.sh, tests/test_01_permission_checks.kujo, tests/test_01_pattern_matching.kujo, tests/test_01_schema_validation.kujo, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: scripts/run_tests.kujo not present; bash tests/test_01_unit_harness.sh; bash tests/feat_04_tool_timeout_controls.sh; KUJO_BIN=/path/to/kujo/target/debug/kujo bash tests/arc_04_plugin_registration.sh; MCP smoke checks for health/tools list/resources list using /path/to/kujo/target/debug/kujo run server.kujo --interpreter
+- Validation run: scripts/run_tests.kujo not present; bash tests/test_01_unit_harness.sh; bash tests/feat_04_tool_timeout_controls.sh; KUJO_BIN=kujo bash tests/arc_04_plugin_registration.sh; MCP smoke checks for health/tools list/resources list using kujo run server.kujo --interpreter
 - README updated: yes - added baseline unit harness feature note
 - Follow-ups: TEST-03 can consume this harness as part of endpoint integration test gating
 
@@ -354,7 +354,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Added a dedicated security regression suite runner that executes Tier 0 regressions covering traversal, sibling-prefix bypass, malformed JSON/request validation, over-limit payloads, and host/auth controls.
 - Files changed: tests/test_02_security_regression_suite.sh, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: scripts/run_tests.kujo not present; bash tests/test_02_security_regression_suite.sh; bash tests/test_01_unit_harness.sh; KUJO_BIN=/path/to/kujo/target/debug/kujo bash tests/arc_04_plugin_registration.sh; direct MCP smoke for /mcp/v1/health and /mcp/v1/tools/list using /path/to/kujo/target/debug/kujo run server.kujo --interpreter
+- Validation run: scripts/run_tests.kujo not present; bash tests/test_02_security_regression_suite.sh; bash tests/test_01_unit_harness.sh; KUJO_BIN=kujo bash tests/arc_04_plugin_registration.sh; direct MCP smoke for /mcp/v1/health and /mcp/v1/tools/list using kujo run server.kujo --interpreter
 - README updated: yes - added dedicated security regression suite feature note
 - Follow-ups: TEST-04 CI gates should execute test_02_security_regression_suite.sh on pull requests
 
@@ -362,7 +362,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Added endpoint-level integration coverage for health, tools/list, tools/call, resources/list, and resources/read with explicit happy-path and error-path assertions.
 - Files changed: tests/test_03_endpoint_integration.sh, README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: scripts/run_tests.kujo not present; bash tests/test_03_endpoint_integration.sh; bash tests/test_02_security_regression_suite.sh; bash tests/test_01_unit_harness.sh; KUJO_BIN=/path/to/kujo/target/debug/kujo bash tests/arc_04_plugin_registration.sh
+- Validation run: scripts/run_tests.kujo not present; bash tests/test_03_endpoint_integration.sh; bash tests/test_02_security_regression_suite.sh; bash tests/test_01_unit_harness.sh; KUJO_BIN=kujo bash tests/arc_04_plugin_registration.sh
 - README updated: yes - added endpoint integration suite feature note
 - Follow-ups: TEST-04 CI gate should run the endpoint integration suite as a required PR check
 
@@ -378,7 +378,7 @@ Use this exact block in the Work Log each time an item is completed.
 - Date: 2026-05-21
 - Summary: Corrected README claims to reflect actual runtime behavior by distinguishing exposed schema metadata from handler-level validation enforcement.
 - Files changed: README.md, docs/MCP_REBOOT_CHECKLIST.md
-- Validation run: scripts/run_tests.kujo not present; bash tests/test_03_endpoint_integration.sh; direct MCP checks for tools/list schema metadata and tools/call invalid-mode error using /path/to/kujo/target/debug/kujo run server.kujo --interpreter
+- Validation run: scripts/run_tests.kujo not present; bash tests/test_03_endpoint_integration.sh; direct MCP checks for tools/list schema metadata and tools/call invalid-mode error using kujo run server.kujo --interpreter
 - README updated: yes - revised schema validation claims and added a dedicated Validation Model section
 - Follow-ups: DOC-04 examples should explicitly mention handler-level validation and request-shape guarantees
 

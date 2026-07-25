@@ -81,7 +81,7 @@ bash scripts/find_kujo_runtime.sh
   "mcpServers": {
     "mcp": {
       "type": "stdio",
-      "command": "/absolute/path/to/kujo-runtime",
+      "command": "kujo-runtime",
       "args": ["run", "/path/to/mcp/server.kujo", "--interpreter"]
     }
   }

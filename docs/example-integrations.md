@@ -12,7 +12,7 @@ Use a local stdio launch when the server should run from your machine during dev
   "mcpServers": {
     "mcp-local": {
       "type": "stdio",
-      "command": "/absolute/path/to/kujo-runtime",
+      "command": "kujo-runtime",
       "args": ["run", "/path/to/mcp/server.kujo", "--interpreter"]
     }
   }
@@ -21,7 +21,7 @@ Use a local stdio launch when the server should run from your machine during dev
 
 Notes:
 - Replace `/path/to/mcp/server.kujo` with your local repository path.
-- Replace `/absolute/path/to/kujo-runtime` with a Kujo language runtime binary that supports `run`.
+- Replace `kujo-runtime` with a Kujo language runtime binary that supports `run`.
 - Keep `allowed_directories` constrained to a dedicated workspace.
 
 ## Remote HTTP Integration (Example MCP-Compatible Client)
