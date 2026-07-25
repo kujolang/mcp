@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file.
 
 ### Added
 
+- Added launch-readiness Spec, Eval suite, Kujo project metadata, and scanner-visible examples surface for prelaunch review gates.
 - Added first-party `mcp make` flow (`kujo run mcp.kujo --interpreter make <repo>`) that deterministically analyzes local repositories and generates:
 	- repo-specific MCP server scaffold under `.mcp/generated-server`
 	- `repo-profile.json` and `mcp.manifest.json`
@@ -26,3 +27,7 @@ All notable changes to this project are documented in this file.
 - Added repeated-write assertions in multi-root integration coverage to verify overwrite semantics remain stable under the same file path.
 - Updated multi-root contract test cleanup to remove generated root1 patch artifacts, keeping local runs and CI worktrees deterministic.
 - Clarified `write_text_safe` overwrite semantics and multi-root create-target rules in `docs/mcp-reference.md`.
+
+### Fixed
+
+- Fixed the README version badge to match `kennel.toml` package metadata.

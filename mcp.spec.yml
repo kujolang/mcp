@@ -1,0 +1,65 @@
+# Spec - MCP launch readiness review
+
+name: "MCP launch readiness review"
+goal: "Keep MCP locally release-ready as a Kujo-native MCP server framework, demo server, and guarded repo-specific scaffold generator."
+version: "0.1.0"
+background: "MCP is part of the Kujo prelaunch ecosystem review. Its proven scope is local development, integration testing, and deployment baseline guidance; hosted production use requires target-environment validation."
+scope: "Repository-local server framework behavior, security regression tests, endpoint integration, deterministic mcp make scaffolding, metadata parity, and launch evidence capture."
+non_goals:
+  - "Publishing packages or public releases"
+  - "Deploying hosted MCP services"
+  - "Claiming managed enterprise platform readiness or formal security certification"
+relevant_systems:
+  - "Kujo runtime"
+  - "MCP server framework"
+  - "mcp make generator"
+  - "prelaunch launch evidence packet"
+likely_files:
+  - "README.md"
+  - "server.kujo"
+  - "mcp.kujo"
+  - "kennel.toml"
+  - "docs/production-deployment.md"
+  - "tests/run_all_tests.sh"
+acceptance_criteria:
+  - "README version badge matches package metadata."
+  - "Full MCP test suite passes locally."
+  - "Security regression and endpoint integration suites pass locally."
+  - "A deterministic no-AI `mcp make --validate` proof succeeds against a local target."
+  - "Remote production readiness remains documented as target-environment work."
+eval_requirements:
+  - description: "Run the full MCP test suite."
+    check_type: "command"
+    params:
+      command: "bash tests/run_all_tests.sh"
+  - description: "Run deterministic mcp make validation."
+    check_type: "command"
+    params:
+      command: "kujo run mcp.kujo --interpreter make . --validate --no-ai --out tests/tmp/mcp-launch/generated-server --artifacts tests/tmp/mcp-launch/artifacts"
+  - description: "Run command-surface smokes."
+    check_type: "command"
+    params:
+      command: "bash scripts/find_kujo_runtime.sh >/dev/null && kujo run mcp.kujo help >/dev/null"
+risks:
+  - risk: "Remote MCP deployments can be overstated if local tests are treated as hosted proof."
+    mitigation: "Keep README and deployment docs explicit that auth, ingress, TLS, rate limiting, observability, and capacity require target-environment validation."
+    severity: "high"
+  - risk: "Generated server scaffolds may expose unsafe surfaces if review artifacts are skipped."
+    mitigation: "Treat `.mcp/` output as reviewable scaffolding and inspect safety review, manifest, and validation reports before exposure."
+    severity: "medium"
+dependencies:
+  - "kujo on PATH"
+  - "Bash-compatible shell"
+  - "Network access only for explicit endpoint integration tests"
+review_expectations:
+  - "Review generated `mcp make` safety artifacts before exposing any generated server."
+  - "Review deployment config and secret handling in the target environment."
+human_approval_points:
+  - "Before publishing packages or public releases"
+  - "Before hosted deployment"
+  - "Before exposing generated MCP tools to external clients"
+priority: "high"
+tags:
+  - "kujo"
+  - "mcp"
+  - "launch-readiness"
