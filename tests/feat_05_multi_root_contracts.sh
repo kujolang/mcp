@@ -32,7 +32,7 @@ EOF
 
 cat > mcp-server.json <<EOF
 {
-  "server": {"name": "mcp-demo", "version": "0.1.0", "description": "demo"},
+  "server": {"name": "mcp-demo", "version": "1.0.0", "description": "demo"},
   "http": {"host": "127.0.0.1", "port": 8931, "max_request_body_bytes": 262144, "rate_limit_enabled": true, "rate_limit_per_minute": 300},
   "permissions": {"allowed_directories": ["$ROOT_ONE", "$ROOT_TWO"], "max_file_size": 1048576, "read_only_patterns": ["*.md", "*.txt", "*.json", "*.yaml", "*.yml"]},
   "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},

@@ -15,13 +15,13 @@ Prioritize copyable examples over tests: examples should model the most token-ef
 
 Use one loop per item:
 
-1. Select the first unchecked actionable item in `docs/MCP_REBOOT_CHECKLIST.md`.
+1. Select one scoped, actionable work item from the current task or issue.
 2. Create a concise loop todo list focused on that one item.
 3. Add/update tests first when practical.
 4. Implement the item with the minimum required surface area.
 5. Run targeted validations plus related family-level regression checks.
 6. Update docs only when behavior or contributor guidance changed.
-7. Mark the checklist item complete and append a Work Log entry.
+7. Mark the work item complete and record validation evidence in the relevant task or release notes.
 8. Commit exactly once for the loop using `mcp(<ITEM_ID>): <summary>`.
 
 ## Done Criteria
@@ -31,7 +31,7 @@ A checklist item is done only when all conditions below are met:
 - The implementation or documentation change is complete.
 - Required tests and regressions pass locally.
 - README/checklist updates are accurate and current.
-- Work Log entry includes files changed and validation evidence.
+- The task or release notes include files changed and validation evidence.
 - The branch has one clean commit for the loop item.
 
 ## Search Hygiene

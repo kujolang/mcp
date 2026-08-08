@@ -23,7 +23,7 @@ mcp_post() { curl -s -X POST "$MCP_URL/$1" -H 'Content-Type: application/json' -
 curl -s "$MCP_URL/health"
 ```
 
-Expected: `{"status":"ok","server":"mcp-demo","version":"0.1.0"}`
+Expected: `{"status":"ok","server":"mcp-demo","version":"1.0.0"}`
 
 ## Step 3: Discover Tools
 

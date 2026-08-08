@@ -76,7 +76,7 @@ mcp_post tools/call '{"params":{"name":"search_files","arguments":{"pattern":"RE
 Expected health response shape:
 
 ```json
-{"status":"ok","server":"mcp-demo","version":"0.1.0"}
+{"status":"ok","server":"mcp-demo","version":"1.0.0"}
 ```
 
 ## Security and Validation Notes for Integrators

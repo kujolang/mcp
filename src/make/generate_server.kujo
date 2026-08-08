@@ -802,7 +802,7 @@ export func generate_server_project(profile, out_abs, artifacts_abs, dry_run, ai
     manifest := {
         "server": {
             "name": to_string(profile["repo_name"]) + "-generated-mcp",
-            "version": "0.1.0",
+            "version": "1.0.0",
             "generated_at": format_date(now(), "YYYY-MM-DD HH:mm:ss"),
             "source_repo": to_string(profile["repo_path_absolute"])
         },
@@ -844,7 +844,7 @@ export func generate_server_project(profile, out_abs, artifacts_abs, dry_run, ai
     mcp_server_json := to_json({
         "server": {
             "name": to_string(manifest["server"]["name"]),
-            "version": "0.1.0",
+            "version": "1.0.0",
             "description": "Generated MCP server"
         },
         "http": {

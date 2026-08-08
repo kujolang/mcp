@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-08
+
 ### Added
 
 - Added launch-readiness Spec, Eval suite, Kujo project metadata, and scanner-visible examples surface for prelaunch review gates.

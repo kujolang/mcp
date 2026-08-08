@@ -2,7 +2,7 @@
 
 [project]
 name = "mcp"
-version = "0.1.0"
+version = "1.0.0"
 description = "Kujo-native MCP server framework for tools, resources, and guarded repo-specific scaffolds."
 
 [kujo]

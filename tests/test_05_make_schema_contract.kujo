@@ -4,7 +4,7 @@ func build_valid_manifest() {
     return {
         "server": {
             "name": "test-repo-generated-mcp",
-            "version": "0.1.0",
+            "version": "1.0.0",
             "generated_at": "2026-05-28 00:00:00",
             "source_repo": "/tmp/test-repo"
         },

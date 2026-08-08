@@ -35,7 +35,7 @@ It demonstrates:
 
 	`curl -s "$MCP_URL/health"`
 
-	Expected: `{"status":"ok","server":"mcp-demo","version":"0.1.0"}`
+	Expected: `{"status":"ok","server":"mcp-demo","version":"1.0.0"}`
 
 4. List tools and resources:
 

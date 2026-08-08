@@ -28,7 +28,7 @@ expect_fail_with_message() {
 # Case 1: Invalid http.port type must fail with explicit startup message.
 cat > mcp-server.json <<'EOF'
 {
-  "server": {"name": "mcp-demo", "version": "0.1.0", "description": "demo"},
+  "server": {"name": "mcp-demo", "version": "1.0.0", "description": "demo"},
   "http": {"host": "127.0.0.1", "port": "8931"},
   "permissions": {"allowed_directories": ["./demo"], "max_file_size": 1048576, "read_only_patterns": ["*.md"]},
   "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},
@@ -41,7 +41,7 @@ expect_fail_with_message 'Invalid mcp-server.json: http.port must be a positive 
 # Case 2: Missing permissions.allowed_directories must fail with explicit startup message.
 cat > mcp-server.json <<'EOF'
 {
-  "server": {"name": "mcp-demo", "version": "0.1.0", "description": "demo"},
+  "server": {"name": "mcp-demo", "version": "1.0.0", "description": "demo"},
   "http": {"host": "127.0.0.1", "port": 8931},
   "permissions": {"max_file_size": 1048576, "read_only_patterns": ["*.md"]},
   "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},
@@ -54,7 +54,7 @@ expect_fail_with_message 'Invalid mcp-server.json: permissions.allowed_directori
 # Case 3: Missing server.name must fail with explicit startup message.
 cat > mcp-server.json <<'EOF'
 {
-  "server": {"version": "0.1.0", "description": "demo"},
+  "server": {"version": "1.0.0", "description": "demo"},
   "http": {"host": "127.0.0.1", "port": 8931},
   "permissions": {"allowed_directories": ["./demo"], "max_file_size": 1048576, "read_only_patterns": ["*.md"]},
   "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},
@@ -67,7 +67,7 @@ expect_fail_with_message 'Invalid mcp-server.json: server.name is required'
 # Case 4: Optional auth block omitted should still start using defaults.
 cat > mcp-server.json <<'EOF'
 {
-  "server": {"name": "mcp-demo", "version": "0.1.0", "description": "demo"},
+  "server": {"name": "mcp-demo", "version": "1.0.0", "description": "demo"},
   "http": {"host": "127.0.0.1", "port": 8931},
   "permissions": {"allowed_directories": ["./demo"], "max_file_size": 1048576, "read_only_patterns": ["*.md", "*.txt", "*.json", "*.yaml", "*.yml"]},
   "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},
@@ -84,6 +84,6 @@ trap 'kill "$SERVER_PID" >/dev/null 2>&1 || true; wait "$SERVER_PID" >/dev/null 
 health_resp=$(curl --retry 25 --retry-connrefused --retry-delay 1 -s http://127.0.0.1:8931/mcp/v1/health)
 echo "$health_resp" | grep -q '"status":"ok"'
 echo "$health_resp" | grep -q '"server":"mcp-demo"'
-echo "$health_resp" | grep -q '"version":"0.1.0"'
+echo "$health_resp" | grep -q '"version":"1.0.0"'
 
 echo "arc_03_config_validation: all checks passed"

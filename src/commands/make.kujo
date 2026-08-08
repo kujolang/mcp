@@ -147,7 +147,7 @@ func build_profile_only_manifest(profile) {
     return {
         "server": {
             "name": to_string(profile["repo_name"]) + "-profile-only",
-            "version": "0.1.0",
+            "version": "1.0.0",
             "generated_at": format_date(now(), "YYYY-MM-DD HH:mm:ss")
         },
         "tools": [],

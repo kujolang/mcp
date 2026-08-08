@@ -28,7 +28,7 @@ curl -s "$MCP_URL/health"
 Expected:
 
 ```json
-{"status":"ok","server":"mcp-demo","version":"0.1.0"}
+{"status":"ok","server":"mcp-demo","version":"1.0.0"}
 ```
 
 ## 2. Discover Capabilities

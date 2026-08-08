@@ -1,6 +1,6 @@
 [package]
 name = "mcp"
-version = "0.1.0"
+version = "1.0.0"
 description = "A Kujo-native MCP server framework for tools, resources, and JSON-schema validated tool handlers."
 license = "MIT"
 authors = ["Kujolang <contact@kujolang.ai>"]
@@ -12,10 +12,10 @@ categories = ["ai", "developer-tools"]
 readme = "README.md"
 
 [package.status]
-stage = "experimental"
-stability = "early"
+stage = "production"
+stability = "stable"
 public_api = true
-notes = "Framework and server patterns are usable now, but protocol ergonomics may evolve."
+notes = "Stable guarded MCP framework and repo-scaffold generator with least-privilege defaults and deterministic validation."
 
 [kujo]
 minimum_version = "0.1.0"

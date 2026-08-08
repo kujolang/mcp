@@ -27,7 +27,7 @@ resources_read_err_resp=$(curl -s -X POST http://127.0.0.1:8931/mcp/v1/resources
 
 echo "$health_resp" | grep -q '"status":"ok"'
 echo "$health_resp" | grep -q '"server":"mcp-demo"'
-echo "$health_resp" | grep -q '"version":"0.1.0"'
+echo "$health_resp" | grep -q '"version":"1.0.0"'
 
 echo "$tools_list_resp" | grep -q '"tools"'
 echo "$tools_list_resp" | grep -q '"search_files"'

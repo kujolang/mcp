@@ -1,6 +1,6 @@
 # MCP Server Framework
 
-[![Version](https://img.shields.io/badge/version-0.1.0-black)](https://github.com/kujolang/mcp)
+[![Version](https://img.shields.io/badge/version-1.0.0-black)](https://github.com/kujolang/mcp)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![built with Kujo](https://img.shields.io/badge/built%20with-Kujo-white.svg)](https://github.com/kujolang/kujo)
 [![CI](https://github.com/kujolang/mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/kujolang/mcp/actions/workflows/ci.yml)
@@ -65,7 +65,7 @@ Default endpoint: `http://127.0.0.1:8931/mcp/v1`
 Expected health response shape:
 
 ```json
-{"status":"ok","server":"mcp-demo","version":"0.1.0"}
+{"status":"ok","server":"mcp-demo","version":"1.0.0"}
 ```
 
 If you want to run the binary directly, resolve the runtime path first:
@@ -188,7 +188,7 @@ See full deployment guidance: `docs/production-deployment.md`.
 - `docs/production-deployment.md`: operational deployment baseline and scaling notes
 - `docs/contributing-agent-workflow.md`: contributor workflow and completion criteria
 - `docs/release-versioning-policy.md`: release and versioning conventions
-- `docs/MCP_REBOOT_CHECKLIST.md`: implementation and hardening backlog
+- `docs/contributing-agent-workflow.md`: implementation and validation workflow
 - `docs/MCP_REVIEW_BACKLOG_2026_06_19.md`: next-session production-readiness backlog
 
 ## Project Structure
