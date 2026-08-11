@@ -55,6 +55,14 @@ func require_positive_int(parent, key_name, scope_name) {
     return value
 }
 
+func require_port(parent, key_name, scope_name) {
+    value := require_positive_int(parent, key_name, scope_name)
+    if value > 65535 {
+        config_fail(scope_name + "." + key_name + " must be between 1 and 65535")
+    }
+    return value
+}
+
 func read_optional_positive_int(parent, key_name, scope_name, default_value) {
     if config_has_key(parent, key_name) == false {
         return default_value
@@ -86,7 +94,11 @@ func require_non_empty_string(parent, key_name, scope_name) {
         config_fail(scope_name + "." + key_name + " is required")
     }
 
-    value := trim(to_string(parent[key_name]))
+    if type(parent[key_name]) != "string" {
+        config_fail(scope_name + "." + key_name + " must be a non-empty string")
+    }
+
+    value := trim(parent[key_name])
     if value == "" {
         config_fail(scope_name + "." + key_name + " must be a non-empty string")
     }
@@ -110,13 +122,13 @@ resources_cfg := require_config_dict(config, "resources", "root")
 SERVER_NAME := require_non_empty_string(server_cfg, "name", "server")
 SERVER_VERSION := require_non_empty_string(server_cfg, "version", "server")
 
-PORT := require_positive_int(http_cfg, "port", "http")
+PORT := require_port(http_cfg, "port", "http")
 HOST := "127.0.0.1"
 if config_has_key(http_cfg, "host") {
-    host_candidate := trim(to_string(http_cfg["host"]))
-    if host_candidate != "" {
-        HOST := host_candidate
+    if type(http_cfg["host"]) != "string" || trim(http_cfg["host"]) == "" {
+        config_fail("http.host must be a non-empty string")
     }
+    HOST := trim(http_cfg["host"])
 }
 
 if config_has_key(permissions_cfg, "allowed_directories") == false || type(permissions_cfg["allowed_directories"]) != "array" || len(permissions_cfg["allowed_directories"]) == 0 {
@@ -125,7 +137,10 @@ if config_has_key(permissions_cfg, "allowed_directories") == false || type(permi
 
 ALLOWED_DIRS := []
 for allowed_dir_raw in permissions_cfg["allowed_directories"] {
-    allowed_dir := trim(to_string(allowed_dir_raw))
+    if type(allowed_dir_raw) != "string" {
+        config_fail("permissions.allowed_directories entries must be non-empty strings")
+    }
+    allowed_dir := trim(allowed_dir_raw)
     if allowed_dir == "" {
         config_fail("permissions.allowed_directories entries must be non-empty strings")
     }
@@ -140,6 +155,11 @@ if config_has_key(permissions_cfg, "read_only_patterns") == false || type(permis
     config_fail("permissions.read_only_patterns must be an array")
 }
 READ_ONLY_PATTERNS := permissions_cfg["read_only_patterns"]
+for read_only_pattern in READ_ONLY_PATTERNS {
+    if type(read_only_pattern) != "string" || trim(read_only_pattern) == "" {
+        config_fail("permissions.read_only_patterns entries must be non-empty strings")
+    }
+}
 
 DOCS_DIR := ALLOWED_DIR + "/docs"
 
@@ -187,8 +207,15 @@ if config_has_key(config, "auth") {
     }
 
     if config_has_key(auth_cfg, "token") {
-        AUTH_TOKEN := to_string(auth_cfg["token"])
+        if type(auth_cfg["token"]) != "string" {
+            config_fail("auth.token must be a string")
+        }
+        AUTH_TOKEN := auth_cfg["token"]
     }
+}
+
+if AUTH_ENABLED && trim(AUTH_TOKEN) == "" {
+    config_fail("auth.token must be a non-empty string when auth.enabled is true")
 }
 
 # =============================================================================
@@ -652,7 +679,10 @@ server := server.route("POST", "/mcp/v1/tools/call", func(req) {
 
     tname := ""
     try {
-        tname := to_string(params["name"])
+        if type(params["name"]) != "string" {
+            return json_response(200, {"jsonrpc": "2.0", "error": {"code": -32602, "message": "params.name must be a string"}})
+        }
+        tname := params["name"]
     } except err {
         return json_response(200, {"jsonrpc": "2.0", "error": {"code": -32602, "message": "Missing params.name"}})
     }
@@ -664,9 +694,10 @@ server := server.route("POST", "/mcp/v1/tools/call", func(req) {
     tparams := {}
     try {
         args_val := params["arguments"]
-        if type(args_val) == "dict" {
-            tparams := args_val
+        if type(args_val) != "dict" {
+            return json_response(200, {"jsonrpc": "2.0", "error": {"code": -32602, "message": "params.arguments must be an object"}})
         }
+        tparams := args_val
     } except err {
     }
 
@@ -777,7 +808,10 @@ server := server.route("POST", "/mcp/v1/resources/read", func(req) {
 
     uri := ""
     try {
-        uri := to_string(params["uri"])
+        if type(params["uri"]) != "string" {
+            return json_response(200, {"jsonrpc": "2.0", "error": {"code": -32602, "message": "params.uri must be a string"}})
+        }
+        uri := params["uri"]
     } except err {
         return json_response(200, {"jsonrpc": "2.0", "error": {"code": -32602, "message": "Missing params.uri"}})
     }

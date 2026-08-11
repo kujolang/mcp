@@ -824,16 +824,14 @@ export func execute_registered_tool(tool_name, p, deps) {
             return {"ok": false, "error": write_target["error"]}
         }
 
+        existed_before_write := file_exists(write_target["path"])
         active_allowed_dirs := resolve_allowed_dirs()
         write_result := safe_write(write_target["path"], content_parse["value"], active_allowed_dirs, read_only_patterns)
         if !write_result["ok"] {
             return {"ok": false, "error": write_result["error"]}
         }
 
-        created_flag := false
-        if create_if_missing {
-            created_flag := file_exists(write_target["path"])
-        }
+        created_flag := create_if_missing && existed_before_write == false && file_exists(write_target["path"])
 
         return {"ok": true, "data": {
             "file_path": file_path,

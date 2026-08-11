@@ -64,7 +64,109 @@ cat > mcp-server.json <<'EOF'
 EOF
 expect_fail_with_message 'Invalid mcp-server.json: server.name is required'
 
-# Case 4: Optional auth block omitted should still start using defaults.
+# Case 4: String-valued settings must not silently coerce other JSON types.
+cat > mcp-server.json <<'EOF'
+{
+  "server": {"name": 42, "version": "1.0.0"},
+  "http": {"host": "127.0.0.1", "port": 8931},
+  "permissions": {"allowed_directories": ["./demo"], "max_file_size": 1048576, "read_only_patterns": ["*.md"]},
+  "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},
+  "tools": {"enabled": true, "default_timeout_ms": 30000},
+  "resources": {"enabled": true}
+}
+EOF
+expect_fail_with_message 'Invalid mcp-server.json: server.name must be a non-empty string'
+
+cat > mcp-server.json <<'EOF'
+{
+  "server": {"name": "mcp-demo", "version": "1.0.0"},
+  "http": {"host": 127, "port": 8931},
+  "permissions": {"allowed_directories": ["./demo"], "max_file_size": 1048576, "read_only_patterns": ["*.md"]},
+  "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},
+  "tools": {"enabled": true, "default_timeout_ms": 30000},
+  "resources": {"enabled": true}
+}
+EOF
+expect_fail_with_message 'Invalid mcp-server.json: http.host must be a non-empty string'
+
+cat > mcp-server.json <<'EOF'
+{
+  "server": {"name": "mcp-demo", "version": "1.0.0"},
+  "http": {"host": "127.0.0.1", "port": 8931},
+  "permissions": {"allowed_directories": ["./demo"], "max_file_size": 1048576, "read_only_patterns": ["*.md"]},
+  "logging": {"max_entries": 100, "log_file": 99},
+  "tools": {"enabled": true, "default_timeout_ms": 30000},
+  "resources": {"enabled": true}
+}
+EOF
+expect_fail_with_message 'Invalid mcp-server.json: logging.log_file must be a non-empty string'
+
+# Case 5: Ports outside the TCP range must fail before listener startup.
+cat > mcp-server.json <<'EOF'
+{
+  "server": {"name": "mcp-demo", "version": "1.0.0"},
+  "http": {"host": "127.0.0.1", "port": 70000},
+  "permissions": {"allowed_directories": ["./demo"], "max_file_size": 1048576, "read_only_patterns": ["*.md"]},
+  "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},
+  "tools": {"enabled": true, "default_timeout_ms": 30000},
+  "resources": {"enabled": true}
+}
+EOF
+expect_fail_with_message 'Invalid mcp-server.json: http.port must be between 1 and 65535'
+
+# Case 6: Permission arrays must contain strings, not coercible values.
+cat > mcp-server.json <<'EOF'
+{
+  "server": {"name": "mcp-demo", "version": "1.0.0"},
+  "http": {"host": "127.0.0.1", "port": 8931},
+  "permissions": {"allowed_directories": [123], "max_file_size": 1048576, "read_only_patterns": ["*.md"]},
+  "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},
+  "tools": {"enabled": true, "default_timeout_ms": 30000},
+  "resources": {"enabled": true}
+}
+EOF
+expect_fail_with_message 'Invalid mcp-server.json: permissions.allowed_directories entries must be non-empty strings'
+
+cat > mcp-server.json <<'EOF'
+{
+  "server": {"name": "mcp-demo", "version": "1.0.0"},
+  "http": {"host": "127.0.0.1", "port": 8931},
+  "permissions": {"allowed_directories": ["./demo"], "max_file_size": 1048576, "read_only_patterns": [false]},
+  "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},
+  "tools": {"enabled": true, "default_timeout_ms": 30000},
+  "resources": {"enabled": true}
+}
+EOF
+expect_fail_with_message 'Invalid mcp-server.json: permissions.read_only_patterns entries must be non-empty strings'
+
+# Case 7: Enabled auth requires a real, non-empty string token.
+cat > mcp-server.json <<'EOF'
+{
+  "server": {"name": "mcp-demo", "version": "1.0.0"},
+  "http": {"host": "127.0.0.1", "port": 8931},
+  "permissions": {"allowed_directories": ["./demo"], "max_file_size": 1048576, "read_only_patterns": ["*.md"]},
+  "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},
+  "tools": {"enabled": true, "default_timeout_ms": 30000},
+  "resources": {"enabled": true},
+  "auth": {"enabled": true, "type": "bearer", "token": 123}
+}
+EOF
+expect_fail_with_message 'Invalid mcp-server.json: auth.token must be a string'
+
+cat > mcp-server.json <<'EOF'
+{
+  "server": {"name": "mcp-demo", "version": "1.0.0"},
+  "http": {"host": "127.0.0.1", "port": 8931},
+  "permissions": {"allowed_directories": ["./demo"], "max_file_size": 1048576, "read_only_patterns": ["*.md"]},
+  "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},
+  "tools": {"enabled": true, "default_timeout_ms": 30000},
+  "resources": {"enabled": true},
+  "auth": {"enabled": true, "type": "bearer", "token": "  "}
+}
+EOF
+expect_fail_with_message 'Invalid mcp-server.json: auth.token must be a non-empty string when auth.enabled is true'
+
+# Case 8: Optional auth block omitted should still start using defaults.
 cat > mcp-server.json <<'EOF'
 {
   "server": {"name": "mcp-demo", "version": "1.0.0", "description": "demo"},

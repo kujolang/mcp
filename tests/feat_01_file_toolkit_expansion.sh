@@ -37,9 +37,12 @@ echo "$range_bad" | grep -q '"error"'
 
 write_missing=$(curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"write_text_safe","arguments":{"file_path":"patches/feat_01_created.kujo","content":"created"}}}')
 write_create=$(curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"write_text_safe","arguments":{"file_path":"patches/feat_01_created.kujo","content":"created","create_if_missing":true}}}')
+write_overwrite=$(curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"write_text_safe","arguments":{"file_path":"patches/feat_01_created.kujo","content":"updated","create_if_missing":true}}}')
 
 echo "$write_missing" | grep -q '"error"'
 echo "$write_create" | grep -q '"result"'
+echo "$write_create" | grep -q '"created":true'
+echo "$write_overwrite" | grep -q '"created":false'
 test -f demo/patches/feat_01_created.kujo
 
 tree_ok=$(curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"list_tree_recursive","arguments":{"directory":"patches","max_depth":1}}}')

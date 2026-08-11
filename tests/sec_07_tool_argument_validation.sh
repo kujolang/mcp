@@ -29,6 +29,9 @@ range_missing=$(curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Cont
 range_bad_type=$(curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"read_text_range","arguments":{"file_path":"docs/README.md","start_line":"1","end_line":1}}}')
 write_text_missing=$(curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"write_text_safe","arguments":{"file_path":"patches/sec_07.txt"}}}')
 grep_missing=$(curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"grep_text","arguments":{}}}')
+name_bad_type=$(curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":123,"arguments":{}}}')
+arguments_bad_type=$(curl -s -X POST http://127.0.0.1:8931/mcp/v1/tools/call -H 'Content-Type: application/json' -d '{"params":{"name":"list_tree_recursive","arguments":[]}}')
+uri_bad_type=$(curl -s -X POST http://127.0.0.1:8931/mcp/v1/resources/read -H 'Content-Type: application/json' -d '{"params":{"uri":123}}')
 
 echo "$read_missing" | grep -q '"message":"file_name is required"'
 echo "$search_missing" | grep -q '"message":"pattern is required"'
@@ -39,6 +42,9 @@ echo "$range_missing" | grep -q '"message":"start_line is required"'
 echo "$range_bad_type" | grep -q '"message":"start_line must be an integer"'
 echo "$write_text_missing" | grep -q '"message":"content is required"'
 echo "$grep_missing" | grep -q '"message":"query is required"'
+echo "$name_bad_type" | grep -q '"message":"params.name must be a string"'
+echo "$arguments_bad_type" | grep -q '"message":"params.arguments must be an object"'
+echo "$uri_bad_type" | grep -q '"message":"params.uri must be a string"'
 
 if echo "$read_missing" | grep -q 'Tool error:'; then
 	echo "unexpected exception-style tool error for required argument validation"
