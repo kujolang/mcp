@@ -302,12 +302,21 @@ func build_prompts(out_abs) {
     return prompts
 }
 
+func kujo_string_literal(value) {
+    escaped := replace(to_string(value), "\\", "\\\\")
+    escaped := replace(escaped, "\"", "\\\"")
+    escaped := replace(escaped, "\r", "\\r")
+    escaped := replace(escaped, "\n", "\\n")
+    escaped := replace(escaped, "\t", "\\t")
+    return "\"" + escaped + "\""
+}
+
 func render_generated_server_source(manifest_abs, profile_abs, out_abs, artifacts_abs) {
     lines := []
-    lines := push(lines, "MANIFEST_PATH := \"" + manifest_abs + "\"")
-    lines := push(lines, "PROFILE_PATH := \"" + profile_abs + "\"")
-    lines := push(lines, "GENERATED_SERVER_ROOT := \"" + out_abs + "\"")
-    lines := push(lines, "GENERATED_ARTIFACTS_ROOT := \"" + artifacts_abs + "\"")
+    lines := push(lines, "MANIFEST_PATH := " + kujo_string_literal(manifest_abs))
+    lines := push(lines, "PROFILE_PATH := " + kujo_string_literal(profile_abs))
+    lines := push(lines, "GENERATED_SERVER_ROOT := " + kujo_string_literal(out_abs))
+    lines := push(lines, "GENERATED_ARTIFACTS_ROOT := " + kujo_string_literal(artifacts_abs))
     lines := push(lines, "DEFAULT_PORT := 8941")
     lines := push(lines, "MAX_REQUEST_BODY_BYTES := 262144")
     lines := push(lines, "")
@@ -723,21 +732,6 @@ func write_generated_file(file_abs, content, write_roots, generated_files) {
 export func generate_server_project(profile, out_abs, artifacts_abs, dry_run, ai_tools) {
     write_roots := [out_abs, artifacts_abs]
 
-    ensure_dirs := ensure_generated_dirs([
-        out_abs,
-        artifacts_abs,
-        out_abs + "/src",
-        out_abs + "/src/tools",
-        out_abs + "/src/resources",
-        out_abs + "/src/prompts",
-        out_abs + "/src/safety",
-        out_abs + "/tests",
-        out_abs + "/examples"
-    ])
-    if !ensure_dirs["ok"] {
-        return {"ok": false, "error": ensure_dirs["error"], "manifest": {}}
-    }
-
     safe_command_map := {}
     tools := build_base_tools(profile)
 
@@ -822,6 +816,21 @@ export func generate_server_project(profile, out_abs, artifacts_abs, dry_run, ai
             "generated_files": [],
             "note": "Dry run enabled; no files were written"
         }
+    }
+
+    ensure_dirs := ensure_generated_dirs([
+        out_abs,
+        artifacts_abs,
+        out_abs + "/src",
+        out_abs + "/src/tools",
+        out_abs + "/src/resources",
+        out_abs + "/src/prompts",
+        out_abs + "/src/safety",
+        out_abs + "/tests",
+        out_abs + "/examples"
+    ])
+    if !ensure_dirs["ok"] {
+        return {"ok": false, "error": ensure_dirs["error"], "manifest": {}}
     }
 
     generated_files := []

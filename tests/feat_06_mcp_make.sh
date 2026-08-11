@@ -116,4 +116,31 @@ if [ -d "$TARGET_REPO_2/.mcp" ]; then
 	exit 1
 fi
 
+# Verify --artifacts-only does not create server scaffold directories.
+TARGET_REPO_3="$TMP_PARENT/sample-repo-artifacts-only"
+mkdir -p "$TARGET_REPO_3"
+cat > "$TARGET_REPO_3/README.md" <<'EOF'
+# Artifacts Only
+EOF
+
+"$KUJO_BIN" run mcp.kujo --interpreter make "$TARGET_REPO_3" --artifacts-only --no-ai >/tmp/kujo_mcp_feat06_artifacts_only.log 2>&1
+test -f "$TARGET_REPO_3/.mcp/generated-server/repo-profile.json"
+test -f "$TARGET_REPO_3/.mcp/artifacts/repo-map.md"
+if [ -d "$TARGET_REPO_3/.mcp/generated-server/src" ] || [ -d "$TARGET_REPO_3/.mcp/generated-server/tests" ] || [ -d "$TARGET_REPO_3/.mcp/generated-server/examples" ]; then
+	echo "--artifacts-only unexpectedly created server scaffold directories"
+	exit 1
+fi
+
+# Verify generated Kujo literals remain valid when output paths contain quotes.
+TARGET_REPO_4="$TMP_PARENT/quoted-\"repo"
+mkdir -p "$TARGET_REPO_4"
+cat > "$TARGET_REPO_4/README.md" <<'EOF'
+# Quoted Path Repo
+EOF
+
+"$KUJO_BIN" run mcp.kujo --interpreter make "$TARGET_REPO_4" --no-ai >/tmp/kujo_mcp_feat06_quoted.log 2>&1
+QUOTED_GEN_DIR="$TARGET_REPO_4/.mcp/generated-server"
+"$KUJO_BIN" run "$QUOTED_GEN_DIR/src/server.kujo" --interpreter --self-check >/tmp/kujo_mcp_feat06_quoted_self_check.json 2>&1
+grep -q '"ok":true' /tmp/kujo_mcp_feat06_quoted_self_check.json
+
 echo "feat_06_mcp_make: all checks passed"
