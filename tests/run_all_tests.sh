@@ -21,6 +21,7 @@ bash tests/feat_03_prompt_workflow_resources.sh
 bash tests/feat_04_tool_timeout_controls.sh
 bash tests/feat_05_multi_root_contracts.sh
 bash tests/feat_06_mcp_make.sh
+bash tests/feat_07_cloudflare_target.sh
 
 bash tests/test_01_unit_harness.sh
 bash tests/test_02_security_regression_suite.sh
