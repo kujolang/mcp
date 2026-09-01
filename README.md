@@ -51,6 +51,18 @@ This project gives you a local MCP server foundation with configurable tools/res
 - Config-driven tool timeout controls
 - Security and integration regression test suites
 - Deployment baseline template included
+- Explicit, effect-gated projection of portable `kujo.ability/v1` definitions into MCP tools
+
+## Portable Ability Projection
+
+`src/abilities/projection.kujo` validates a portable Ability and projects it
+into an MCP tool descriptor without turning MCP into the semantic source of
+truth. Projection is opt-in (`enabled: true`), preserves input and output JSON
+Schemas plus canonical Ability identity, and defaults to read-only effects.
+Write, delete, and external effects require an explicit `allowed_effects`
+exposure policy. Runtime handlers, authentication, approval, and transport
+configuration remain MCP server concerns and are never part of the Ability
+definition.
 
 ## Quick Start
 
@@ -201,6 +213,7 @@ mcp/
 ├── mcp-server.production.example.json
 ├── src/
 │   ├── core/framework.kujo
+│   ├── abilities/projection.kujo
 │   ├── server/runtime.kujo
 │   ├── tools/registry.kujo
 │   └── resources/registry.kujo

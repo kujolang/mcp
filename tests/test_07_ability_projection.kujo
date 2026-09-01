@@ -1,0 +1,32 @@
+from src.abilities.projection import ABILITY_SCHEMA_ID, ability_to_mcp_tool, validate_ability_definition
+
+read_definition := {
+    "schema": ABILITY_SCHEMA_ID,
+    "id": "kujo.docs.content.find",
+    "version": "1.0.0",
+    "description": "Find a bounded set of documentation records.",
+    "input_schema": {"type": "object", "required": ["query"], "properties": {"query": {"type": "string"}}, "additionalProperties": false},
+    "output_schema": {"type": "object", "required": ["count"], "properties": {"count": {"type": "integer"}}, "additionalProperties": false},
+    "effects": [{"kind": "read", "resource": "kujo.docs.content"}],
+    "idempotency": {"mode": "intrinsic"}
+}
+
+assert(validate_ability_definition(read_definition)["ok"], "portable Ability must validate")
+not_exposed := ability_to_mcp_tool(read_definition, {"name": "find_docs"})
+assert(not_exposed["code"] == "ability_not_exposed", "MCP projection must require explicit exposure")
+
+projected := ability_to_mcp_tool(read_definition, {"enabled": true, "name": "find_docs"})
+assert(projected["ok"], "read-only Ability should project")
+assert(projected["tool"]["inputSchema"]["required"][0] == "query", "input schema must be preserved")
+assert(projected["tool"]["outputSchema"]["required"][0] == "count", "output schema must be preserved")
+assert(projected["tool"]["annotations"]["readOnlyHint"], "read-only hint must be derived")
+assert(projected["tool"]["_meta"]["kujo/abilityId"] == "kujo.docs.content.find", "semantic identity must be preserved")
+
+write_definition := parse_json(to_json(read_definition))
+write_definition["effects"] := [{"kind": "write", "resource": "kujo.docs.content"}]
+blocked := ability_to_mcp_tool(write_definition, {"enabled": true, "name": "write_docs"})
+assert(blocked["code"] == "ability_effect_not_exposed", "write effect must be denied by default")
+allowed := ability_to_mcp_tool(write_definition, {"enabled": true, "name": "write_docs", "allowed_effects": ["write"]})
+assert(allowed["ok"], "explicit write exposure should project")
+
+print("test_07_ability_projection: all assertions passed")

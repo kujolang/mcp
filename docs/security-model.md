@@ -37,6 +37,7 @@ This document defines trust boundaries, threat assumptions, and hardening defaul
 - Request body size and per-minute request-rate guardrails are enforced from HTTP config.
 - Generated servers constrain manifest-declared resource reads to the analyzed repository, generated server directory, and artifact directory.
 - Generated servers enforce a bounded POST request body size in addition to the primary demo server's configurable request guardrails.
+- Portable Ability projection is opt-in and effect-gated; read-only is the default exposure policy, and projection never grants runtime permission or registers a handler.
 
 ## Validation and Regression Coverage
 
@@ -50,6 +51,7 @@ This document defines trust boundaries, threat assumptions, and hardening defaul
   - `tests/sec_06_network_auth.sh`
   - `tests/sec_07_tool_argument_validation.sh`
   - `tests/feat_06_mcp_make.sh` verifies generated-server resource-root and request-size guardrail emission.
+  - `tests/test_07_ability_projection.kujo` verifies explicit exposure, schema/identity preservation, and default denial of write effects.
 
 ## Operational Guidance
 

@@ -53,6 +53,19 @@ Server identity fields returned by `/` and `/health` (`server`, `version`) are s
   - `http.rate_limit_enabled`
   - `http.rate_limit_per_minute`
 
+## Portable Ability Projection
+
+`ability_to_mcp_tool` in `src/abilities/projection.kujo` accepts a strict
+`kujo.ability/v1` definition and a separate MCP exposure policy. It returns a
+protocol descriptor with `inputSchema`, `outputSchema`, conservative MCP
+annotations, and canonical identity under `_meta`.
+
+Projection is denied unless `enabled` is explicitly `true`. The default
+`allowed_effects` is `["read"]`; any Ability declaring `write`, `delete`, or
+`external` effects is rejected unless that effect is explicitly allowed. This
+is an adapter boundary only: it does not register a handler, grant permission,
+or bypass the server's authentication and request guardrails.
+
 ## Runtime Capability Controls
 
 - `tools.enabled`: enable or disable tool endpoints at runtime.

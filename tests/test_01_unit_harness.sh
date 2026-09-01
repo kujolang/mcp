@@ -14,6 +14,7 @@ export KUJO_BIN
 "$KUJO_BIN" run tests/test_04_make_profile.kujo --interpreter
 "$KUJO_BIN" run tests/test_05_make_schema_contract.kujo --interpreter
 "$KUJO_BIN" run tests/test_06_make_enrich.kujo --interpreter
+"$KUJO_BIN" run tests/test_07_ability_projection.kujo --interpreter
 KUJO_BIN="$KUJO_BIN" bash tests/arc_03_config_validation.sh
 
 echo "test_01_unit_harness: all checks passed"
