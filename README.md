@@ -64,6 +64,9 @@ exposure policy. Runtime handlers, authentication, approval, and transport
 configuration remain MCP server concerns and are never part of the Ability
 definition.
 
+The canonical definition contract is maintained in
+[`kujolang/ability`](https://github.com/kujolang/ability).
+
 ## Quick Start
 
 ### Local Run
