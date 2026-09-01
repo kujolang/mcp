@@ -4,6 +4,7 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+- Pin the production-stable Ability 1.0.0 contract package.
 - Pin the canonical `ability` package, remove projection-local definition
   validation, add definition digests, and project enabled canonical MCP
   registry exposures with collision checks.
