@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Lint and style checks
         shell: bash
@@ -20,24 +20,33 @@ jobs:
           bash -n tests/*.sh
           python3 -m json.tool mcp-server.json >/dev/null
 
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Build Kujo runtime
+      - name: Install Kujo runtime
         shell: bash
         run: |
           set -euo pipefail
-          git clone --depth 1 https://github.com/kujolang/kujo.git /tmp/kujo-runtime
-          cargo build --release --manifest-path /tmp/kujo-runtime/Cargo.toml --bin kujo
-          /tmp/kujo-runtime/target/release/kujo run --help >/dev/null
+          archive="$RUNNER_TEMP/kujo-v1.2.0-linux-x64.tar.gz"
+          curl -fsSL \
+            https://github.com/kujolang/kujo/releases/download/v1.2.0/kujo-v1.2.0-linux-x64.tar.gz \
+            -o "$archive"
+          echo "3f9d69779fef64c8f329c69301ac666cf74499ff083f1a5f25f729368b318fcb  $archive" | sha256sum --check --strict
+          mkdir -p "$RUNNER_TEMP/kujo-bin"
+          tar -xzf "$archive" -C "$RUNNER_TEMP/kujo-bin"
+          chmod +x "$RUNNER_TEMP/kujo-bin/kujo"
+          "$RUNNER_TEMP/kujo-bin/kujo" --version
+          echo "KUJO_BIN=$RUNNER_TEMP/kujo-bin/kujo" >> "$GITHUB_ENV"
+          echo "$RUNNER_TEMP/kujo-bin" >> "$GITHUB_PATH"
 
-      - name: Export runtime environment
+      - name: Install pinned dependencies
         shell: bash
         run: |
           set -euo pipefail
-          chmod +x /tmp/kujo-runtime/target/release/kujo
-          echo "KUJO_BIN=/tmp/kujo-runtime/target/release/kujo" >> "$GITHUB_ENV"
-          echo "/tmp/kujo-runtime/target/release" >> "$GITHUB_PATH"
+          kennel_dir="$RUNNER_TEMP/kennel"
+          git clone --filter=blob:none https://github.com/kujolang/kennel.git "$kennel_dir"
+          git -C "$kennel_dir" checkout --detach b5e0cf290aa2af7a90b637a7c3bdb4324ea4f66d
+          test "$(git -C "$kennel_dir" rev-parse HEAD)" = "b5e0cf290aa2af7a90b637a7c3bdb4324ea4f66d"
+          "$KUJO_BIN" run "$kennel_dir/kennel.kujo" --interpreter -- validate --project-dir "$GITHUB_WORKSPACE"
+          "$KUJO_BIN" run "$kennel_dir/kennel.kujo" --interpreter -- install --project-dir "$GITHUB_WORKSPACE"
+          test -f kennel_packages/ability/ability.kujo
 
       - name: Run all tests
         shell: bash
