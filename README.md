@@ -55,16 +55,19 @@ This project gives you a local MCP server foundation with configurable tools/res
 
 ## Portable Ability Projection
 
-`src/abilities/projection.kujo` validates a portable Ability and projects it
+`src/abilities/projection.kujo` uses the exact canonical `ability` package
+revision pinned by Kennel to validate a portable Ability and project it
 into an MCP tool descriptor without turning MCP into the semantic source of
 truth. Projection is opt-in (`enabled: true`), preserves input and output JSON
-Schemas plus canonical Ability identity, and defaults to read-only effects.
+Schemas plus canonical Ability identity and definition digest, and defaults to
+read-only effects. `ability_registry_to_mcp_tools` projects every enabled
+canonical `mcp` exposure and rejects duplicate tool names.
 Write, delete, and external effects require an explicit `allowed_effects`
 exposure policy. Runtime handlers, authentication, approval, and transport
 configuration remain MCP server concerns and are never part of the Ability
 definition.
 
-The canonical definition contract is maintained in
+The canonical definition contract is maintained in and consumed directly from
 [`kujolang/ability`](https://github.com/kujolang/ability).
 
 ## Quick Start

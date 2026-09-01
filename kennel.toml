@@ -1,42 +1,33 @@
-[package]
-name = "mcp"
-version = "1.0.0"
-description = "A Kujo-native MCP server framework for tools, resources, and JSON-schema validated tool handlers."
-license = "MIT"
-authors = ["Kujolang <contact@kujolang.ai>"]
-homepage = ""
-repository = "https://github.com/kujolang/mcp"
-documentation = ""
-keywords = ["kujo", "mcp", "agents", "tooling"]
-categories = ["ai", "developer-tools"]
-readme = "README.md"
-
-[package.status]
-stage = "production"
-stability = "stable"
-public_api = true
-notes = "Stable guarded MCP framework and repo-scaffold generator with least-privilege defaults and deterministic validation."
-
-[kujo]
-minimum_version = "0.1.0"
-entry = "server.kujo"
-sources = ["."]
-includes = ["README.md", "demo"]
-excludes = [".git", "kennel_packages", "dist", "build", "node_modules"]
-
 [build]
+artifacts = []
 command = ""
 output = "dist"
-artifacts = []
 
-[dependencies]
+[dependencies.ability]
+commit = "8f82496f48ac01fb93d6e2a6eb9e3c9d01f7fdaa"
+source = "github:kujolang/ability"
 
 [dev-dependencies]
 
-[scripts]
-server = "kujo run server.kujo"
-demo = "kujo run server.kujo"
-make = "kujo run mcp.kujo --interpreter make"
+[kujo]
+entry = "server.kujo"
+excludes = [".git", "kennel_packages", "dist", "build", "node_modules"]
+includes = ["README.md", "demo"]
+minimum_version = "0.1.0"
+sources = ["."]
+
+[package]
+authors = ["Kujolang <contact@kujolang.ai>"]
+categories = ["ai", "developer-tools"]
+description = "A Kujo-native MCP server framework for tools, resources, and JSON-schema validated tool handlers."
+documentation = ""
+homepage = ""
+keywords = ["kujo", "mcp", "agents", "tooling"]
+license = "MIT"
+name = "mcp"
+readme = "README.md"
+repository = "https://github.com/kujolang/mcp"
+version = "1.0.0"
 
 [package.exports]
 framework = "mcp.kujo"
@@ -44,9 +35,25 @@ framework = "mcp.kujo"
 [package.metadata]
 server_config = "mcp-server.json"
 
+[package.status]
+notes = "Stable guarded MCP framework and repo-scaffold generator with least-privilege defaults and deterministic validation."
+public_api = true
+stability = "stable"
+stage = "production"
+
+[policy.resolution]
+
+[policy.source]
+
 [registry]
 index = ""
+mirrors = []
 publish = ""
+
+[scripts]
+demo = "kujo run server.kujo"
+make = "kujo run mcp.kujo --interpreter make"
+server = "kujo run server.kujo"
 
 [trust]
 checksum = ""

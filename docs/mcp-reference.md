@@ -56,9 +56,12 @@ Server identity fields returned by `/` and `/health` (`server`, `version`) are s
 ## Portable Ability Projection
 
 `ability_to_mcp_tool` in `src/abilities/projection.kujo` accepts a strict
-`kujo.ability/v1` definition and a separate MCP exposure policy. It returns a
-protocol descriptor with `inputSchema`, `outputSchema`, conservative MCP
-annotations, and canonical identity under `_meta`.
+`kujo.ability/v1` definition and a separate MCP exposure policy. Its validator
+comes from the exact canonical `ability` package revision pinned in
+`kennel.lock`. It returns a protocol descriptor with `inputSchema`,
+`outputSchema`, conservative MCP annotations, and canonical identity plus the
+definition digest under `_meta`. `ability_registry_to_mcp_tools` projects all
+enabled canonical `mcp` exposures and fails on duplicate tool names.
 
 Projection is denied unless `enabled` is explicitly `true`. The default
 `allowed_effects` is `["read"]`; any Ability declaring `write`, `delete`, or

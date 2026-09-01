@@ -1,4 +1,5 @@
-from src.abilities.projection import ABILITY_SCHEMA_ID, ability_to_mcp_tool, validate_ability_definition
+from ability import ABILITY_EXPOSURE_SCHEMA_ID, create_ability_registry, register_ability_definition, register_ability_exposure
+from src.abilities.projection import ABILITY_SCHEMA_ID, ability_to_mcp_tool, ability_registry_to_mcp_tools, validate_ability_definition
 
 read_definition := {
     "schema": ABILITY_SCHEMA_ID,
@@ -21,6 +22,7 @@ assert(projected["tool"]["inputSchema"]["required"][0] == "query", "input schema
 assert(projected["tool"]["outputSchema"]["required"][0] == "count", "output schema must be preserved")
 assert(projected["tool"]["annotations"]["readOnlyHint"], "read-only hint must be derived")
 assert(projected["tool"]["_meta"]["kujo/abilityId"] == "kujo.docs.content.find", "semantic identity must be preserved")
+assert(len(projected["tool"]["_meta"]["kujo/abilityDefinitionDigest"]) == 64, "canonical definition digest must be preserved")
 
 write_definition := parse_json(to_json(read_definition))
 write_definition["effects"] := [{"kind": "write", "resource": "kujo.docs.content"}]
@@ -28,5 +30,26 @@ blocked := ability_to_mcp_tool(write_definition, {"enabled": true, "name": "writ
 assert(blocked["code"] == "ability_effect_not_exposed", "write effect must be denied by default")
 allowed := ability_to_mcp_tool(write_definition, {"enabled": true, "name": "write_docs", "allowed_effects": ["write"]})
 assert(allowed["ok"], "explicit write exposure should project")
+
+registry := create_ability_registry()
+registered_definition := register_ability_definition(registry, read_definition)
+assert(registered_definition["ok"], "canonical definition must register")
+registry = registered_definition["registry"]
+canonical_exposure := {
+    "schema": ABILITY_EXPOSURE_SCHEMA_ID,
+    "ability_id": read_definition["id"],
+    "ability_version": read_definition["version"],
+    "surface": "mcp",
+    "name": "find_docs",
+    "enabled": true,
+    "public": false,
+    "metadata": {"allowed_effects": ["read"]}
+}
+registered_exposure := register_ability_exposure(registry, canonical_exposure)
+assert(registered_exposure["ok"], "canonical MCP exposure must register")
+registry_projection := ability_registry_to_mcp_tools(registered_exposure["registry"])
+assert(registry_projection["ok"], "canonical registry must project")
+assert(len(registry_projection["tools"]) == 1, "one enabled MCP exposure must produce one tool")
+assert(registry_projection["tools"][0]["name"] == "find_docs", "canonical exposure name must be preserved")
 
 print("test_07_ability_projection: all assertions passed")
