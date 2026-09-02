@@ -39,7 +39,8 @@ checks.push(record("generic-stdio", "generic-stdio", "protocol-certified", "node
 checks.push(record("codex-clean-profile", "codex", "install-validated", "KUJO_REQUIRE_CODEX=1 node tests/codex_clean_profile_test.mjs", command("node", ["tests/codex_clean_profile_test.mjs"], root, { KUJO_REQUIRE_CODEX: "1" }), ["Authenticated execution was not driven by the Codex host."]));
 const connector = command("node", ["tests/ability_connector_cli_test.mjs"], root);
 checks.push(record("cursor-config", "cursor", "configuration-validated", "node tests/ability_connector_cli_test.mjs", connector, ["Cursor binary was unavailable; no installed-host run."]));
-checks.push(record("vscode-config", "vscode-copilot", "configuration-validated", "node tests/ability_connector_cli_test.mjs", connector, ["VS Code binary was unavailable; no extension-host run."]));
+const vscode = command("node", ["tests/vscode_clean_profile_test.mjs"], root, { KUJO_REQUIRE_VSCODE: "1" });
+checks.push(record("vscode-clean-profile", "vscode-copilot", "installed-configuration-validated", "KUJO_REQUIRE_VSCODE=1 node tests/vscode_clean_profile_test.mjs", vscode, ["The installed VS Code CLI accepted a clean-profile MCP registration; an interactive Copilot tool invocation was not driven."]));
 checks.push(record("agents-sdk", "agents-sdk", "native-conformant", "kujo test-run tests/ability_contract_tests.kujo -v", command(kujoBin, ["test-run", "tests/ability_contract_tests.kujo", "-v"], join(workspace, "agents-sdk"))));
 checks.push(record("kujo-pi", "kujo-pi", "native-conformant", "npm test", command("npm", ["test"], join(workspace, "kujo-pi"))));
 
@@ -48,7 +49,7 @@ const artifact = {
   schema: "kujo.ability.host-certification/v1",
   generated_at: new Date().toISOString(),
   source_revisions: { mcp: revision(root), "agents-sdk": revision(join(workspace, "agents-sdk")), "kujo-pi": revision(join(workspace, "kujo-pi")) },
-  versions: { package: "1.1.0", gateway_contract: "1.0.0", mcp_protocol: "2025-11-25", codex: codexVersion.status === "passed" ? codexVersion.summary : "unavailable", cursor: "unavailable", vscode: "unavailable" },
+  versions: { package: "1.1.0", gateway_contract: "1.0.0", mcp_protocol: "2025-11-25", codex: codexVersion.status === "passed" ? codexVersion.summary : "unavailable", cursor: "unavailable", vscode: vscode.status === "passed" ? vscode.summary.match(/\((\d+\.\d+\.\d+),/)?.[1] || "installed" : "unavailable" },
   checks,
 };
 

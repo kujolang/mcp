@@ -27,6 +27,7 @@ const certifiedPathspecs = [
   "tests/codex_clean_profile_test.mjs",
   "tests/portable_ability_plugin_test.mjs",
   "tests/run_all_tests.sh",
+  "tests/vscode_clean_profile_test.mjs",
 ];
 const ancestor = spawnSync("git", ["merge-base", "--is-ancestor", evidenceRevision, "HEAD"], { encoding: "utf8" });
 if (ancestor.status !== 0) throw new Error("host certification evidence revision is not an ancestor of the current source");
@@ -44,7 +45,7 @@ const rows = order.map((host) => {
   return `| ${labels[host]} | ${check.tier} | \`${check.id}\` | ${limitations} |`;
 });
 const date = new Date(generatedAt).toISOString().slice(0, 10);
-const document = `# Generated Ability host compatibility\n\nEvidence date: ${date}\n\nPackage: \`${evidence.versions.package}\`  \nGateway contract: \`${evidence.versions.gateway_contract}\`  \nMCP protocol: \`${evidence.versions.mcp_protocol}\`\n\n| Host | Proven tier | Automated check | Limitation |\n| --- | --- | --- | --- |\n${rows.join("\n")}\n\nA row proves only its named tier. \`configuration-validated\` does not mean installed-host execution; \`install-validated\` does not mean authenticated host execution. The evidence source is [the local certification artifact](../../certification/evidence/ability-hosts-local.json). Matrix generation fails when required evidence is missing, failed, future-dated, older than ${maxAgeDays} days, or does not cover the current immutable Ability connector source.\n`;
+const document = `# Generated Ability host compatibility\n\nEvidence date: ${date}\n\nPackage: \`${evidence.versions.package}\`  \nGateway contract: \`${evidence.versions.gateway_contract}\`  \nMCP protocol: \`${evidence.versions.mcp_protocol}\`\n\n| Host | Proven tier | Automated check | Limitation |\n| --- | --- | --- | --- |\n${rows.join("\n")}\n\nA row proves only its named tier. \`configuration-validated\` does not mean an installed host was exercised; \`installed-configuration-validated\` does not mean an interactive agent invoked a tool; \`install-validated\` does not mean authenticated host execution. The evidence source is [the local certification artifact](../../certification/evidence/ability-hosts-local.json). Matrix generation fails when required evidence is missing, failed, future-dated, older than ${maxAgeDays} days, or does not cover the current immutable Ability connector source.\n`;
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, document);
 console.log(`Ability compatibility matrix written: ${outputPath}`);

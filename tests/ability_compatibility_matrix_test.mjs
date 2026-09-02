@@ -16,6 +16,7 @@ try {
   assert.equal(current.result.status, 0, current.result.stderr);
   assert.match(current.text, /Codex \| install-validated/);
   assert.match(current.text, /Cursor \| configuration-validated/);
+  assert.match(current.text, /VS Code \/ Copilot \| installed-configuration-validated/);
   assert.doesNotMatch(current.text, /Cursor \| certified/);
   assert.equal(current.text, await readFile("docs/generated/ability-host-compatibility.md", "utf8"), "committed compatibility matrix must match current evidence");
 
