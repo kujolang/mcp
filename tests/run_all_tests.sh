@@ -31,6 +31,7 @@ bash tests/test_03_endpoint_integration.sh
 "$KUJO_BIN" run tests/test_07_ability_projection.kujo --interpreter
 "$KUJO_BIN" run tests/test_09_ability_gateway.kujo --interpreter
 "$KUJO_BIN" run tests/test_11_mcp_core_ability_pack.kujo --interpreter
+bash tests/test_12_profile_symlink_guard.sh
 node tests/portable_ability_plugin_test.mjs
 node tests/ability_contract_drift_test.mjs
 node tests/ability_connector_cli_test.mjs

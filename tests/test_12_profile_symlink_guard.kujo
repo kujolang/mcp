@@ -1,0 +1,9 @@
+from src.make.analyze_repo import analyze_repository
+
+target := env("MCP_PROFILE_FIXTURE")
+result := analyze_repository(target, true)
+assert(result["ok"], "bounded repository fixture must profile successfully")
+assert(result["profile"]["analysis_limits"]["files_scanned"] == 0, "repository profiling must not follow or count a symbolic link as a file")
+assert(result["profile"]["analysis_limits"]["entries_scanned"] == 1, "repository profiling must count the skipped link against its total entry budget")
+
+print("test_12_profile_symlink_guard: all assertions passed")

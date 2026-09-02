@@ -6,7 +6,7 @@ func failure(code, message, details) { return {"ok": false, "status": 422, "code
 
 func safe_relative_path(value) {
 	raw := trim(to_string(value))
-	if raw == "" || len(raw) > 1024 || starts_with(raw, "/") || contains(raw, "\\") { return false }
+	if raw == "" || len(raw) > 1024 || starts_with(raw, "/") || contains(raw, "\\") || contains(raw, ":") { return false }
 	for part in split(raw, "/") { if part == "" || part == "." || part == ".." { return false } }
 	return true
 }

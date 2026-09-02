@@ -241,6 +241,10 @@ func read_small_json(file_path, max_bytes) {
         return {"ok": false, "data": {}, "error": "File not found"}
     }
 
+    if path_is_symlink(file_path) {
+        return {"ok": false, "data": {}, "error": "Symbolic links are not read during repository analysis"}
+    }
+
     if file_size(file_path) > max_bytes {
         return {"ok": false, "data": {}, "error": "File exceeds read budget"}
     }
@@ -333,7 +337,9 @@ export func analyze_repository(target_repo_path, no_ai) {
 
     max_depth := 8
     max_files := 4000
+    max_entries := 8000
     file_count := 0
+    entry_count := 0
 
     queue := [{"path": target_abs, "depth": 0}]
     queue_idx := 0
@@ -356,6 +362,7 @@ export func analyze_repository(target_repo_path, no_ai) {
         while entry_idx < len(entries) {
             name := entries[entry_idx]
             entry_idx := entry_idx + 1
+            entry_count := entry_count + 1
 
             full := current_path + "/" + name
             rel := name
@@ -363,12 +370,15 @@ export func analyze_repository(target_repo_path, no_ai) {
                 rel := substring(full, len(target_abs) + 1, len(full))
             }
 
+            is_link := path_is_symlink(full)
             is_directory := false
-            try {
-                list_dir(full)
-                is_directory := true
-            } except err {
-                is_directory := false
+            if !is_link {
+                try {
+                    list_dir(full)
+                    is_directory = true
+                } except err {
+                    is_directory = false
+                }
             }
 
             if is_directory {
@@ -387,7 +397,7 @@ export func analyze_repository(target_repo_path, no_ai) {
                 if !is_ignored_dir(name) && current_depth < max_depth {
                     queue := push(queue, {"path": full, "depth": current_depth + 1})
                 }
-            } else {
+            } else if !is_link {
                 file_count := file_count + 1
                 if file_count <= 300 {
                     sample_files := push(sample_files, rel)
@@ -427,13 +437,17 @@ export func analyze_repository(target_repo_path, no_ai) {
                     }
                 }
 
-                if file_count >= max_files {
+                if file_count >= max_files || entry_count >= max_entries {
                     break
                 }
             }
+
+            if entry_count >= max_entries {
+                break
+            }
         }
 
-        if file_count >= max_files {
+        if file_count >= max_files || entry_count >= max_entries {
             break
         }
     }
@@ -695,7 +709,9 @@ export func analyze_repository(target_repo_path, no_ai) {
         "analysis_limits": {
             "max_depth": max_depth,
             "max_files": max_files,
-            "files_scanned": file_count
+            "max_entries": max_entries,
+            "files_scanned": file_count,
+            "entries_scanned": entry_count
         },
         "inference": {
             "ai_enrichment_requested": no_ai == false,

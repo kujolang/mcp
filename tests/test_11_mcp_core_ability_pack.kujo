@@ -31,4 +31,8 @@ escape_result := execute_mcp_core_ability(registry, make_mcp_core_invocation(man
 assert(escape_result["ok"] == false, "manifest validation must reject escaping paths")
 assert(escape_result["receipt"]["error"]["code"] == "invalid_manifest_path", "path rejection must survive in the canonical receipt")
 
+drive_result := execute_mcp_core_ability(registry, make_mcp_core_invocation(manifest_definition, {"manifest": "C:/outside.json"}, "manifest-3"), services)
+assert(drive_result["ok"] == false, "manifest validation must reject drive-qualified paths")
+assert(drive_result["receipt"]["error"]["code"] == "invalid_manifest_path", "drive-path rejection must survive in the canonical receipt")
+
 print("test_11_mcp_core_ability_pack: all assertions passed")
