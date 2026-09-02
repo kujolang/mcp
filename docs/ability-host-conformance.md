@@ -25,8 +25,8 @@ The `1.1.0` package is a local, unpublished preview. Its Agent Plugins 1.0 manif
 | --- | --- | --- |
 | Agent Plugins 1.0 package | Locally validated preview | Manifest, MCP configuration, paths, metadata, and package contents only |
 | Codex plugin | Clean-profile install validated | `codex-cli 0.144.4` local marketplace add/list/install/remove lifecycle in an isolated `CODEX_HOME`; authenticated execution remains separately unproven |
-| Cursor | Portable-format candidate | Agent Plugin files and configuration only; no Cursor-host run |
-| VS Code / Copilot | Portable-format candidate | Agent Plugin files and custom-agent metadata only; no extension-host run |
+| Cursor | Configuration lifecycle validated | Agent Plugin and manual `.cursor/mcp.json` configuration pass merge/disable/uninstall tests; no Cursor binary was available for an installed-host run |
+| VS Code / Copilot | Configuration lifecycle validated | Agent Plugin, password input configuration, and tool-scoped custom agent pass merge/disable/uninstall and metadata tests; no VS Code binary was available for an extension-host run |
 | Generic MCP bridge | Contract tested | Real STDIO process against a mock authenticated gateway, including cancellation, approval, replay denial, and idempotency conflict |
 | Kujo Pi | Existing native integration | Covered by its own repository and release process, not certified by this package |
 
@@ -38,8 +38,11 @@ The `1.1.0` package is a local, unpublished preview. Its Agent Plugins 1.0 manif
 2. The bridge test starts a real STDIO child, performs initialization and discovery, calls a mock authenticated gateway, and checks token forwarding, identity metadata, adapter controls, invocation ID, idempotency header, receipt preservation, cancellation, approval-required denial, an approved write, one-time approval replay denial, and conflicting idempotency input denial.
 3. The canonical MCP projection and executable gateway tests verify effect gates, private discovery, principal requirements, collision rejection, execution delegation, and receipt mapping.
 4. The full MCP suite covers path, request, authentication, size, timeout, rate-limit, and generated-server boundaries.
+5. The connector lifecycle exercises generic, Cursor, and VS Code configuration roots in isolated files, preserves unrelated settings, keeps secret values out of generated documents, and removes the managed server entry on disable and uninstall.
 
 A host is conformant only when an authenticated end-to-end test also proves its enabled application Abilities, denial behavior, approval replay rejection, idempotency conflict handling, timeout/cancellation, redaction, and tenant isolation in the target environment.
+
+No Cursor or Copilot hooks are bundled. The MCP server already owns discovery and execution, and an unconditional client hook would add local code execution without strengthening application authorization. Cursor-specific rules and commands are likewise omitted from the portable package; the shared skill and the Copilot custom agent provide the bounded guidance needed for the current preview.
 
 ## Reproducible local evidence
 

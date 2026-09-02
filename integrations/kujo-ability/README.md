@@ -12,7 +12,7 @@ Portable clients expand `${PLUGIN_ROOT}` in `mcp.json`; the package never embeds
 
 Set `KUJO_ABILITY_GATEWAY_URL` to the application origin and `KUJO_ABILITY_GATEWAY_TOKEN` to a least-privilege bearer token. Loopback HTTP is allowed for local development; every non-loopback gateway must use HTTPS.
 
-Codex can install the directory as a plugin. Cursor and VS Code can load the root Agent Plugin or use the equivalent configurations under `host-configs/`. The bridge supports MCP `initialize`, `ping`, `tools/list`, `tools/call`, and request cancellation, plus canonical receipts, request timeouts, bounded responses, keyed idempotency, and optional server-bound approvals.
+Codex can install the directory as a plugin. Cursor and VS Code can load the root Agent Plugin or use the equivalent configurations under `host-configs/`. The Copilot custom agent is restricted to `kujo-ability/*` tools. No hooks are bundled because unconditional client-side commands would add local execution risk without strengthening server authorization. The bridge supports MCP `initialize`, `ping`, `tools/list`, `tools/call`, and request cancellation, plus canonical receipts, request timeouts, bounded responses, keyed idempotency, and optional server-bound approvals.
 
 From the `mcp` repository root, current Codex CLI builds can use the repository's local marketplace without changing the package:
 
@@ -48,6 +48,8 @@ node bin/kujo-ability.mjs uninstall --output ./mcp.json
 ```
 
 Supported host selectors are `codex`, `cursor`, `vscode`, `generic`, and `auto`. Project scope uses documented project-local defaults; user scope requires `--output` so the connector never guesses at or overwrites user settings. Codex normally uses the bundled plugin; manual Codex connector output also requires `--output` and inherits gateway variables rather than persisting them. Automatic detection therefore selects Cursor or VS Code when their CLIs are present and otherwise emits a generic MCP configuration. `connect` preserves unrelated JSON keys and servers, verifies the gateway by default, and reports only principal-visible tool names. `--skip-health` exists for offline packaging tests and does not prove a working connection.
+
+VS Code's password input works in the desktop profile, but current Agent Host sessions do not forward configurations that require interactive `${input:...}` values. Use the portable plugin's inherited environment variables or a non-interactive approved secret source for Agent Host. Cursor's manual configuration references an existing process environment variable; restart Cursor after setting it. Never replace either placeholder with a committed token.
 
 ## Local verification
 
