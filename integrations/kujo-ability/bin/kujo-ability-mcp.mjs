@@ -36,12 +36,32 @@ async function gateway(path, options = {}) {
 }
 
 let toolCache = new Map();
+function hostInputSchema(schema) {
+  if (!schema || schema.type !== "object" || typeof schema.properties !== "object") return schema;
+  return {
+    ...schema,
+    properties: {
+      ...schema.properties,
+      _kujo: {
+        type: "object",
+        description: "Adapter control values; removed before canonical input validation.",
+        properties: {
+          invocationId: { type: "string", minLength: 1, maxLength: 240 },
+          idempotencyKey: { type: "string", minLength: 1, maxLength: 255 },
+          approvalId: { type: "string", minLength: 1, maxLength: 255 },
+        },
+        additionalProperties: false,
+      },
+    },
+  };
+}
+
 async function listTools() {
   const catalog = await gateway("/v1/ai/mcp/tools");
   const tools = Array.isArray(catalog.tools) ? catalog.tools : [];
   toolCache = new Map(tools.map((tool) => [tool.name, tool]));
   const projected = tools.map(({ name, title, description, inputSchema, outputSchema, annotations, abilityId, abilityVersion, abilityDigest, effects }) => ({
-    name, title, description, inputSchema, outputSchema, annotations,
+    name, title, description, inputSchema: hostInputSchema(inputSchema), outputSchema, annotations,
     _meta: { "kujo/abilityId": abilityId, "kujo/abilityVersion": abilityVersion, "kujo/abilityDigest": abilityDigest, "kujo/effects": effects },
   }));
   if (allowApprovals) projected.push({

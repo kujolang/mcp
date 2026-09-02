@@ -10,7 +10,7 @@ const server = createServer(async (request, response) => {
   for await (const chunk of request) raw += chunk;
   requests.push({ headers: request.headers, body: raw ? JSON.parse(raw) : null });
   response.setHeader("content-type", "application/json");
-  if (request.url === "/v1/ai/mcp/tools") return response.end(JSON.stringify({ ok: true, data: { tools: [{ name: "cms__inspect", title: "Inspect", description: "Inspect the CMS", inputSchema: { type: "object" }, outputSchema: { type: "object" }, annotations: { readOnlyHint: true }, abilityId: "kujo.cms.site.inspect", abilityVersion: "1.0.0", abilityDigest: "a".repeat(64), effects: [{ kind: "read", resource: "kujo.cms.site" }], execution: "/v1/abilities/cms/inspect/run" }] } }));
+  if (request.url === "/v1/ai/mcp/tools") return response.end(JSON.stringify({ ok: true, data: { tools: [{ name: "cms__inspect", title: "Inspect", description: "Inspect the CMS", inputSchema: { type: "object", properties: {}, additionalProperties: false }, outputSchema: { type: "object" }, annotations: { readOnlyHint: true }, abilityId: "kujo.cms.site.inspect", abilityVersion: "1.0.0", abilityDigest: "a".repeat(64), effects: [{ kind: "read", resource: "kujo.cms.site" }], execution: "/v1/abilities/cms/inspect/run" }] } }));
   if (request.url === "/v1/abilities/cms/inspect/run") return response.end(JSON.stringify({ ok: true, data: { result: { healthy: true }, receipt: { schema: "kujo.ability.receipt/v1", status: "succeeded" } } }));
   response.statusCode = 404; response.end(JSON.stringify({ error: { message: "not found" } }));
 });
@@ -35,6 +35,7 @@ send({ jsonrpc: "2.0", id: 2, method: "tools/list", params: {} });
 const listed = await waitFor(2);
 assert.equal(listed.result.tools[0].name, "cms__inspect");
 assert.equal(listed.result.tools[0]._meta["kujo/abilityId"], "kujo.cms.site.inspect");
+assert.equal(listed.result.tools[0].inputSchema.properties._kujo.additionalProperties, false);
 send({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "cms__inspect", arguments: { _kujo: { invocationId: "invoke-1", idempotencyKey: "same-input-only" } } } });
 const called = await waitFor(3);
 assert.equal(called.result.structuredContent.receipt.status, "succeeded");

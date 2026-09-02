@@ -6,6 +6,8 @@ Set `KUJO_ABILITY_GATEWAY_URL` to the application origin and `KUJO_ABILITY_GATEW
 
 Codex can install the directory as a plugin. Cursor and VS Code can use the equivalent configurations under `host-configs/`. The bridge supports MCP `initialize`, `ping`, `tools/list`, and `tools/call`, canonical receipts, request timeouts, bounded responses, keyed idempotency, and optional server-bound approvals.
 
+Each projected tool adds an optional `_kujo` adapter-control object for `invocationId`, `idempotencyKey`, and `approvalId`. The bridge removes that object before canonical input validation, so the domain schema and handler input remain unchanged.
+
 Approval issuance is disabled by default. Set `KUJO_ABILITY_ALLOW_APPROVALS=1` only when the host can collect explicit user confirmation and the bearer token is authorized for `admin.settings`.
 
 This v1.0.1 bridge targets the current CMS gateway endpoints. A hosted multi-tenant gateway should expose the same contract behind OAuth 2.1 and must not reuse the public read-only ecosystem catalog at `mcp.kujolang.ai`.
