@@ -21,14 +21,14 @@ The bridge implements MCP `initialize`, `ping`, `tools/list`, `tools/call`, and 
 
 ## Current support level
 
-The `1.1.0` package is a local, unpublished preview. Its Agent Plugins 1.0 manifest, Codex companion files, Copilot custom-agent overlay, MCP bridge, and npm artifact shape are validated in this repository. A clean temporary Codex profile also proves local marketplace discovery, install, enablement, disable/removal, and marketplace removal with `codex-cli 0.144.4`. That evidence does **not** prove authenticated host execution in Codex, installation in Cursor or VS Code, GitHub Copilot behavior, or a production Kujo gateway.
+The `1.1.0` package is a local, unpublished preview. Its Agent Plugins 1.0 manifest, Codex companion files, Copilot custom-agent overlay, MCP bridge, and npm artifact shape are validated in this repository. A clean temporary Codex profile proves local marketplace discovery, install, enablement, disable/removal, and marketplace removal with `codex-cli 0.144.4`. An installed VS Code 1.135.0 CLI also accepts the bridge in a clean temporary profile without persisting a credential. That evidence does **not** prove authenticated host execution in Codex or VS Code, installation in Cursor, interactive GitHub Copilot tool use, or a production Kujo gateway.
 
 | Surface | Status on 2026-09-02 | Evidence boundary |
 | --- | --- | --- |
 | Agent Plugins 1.0 package | Locally validated preview | Manifest, MCP configuration, paths, metadata, and package contents only |
 | Codex plugin | Clean-profile install validated | `codex-cli 0.144.4` local marketplace add/list/install/remove lifecycle in an isolated `CODEX_HOME`; authenticated execution remains separately unproven |
 | Cursor | Configuration lifecycle validated | Agent Plugin and manual `.cursor/mcp.json` configuration pass merge/disable/uninstall tests; no Cursor binary was available for an installed-host run |
-| VS Code / Copilot | Configuration lifecycle validated | Agent Plugin, password input configuration, and tool-scoped custom agent pass merge/disable/uninstall and metadata tests; no VS Code binary was available for an extension-host run |
+| VS Code / Copilot | Installed configuration validated | VS Code 1.135.0 accepts a clean-profile MCP registration for the packaged bridge; connector merge/disable/uninstall and metadata tests also pass; no interactive Copilot tool invocation was driven |
 | Generic MCP bridge | Contract tested | Real STDIO process against a mock authenticated gateway, including cancellation, approval, replay denial, and idempotency conflict |
 | Kujo Pi | Existing native integration | Covered by its own repository and release process, not certified by this package |
 
@@ -62,4 +62,4 @@ npm pack --dry-run --json ./integrations/kujo-ability
 bash tests/run_all_tests.sh
 ```
 
-These commands establish package, clean-profile Codex installation, and bridge contract evidence. They intentionally make no claim about public marketplace review, authenticated Codex execution, Cursor or VS Code installation, a production gateway, or enterprise deployment.
+These commands establish package, clean-profile Codex installation, installed VS Code configuration, and bridge contract evidence. They intentionally make no claim about public marketplace review, authenticated Codex or VS Code execution, Cursor installation, a production gateway, or enterprise deployment.

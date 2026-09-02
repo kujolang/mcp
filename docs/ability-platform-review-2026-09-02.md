@@ -12,7 +12,7 @@ The locally owned Release A implementation is ready as an unpublished preview. T
 | Portable package and local connector | 9/10 | Reproducible archive, SBOM, unsigned provenance, lifecycle and bridge tests; not published or signed |
 | Domain packs and developer platform | 9/10 | CMS, SSG, and MCP packs plus TypeScript/Python previews, devkit, conformance fixtures, and offline registry verifier |
 | Security and release controls | 9/10 | Diff scans, repaired findings, full gates, ShipCheck, Eval, ChangeBucket, approval/idempotency/audit negatives; no external assessment |
-| Host certification | 6/10 | Codex install lifecycle, generic STDIO, Agents SDK, and Kujo Pi evidence; Cursor/VS Code lack installed-host runs |
+| Host certification | 7/10 | Codex install lifecycle, installed VS Code clean-profile configuration, generic STDIO, Agents SDK, and Kujo Pi evidence; Cursor remains configuration-only and interactive Copilot execution is not certified |
 | Managed and public launch | 2/10 | Contracts and boundaries documented; no owned privileged service, production deployment, marketplace submission, or website checkout |
 
 Weighted milestone score: 7.5/10. This score describes evidence coverage, not a production certification.
@@ -27,7 +27,7 @@ Weighted milestone score: 7.5/10. This score describes evidence coverage, not a 
 
 ## Remaining gates
 
-- Install and execute the package in current Cursor and VS Code/Copilot hosts before upgrading their support tiers.
+- Install and execute the package in Cursor, and drive an authenticated VS Code/Copilot tool invocation before upgrading either support tier further.
 - Designate a separate privileged managed-service repository, origin, operator, identity/tenant model, retention policy, infrastructure, and security-review owner.
 - Supply release authority for npm/marketplaces, signing keys, production credentials, public deployment, external assessment, and legal/compliance review.
 - Resolve the authoritative website repository before changing public launch claims.

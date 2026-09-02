@@ -1,8 +1,8 @@
 {
   "schema": "kujo.ability.host-certification/v1",
-  "generated_at": "2026-09-02T12:09:53.650Z",
+  "generated_at": "2026-09-02T13:40:04.713Z",
   "source_revisions": {
-    "mcp": "c82202b3dbd186bbbd39fe4cb44130bd17406aab",
+    "mcp": "56e78e25f17f4ba0ff5ea0e359947646f607dcba",
     "agents-sdk": "c48cde3303003e0952aca8a720f5754c59ea9bf7",
     "kujo-pi": "9d977bdda760830e3cb00c1e0e756ab2d9acfe1e"
   },
@@ -12,7 +12,7 @@
     "mcp_protocol": "2025-11-25",
     "codex": "codex-cli 0.144.4",
     "cursor": "unavailable",
-    "vscode": "unavailable"
+    "vscode": "1.135.0"
   },
   "checks": [
     {
@@ -22,7 +22,7 @@
       "command": "node tests/portable_ability_plugin_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 222,
+      "duration_ms": 172,
       "output_sha256": "df2b9a315a307dbbe140681448498cfc136500f4401d5ef925982c7338506ff9",
       "summary": "portable Ability plugin contract passed",
       "limitations": []
@@ -34,7 +34,7 @@
       "command": "node tests/ability_host_bridge_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 1073,
+      "duration_ms": 1521,
       "output_sha256": "7de97e2fceda4e8921e0db18b20be69230cdb64546104f365c752c2c3390fa31",
       "summary": "ability host bridge contract passed",
       "limitations": []
@@ -46,7 +46,7 @@
       "command": "KUJO_REQUIRE_CODEX=1 node tests/codex_clean_profile_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 3728,
+      "duration_ms": 4033,
       "output_sha256": "8376225e9ff1ffcfb240a13eeb0dc4322701abfaeb12b4f2a4769febe3acace6",
       "summary": "Codex clean-profile plugin lifecycle passed (codex-cli 0.144.4)",
       "limitations": [
@@ -60,7 +60,7 @@
       "command": "node tests/ability_connector_cli_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 2674,
+      "duration_ms": 2182,
       "output_sha256": "ffaeda963bebc68bb50bb8bdde87bbc247ece0e1bdf33abfd04cfc5dc07b904f",
       "summary": "ability connector CLI lifecycle passed",
       "limitations": [
@@ -68,17 +68,17 @@
       ]
     },
     {
-      "id": "vscode-config",
+      "id": "vscode-clean-profile",
       "host": "vscode-copilot",
-      "tier": "configuration-validated",
-      "command": "node tests/ability_connector_cli_test.mjs",
+      "tier": "installed-configuration-validated",
+      "command": "KUJO_REQUIRE_VSCODE=1 node tests/vscode_clean_profile_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 2674,
-      "output_sha256": "ffaeda963bebc68bb50bb8bdde87bbc247ece0e1bdf33abfd04cfc5dc07b904f",
-      "summary": "ability connector CLI lifecycle passed",
+      "duration_ms": 1407,
+      "output_sha256": "daf76882c2f343393360001738f7e8159377a03dcb4789a399ba3a5af3d16cf3",
+      "summary": "VS Code clean-profile MCP registration passed (1.135.0, 08d4889f9ec4a1685d257b9b95de036c8e1ce1e5, x64)",
       "limitations": [
-        "VS Code binary was unavailable; no extension-host run."
+        "The installed VS Code CLI accepted a clean-profile MCP registration; an interactive Copilot tool invocation was not driven."
       ]
     },
     {
@@ -88,8 +88,8 @@
       "command": "kujo test-run tests/ability_contract_tests.kujo -v",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 3021,
-      "output_sha256": "d91ea0fc3f3f2fa2db0ee6ff7088fefd159189a59644aa21f461e0682d41031e",
+      "duration_ms": 2111,
+      "output_sha256": "285955fa5dd119d53715a072bed791714376807c6beeab0912a4e52708e8e9a7",
       "summary": "All tests passed! ✨",
       "limitations": []
     },
@@ -100,8 +100,8 @@
       "command": "npm test",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 24651,
-      "output_sha256": "bd61dcb3ae3eb6d8b7b6a91db81030563a057f5f509aa40bb2247b117b3ee3ab",
+      "duration_ms": 18570,
+      "output_sha256": "e55c3122e57c69d63d6df1a2d211ad97df9108eb03abae77a9c6cb9ed64b8190",
       "summary": "kujo-pi release-readiness validation passed",
       "limitations": []
     }
