@@ -1,6 +1,8 @@
 # Ability host deployment
 
-The v1.0.1 host package supports one executable topology: an MCP client starts the packaged STDIO bridge, and the bridge calls an application-owned Ability gateway over loopback HTTP or HTTPS. Kujo CMS is the reference gateway. The bridge never loads application handlers or credentials into an Ability definition.
+The v1.1.0 preview host package supports one executable topology: an MCP client starts the packaged STDIO bridge, and the bridge calls an application-owned Ability gateway over loopback HTTP or HTTPS. Kujo CMS is the reference gateway. The bridge never loads application handlers or credentials into an Ability definition.
+
+Architecture ownership and compatibility decisions are recorded in [ADR 0001](adr/0001-universal-ability-platform.md). The original cross-repository baseline is preserved in [the 2026-09-02 inventory](ability-platform-inventory-2026-09-02.md).
 
 ## Supported profiles
 

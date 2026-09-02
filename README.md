@@ -219,11 +219,14 @@ See full deployment guidance: `docs/production-deployment.md`.
 - `docs/mcp-reference.md`: endpoint, tool, resource, and validation reference
 - `docs/mcp-make.md`: repository analysis and generated-server command reference
 - `docs/security-model.md`: trust boundaries, threat model, and hardening defaults
+- `docs/ability-host-conformance.md`: Ability host support tiers and conformance evidence requirements
+- `docs/ability-host-deployment.md`: local, customer-hosted, and managed Ability gateway profiles
+- `docs/ability-platform-inventory-2026-09-02.md`: immutable cross-repository Ability baseline
+- `docs/adr/0001-universal-ability-platform.md`: Ability ownership, topology, compatibility, and support-tier decision
 - `docs/example-integrations.md`: local and remote integration examples
 - `docs/production-deployment.md`: operational deployment baseline and scaling notes
 - `docs/contributing-agent-workflow.md`: contributor workflow and completion criteria
 - `docs/release-versioning-policy.md`: release and versioning conventions
-- `docs/contributing-agent-workflow.md`: implementation and validation workflow
 - `docs/MCP_REVIEW_BACKLOG_2026_06_19.md`: next-session production-readiness backlog
 
 ## Project Structure
