@@ -1,0 +1,34 @@
+from ability import list_ability_definitions
+from packs.mcp_core.runtime import create_mcp_core_ability_registry, make_mcp_core_invocation, execute_mcp_core_ability, mcp_core_policy
+
+func fixed_clock() { return 1000 }
+func fixed_id(kind, invocation) { return kind + "-mcp-core-test" }
+func audit_ok(phase, invocation, payload) { return {"ok": true, "written": true, "event_id": "audit-" + phase} }
+services := {"policy": mcp_core_policy, "clock_ms": fixed_clock, "id_factory": fixed_id, "audit": audit_ok, "audit_required": true}
+
+pack := parse_json(read_file("packs/mcp_core/pack.json"))
+assert(pack["schema"] == "kujo.ability-pack/v1", "MCP core pack manifest must use the shared pack envelope")
+assert(pack["pack_id"] == "kujo.mcp.core" && pack["pack_version"] == "1.0.0", "MCP core pack identity must be independently versioned")
+
+created := create_mcp_core_ability_registry(".")
+assert(created["ok"], "MCP core Ability registry must initialize")
+registry := created["registry"]
+definitions := list_ability_definitions(registry, "sdk")
+assert(len(definitions) == 2, "MCP core pack must expose two bounded definitions")
+
+profile_definition := parse_json(read_file("packs/mcp_core/kujo.mcp.repository.profile.json"))
+profile_result := execute_mcp_core_ability(registry, make_mcp_core_invocation(profile_definition, {}, "profile-1"), services)
+assert(profile_result["ok"], "repository profile Ability must execute")
+assert(profile_result["receipt"]["result"]["repo_name"] == "mcp", "repository profile must identify the bounded root")
+assert(profile_result["receipt"]["result"]["sensitive_path_count"] >= 0, "repository profile must redact sensitive path names into a count")
+
+manifest_definition := parse_json(read_file("packs/mcp_core/kujo.mcp.manifest.validate.json"))
+manifest_result := execute_mcp_core_ability(registry, make_mcp_core_invocation(manifest_definition, {"manifest": "tests/fixtures/mcp-core-valid-manifest.json"}, "manifest-1"), services)
+assert(manifest_result["ok"], "valid generated manifest inspection must execute: " + to_json(manifest_result))
+assert(manifest_result["receipt"]["result"]["passed"], "valid generated manifest must pass")
+
+escape_result := execute_mcp_core_ability(registry, make_mcp_core_invocation(manifest_definition, {"manifest": "../outside.json"}, "manifest-2"), services)
+assert(escape_result["ok"] == false, "manifest validation must reject escaping paths")
+assert(escape_result["receipt"]["error"]["code"] == "invalid_manifest_path", "path rejection must survive in the canonical receipt")
+
+print("test_11_mcp_core_ability_pack: all assertions passed")

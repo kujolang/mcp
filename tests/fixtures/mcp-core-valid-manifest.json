@@ -1,0 +1,9 @@
+{
+  "server": { "name": "fixture-generated-mcp", "version": "1.0.0", "generated_at": "2026-09-02 00:00:00", "source_repo": "/fixture/repo" },
+  "tools": [{ "name": "inspect_project_structure", "description": "Summarize repository structure.", "input_schema": { "type": "object", "properties": {}, "required": [] }, "safety_tier": "read_only", "source_evidence": [], "validation_status": "generated" }],
+  "resources": [{ "uri": "repo://profile", "name": "Repository Profile", "description": "Deterministic profile.", "mime_type": "application/json", "path": "/fixture/out/repo-profile.json" }],
+  "prompts": [{ "name": "prepare_implementation_plan", "description": "Prepare an implementation plan.", "path": "/fixture/out/prompts/plan.md" }],
+  "safe_command_map": { "run_safe_test_suite": "npm run test" },
+  "blocked_commands": ["deploy"],
+  "safety_tiers": ["read_only", "safe_command", "write_scaffold", "review_required", "blocked"]
+}
