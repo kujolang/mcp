@@ -1,0 +1,20 @@
+{
+  "name": "kujo-local",
+  "interface": {
+    "displayName": "Kujo Local Plugins"
+  },
+  "plugins": [
+    {
+      "name": "kujo-ability",
+      "source": {
+        "source": "local",
+        "path": "./integrations/kujo-ability"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

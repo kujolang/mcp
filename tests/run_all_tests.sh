@@ -34,6 +34,7 @@ node tests/portable_ability_plugin_test.mjs
 node tests/ability_contract_drift_test.mjs
 node tests/ability_connector_cli_test.mjs
 node tests/ability_host_bridge_test.mjs
+node tests/codex_clean_profile_test.mjs
 node tests/ability_package_release_test.mjs
 
 echo "run_all_tests: all checks passed"
