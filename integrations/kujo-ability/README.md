@@ -12,7 +12,7 @@ Portable clients expand `${PLUGIN_ROOT}` in `mcp.json`; the package never embeds
 
 Set `KUJO_ABILITY_GATEWAY_URL` to the application origin and `KUJO_ABILITY_GATEWAY_TOKEN` to a least-privilege bearer token. Loopback HTTP is allowed for local development; every non-loopback gateway must use HTTPS.
 
-Codex can install the directory as a plugin. Cursor and VS Code can load the root Agent Plugin or use the equivalent configurations under `host-configs/`. The Copilot custom agent is restricted to `kujo-ability/*` tools. No hooks are bundled because unconditional client-side commands would add local execution risk without strengthening server authorization. The bridge supports MCP `initialize`, `ping`, `tools/list`, `tools/call`, and request cancellation, plus canonical receipts, request timeouts, bounded responses, keyed idempotency, and optional server-bound approvals.
+Codex can install the directory as a plugin. Cursor and VS Code can load the root Agent Plugin or use the equivalent configurations under `host-configs/`. The Copilot custom agent is restricted to `kujo-ability/*` tools. No hooks are bundled because unconditional client-side commands would add local execution risk without strengthening server authorization. The bridge supports MCP `initialize`, `ping`, `tools/list`, `tools/call`, and request cancellation, plus canonical receipts, request timeouts, bounded responses, keyed idempotency, and externally issued server-bound approvals.
 
 From the `mcp` repository root, current Codex CLI builds can use the repository's local marketplace without changing the package:
 
@@ -30,7 +30,7 @@ The checked-in clean-profile test runs that lifecycle under a temporary `CODEX_H
 
 Each projected tool adds an optional `_kujo` adapter-control object for `invocationId`, `idempotencyKey`, and `approvalId`. The bridge removes that object before canonical input validation, so the domain schema and handler input remain unchanged.
 
-Approval issuance is disabled by default. Set `KUJO_ABILITY_ALLOW_APPROVALS=1` only when the host can collect explicit user confirmation and the bearer token is authorized for `admin.settings`.
+The generic MCP bridge never issues approvals because an ordinary tool argument cannot prove independent human intent. A trusted host or out-of-band application UI must collect confirmation and issue a server-bound approval, then inject only the resulting approval ID through `_kujo.approvalId`. Do not give the agent process approval-issuance credentials.
 
 This v1.1.0 preview bridge targets the current CMS gateway endpoints. The `kujo-ability` npm name was unclaimed when checked on 2026-09-02, but this package has not been published. Do not use an `npx kujo-ability` installation command until a signed release is published and verified. A hosted multi-tenant gateway should expose the same contract behind OAuth 2.1 and must not reuse the public read-only ecosystem catalog at `mcp.kujolang.ai`.
 

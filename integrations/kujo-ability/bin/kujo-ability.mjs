@@ -95,7 +95,7 @@ function serverEntry(host, gateway) {
       command: process.execPath,
       args: [bridgePath],
       cwd: dirname(bridgePath),
-      env_vars: ["KUJO_ABILITY_GATEWAY_URL", "KUJO_ABILITY_GATEWAY_TOKEN", "KUJO_ABILITY_ALLOW_APPROVALS", "KUJO_ABILITY_REQUEST_TIMEOUT_MS"],
+      env_vars: ["KUJO_ABILITY_GATEWAY_URL", "KUJO_ABILITY_GATEWAY_TOKEN", "KUJO_ABILITY_REQUEST_TIMEOUT_MS"],
       tool_timeout_sec: 60,
     };
   }

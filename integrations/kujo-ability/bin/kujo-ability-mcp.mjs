@@ -5,7 +5,6 @@ import { randomUUID } from "node:crypto";
 const server = { name: "kujo-ability", version: "1.1.0" };
 const configuredBase = process.env.KUJO_ABILITY_GATEWAY_URL || "http://127.0.0.1:8080";
 const token = process.env.KUJO_ABILITY_GATEWAY_TOKEN || "";
-const allowApprovals = process.env.KUJO_ABILITY_ALLOW_APPROVALS === "1";
 const parsed = new URL(configuredBase);
 if (parsed.protocol !== "https:" && !["127.0.0.1", "localhost", "::1"].includes(parsed.hostname)) throw new Error("KUJO_ABILITY_GATEWAY_URL must use HTTPS unless it is loopback");
 if (parsed.username || parsed.password || parsed.search || parsed.hash) throw new Error("KUJO_ABILITY_GATEWAY_URL must not contain credentials, query parameters, or a fragment");
@@ -87,25 +86,12 @@ async function listTools(signal) {
     name, title, description, inputSchema: hostInputSchema(inputSchema), outputSchema, annotations,
     _meta: { "kujo/abilityId": abilityId, "kujo/abilityVersion": abilityVersion, "kujo/abilityDigest": abilityDigest, "kujo/effects": effects },
   }));
-  if (allowApprovals) projected.push({
-    name: "kujo_ability_issue_approval", title: "Approve a Kujo Ability invocation",
-    description: "Issue a one-time server-bound approval after the host has obtained explicit user confirmation.",
-    inputSchema: { type: "object", required: ["ability", "invocation_id", "confirm"], properties: { ability: { type: "string" }, invocation_id: { type: "string" }, confirm: { type: "boolean", const: true } }, additionalProperties: false },
-    annotations: { destructiveHint: false, idempotentHint: false, openWorldHint: false },
-  });
   return projected;
 }
 
 const mcpResult = (data, isError = false) => ({ content: [{ type: "text", text: JSON.stringify(data) }], structuredContent: data, ...(isError ? { isError: true } : {}) });
 
 async function callTool(name, args, signal) {
-  if (name === "kujo_ability_issue_approval") {
-    if (!allowApprovals) throw new Error("approval issuance is disabled");
-    if (args?.confirm !== true) throw new Error("confirm must be true");
-    const parts = String(args.ability || "").split("/");
-    if (parts.length !== 2 || !parts.every((part) => /^[a-z0-9][a-z0-9-]*$/.test(part))) throw new Error("ability must be namespace/name");
-    return mcpResult(await gateway(`/v1/abilities/${parts[0]}/${parts[1]}/approvals`, { method: "POST", body: JSON.stringify({ invocation_id: args.invocation_id }), signal }));
-  }
   if (!toolCache.has(name)) await listTools(signal);
   const tool = toolCache.get(name);
   if (!tool) throw new Error(`unknown tool: ${name}`);

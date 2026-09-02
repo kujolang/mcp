@@ -1,5 +1,8 @@
 # Changelog
 
+- Remove in-band MCP approval issuance; approvals must now come from a trusted host or out-of-band UI.
+- Bind compatibility evidence to the certified Ability connector source and make required Codex certification fail closed.
+
 ## Next preview
 
 - Add generated, freshness-gated host compatibility evidence and isolated lifecycle coverage for primary host configurations.

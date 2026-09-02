@@ -5,8 +5,8 @@ import { once } from "node:events";
 import { createInterface } from "node:readline";
 
 const requests = [];
-let approvalSequence = 0;
 const usedApprovals = new Set();
+const validApprovals = new Set(["approval-external-1", "approval-external-2"]);
 const idempotencyInputs = new Map();
 const server = createServer(async (request, response) => {
   let raw = "";
@@ -24,10 +24,6 @@ const server = createServer(async (request, response) => {
     if (!response.destroyed) response.end(JSON.stringify({ ok: true, data: { receipt: { schema: "kujo.ability.receipt/v1", status: "succeeded" } } }));
     return;
   }
-  if (request.url === "/v1/abilities/cms/publish/approvals") {
-    approvalSequence += 1;
-    return response.end(JSON.stringify({ ok: true, data: { approval_id: `approval-${approvalSequence}`, invocation_id: requests.at(-1).body.invocation_id } }));
-  }
   if (request.url === "/v1/abilities/cms/publish/run") {
     const approval = request.headers["x-ability-approval"];
     const idempotencyKey = request.headers["idempotency-key"];
@@ -35,6 +31,10 @@ const server = createServer(async (request, response) => {
     if (!approval) {
       response.statusCode = 403;
       return response.end(JSON.stringify({ error: { code: "approval_required", message: "approval required" } }));
+    }
+    if (!validApprovals.has(approval)) {
+      response.statusCode = 403;
+      return response.end(JSON.stringify({ error: { code: "approval_invalid", message: "approval invalid" } }));
     }
     if (idempotencyInputs.has(idempotencyKey) && idempotencyInputs.get(idempotencyKey) !== normalizedInput) {
       response.statusCode = 409;
@@ -74,6 +74,7 @@ const listed = await waitFor(2);
 assert.equal(listed.result.tools[0].name, "cms__inspect");
 assert.equal(listed.result.tools[0]._meta["kujo/abilityId"], "kujo.cms.site.inspect");
 assert.equal(listed.result.tools[0].inputSchema.properties._kujo.additionalProperties, false);
+assert.equal(listed.result.tools.some((tool) => tool.name === "kujo_ability_issue_approval"), false);
 send({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "cms__inspect", arguments: { _kujo: { invocationId: "invoke-1", idempotencyKey: "same-input-only" } } } });
 const called = await waitFor(3);
 assert.equal(called.result.structuredContent.receipt.status, "succeeded");
@@ -96,21 +97,20 @@ assert.equal(denied.result.structuredContent.details.code, "approval_required");
 assert.equal(denied.result.structuredContent.details.status, 403);
 
 send({ jsonrpc: "2.0", id: 6, method: "tools/call", params: { name: "kujo_ability_issue_approval", arguments: { ability: "cms/publish", invocation_id: "publish-1", confirm: true } } });
-const approval = await waitFor(6);
-assert.equal(approval.result.structuredContent.approval_id, "approval-1");
-send({ jsonrpc: "2.0", id: 7, method: "tools/call", params: { name: "cms__publish", arguments: { title: "First", _kujo: { invocationId: "publish-1", idempotencyKey: "publish-key", approvalId: "approval-1" } } } });
+const selfApproval = await waitFor(6);
+assert.equal(selfApproval.result.isError, true);
+assert.match(selfApproval.result.structuredContent.error, /unknown tool/);
+send({ jsonrpc: "2.0", id: 7, method: "tools/call", params: { name: "cms__publish", arguments: { title: "First", _kujo: { invocationId: "publish-1", idempotencyKey: "publish-key", approvalId: "approval-external-1" } } } });
 const published = await waitFor(7);
 assert.equal(published.result.structuredContent.receipt.status, "succeeded");
 assert.equal(published.result.structuredContent.receipt.invocation_id, "publish-1");
 
-send({ jsonrpc: "2.0", id: 8, method: "tools/call", params: { name: "cms__publish", arguments: { title: "First", _kujo: { invocationId: "publish-1", idempotencyKey: "publish-key", approvalId: "approval-1" } } } });
+send({ jsonrpc: "2.0", id: 8, method: "tools/call", params: { name: "cms__publish", arguments: { title: "First", _kujo: { invocationId: "publish-1", idempotencyKey: "publish-key", approvalId: "approval-external-1" } } } });
 const replayed = await waitFor(8);
 assert.equal(replayed.result.isError, true);
 assert.equal(replayed.result.structuredContent.details.code, "approval_replayed");
 
-send({ jsonrpc: "2.0", id: 9, method: "tools/call", params: { name: "kujo_ability_issue_approval", arguments: { ability: "cms/publish", invocation_id: "publish-2", confirm: true } } });
-assert.equal((await waitFor(9)).result.structuredContent.approval_id, "approval-2");
-send({ jsonrpc: "2.0", id: 10, method: "tools/call", params: { name: "cms__publish", arguments: { title: "Changed", _kujo: { invocationId: "publish-2", idempotencyKey: "publish-key", approvalId: "approval-2" } } } });
+send({ jsonrpc: "2.0", id: 10, method: "tools/call", params: { name: "cms__publish", arguments: { title: "Changed", _kujo: { invocationId: "publish-2", idempotencyKey: "publish-key", approvalId: "approval-external-2" } } } });
 const conflicted = await waitFor(10);
 assert.equal(conflicted.result.isError, true);
 assert.equal(conflicted.result.structuredContent.details.code, "idempotency_conflict");
