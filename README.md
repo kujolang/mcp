@@ -56,7 +56,7 @@ This project gives you a local MCP server foundation with configurable tools/res
 
 ## Watchdog telemetry helper
 
-`src/telemetry/watchdog.kujo` maps MCP client or server tool lifecycles into the shared `watchdog.native-event.v1` ingestion contract. It is a pure adapter: it performs no network or database I/O, retains tool/server identity, timing, status, source correlation IDs, approval/risk classification, and input/output byte counts, and never accepts raw tool inputs or outputs. The host owns delivery to Watchdog and should use one trace across the client request, server execution, and nested work while preserving source IDs as references.
+`src/telemetry/watchdog.kujo` maps MCP client or server tool lifecycles into the shared `watchdog.native-event.v1` ingestion contract. It is a pure adapter: it performs no network or database I/O, retains tool/server identity, timing, status, source correlation IDs, approval/risk classification, and input/output byte counts, and never accepts raw tool inputs or outputs. `watchdog_mcp_tool_lifecycle` emits a stable start/completion pair and `watchdog_mcp_trace_metadata` supplies bounded `_meta` propagation fields. The host owns fail-open delivery to Watchdog and should use one trace across the client request, server execution, and nested work while preserving source IDs as references. Propagated values are correlation only and must never select authorization, privacy, retention, tenant, or exporter policy.
 
 ## Portable Ability Projection
 

@@ -1,4 +1,4 @@
-from src.telemetry.watchdog import watchdog_mcp_tool_event
+from src.telemetry.watchdog import watchdog_mcp_tool_event, watchdog_mcp_tool_lifecycle, watchdog_mcp_trace_metadata
 
 event_result := watchdog_mcp_tool_event({
     "event_id": "mcp-event-1", "trace_id": "trace-source-1", "span_id": "span-source-1", "parent_span_id": "parent-source-1",
@@ -17,6 +17,23 @@ assert(len(event["references"]) == 3, "source correlation IDs must survive")
 
 invalid := watchdog_mcp_tool_event({"event_id": "event", "trace_id": "trace", "span_id": "span", "server_name": "server", "tool_name": "tool", "started_at_ms": 20, "ended_at_ms": 10})
 assert(invalid["ok"] == false, "negative duration must be rejected")
+
+lifecycle := watchdog_mcp_tool_lifecycle({
+    "event_id": "event-2", "trace_id": "trace-2", "span_id": "span-2", "parent_span_id": "client-span",
+    "server_name": "server", "tool_name": "write_file", "tool_call_id": "call-2",
+    "started_at_ms": 20, "ended_at_ms": 25, "status": "ok", "input_bytes": 12, "output_bytes": 8,
+    "phase": "server", "approval": "approved", "risk": "write"
+})
+assert(lifecycle["ok"] == true, "complete lifecycle must map")
+assert(len(lifecycle["events"]) == 2, "lifecycle must have start and completion")
+assert(lifecycle["events"][0]["status"] == "unset", "start must remain open")
+assert(lifecycle["events"][1]["status"] == "ok", "completion must preserve status")
+assert(lifecycle["events"][1]["parent_span_id"] == "client-span", "server execution must preserve client parent")
+
+metadata := watchdog_mcp_trace_metadata("trace-2", "client-span", "call-2")
+assert(metadata["ok"] == true, "bounded correlation metadata must map")
+assert(metadata["meta"]["io.kujolang.watchdog/tool_call_id"] == "call-2", "tool call correlation must be preserved outside arguments")
+assert(has_key(metadata["meta"], "authorization") == 0, "correlation metadata must not imply authorization")
 assert(index_of(invalid["error"], "cannot precede") >= 0, "invalid timing must be specific")
 
 print("test_08_watchdog_telemetry: all assertions passed")

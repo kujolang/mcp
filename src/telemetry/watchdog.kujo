@@ -1,4 +1,5 @@
 export WATCHDOG_NATIVE_EVENT_SCHEMA := "watchdog.native-event.v1"
+export WATCHDOG_MCP_ADAPTER_VERSION := "watchdog.ingestion-adapter.v1"
 
 func bounded_text(value, field, max_length, required) {
     text := trim(to_string(value))
@@ -110,6 +111,61 @@ export watchdog_mcp_tool_event := func(input) {
             "usage": null,
             "costs": [],
             "error": error_value
+        }
+    }
+}
+
+# Build the two records that own a server-side MCP tool execution. Client-side
+# instrumentation should create its own span and pass that span as parent. The
+# shared tool_call_id reference lets Watchdog correlate both without merging or
+# double-counting their latency.
+export watchdog_mcp_tool_lifecycle := func(input) {
+    if type(input) != "dict" { return {"ok": false, "error": "input must be an object"} }
+    if has_key(input, "ended_at_ms") == false || input["ended_at_ms"] == null {
+        return {"ok": false, "error": "ended_at_ms is required for a lifecycle"}
+    }
+    ended_value := input["ended_at_ms"]
+    status_value := "unset"
+    if has_key(input, "status") { status_value = input["status"] }
+    output_value := 0
+    if has_key(input, "output_bytes") { output_value = input["output_bytes"] }
+    input["ended_at_ms"] := null
+    input["status"] := "unset"
+    input["output_bytes"] := 0
+    started := watchdog_mcp_tool_event(input)
+    input["ended_at_ms"] := ended_value
+    input["status"] := status_value
+    input["output_bytes"] := output_value
+    if started["ok"] == false { return started }
+    completed := watchdog_mcp_tool_event(input)
+    if completed["ok"] == false { return completed }
+    started_event := started["event"]
+    started_event["event_id"] := started_event["event_id"] + ":started"
+    started_event["name"] := started_event["name"] + ".started"
+    completed_event := completed["event"]
+    completed_event["event_id"] := completed_event["event_id"] + ":completed"
+    completed_event["name"] := completed_event["name"] + ".completed"
+    return {"ok": true, "events": [started_event, completed_event]}
+}
+
+# Propagation metadata is deliberately separate from tool arguments. Hosts may
+# place this object in MCP `_meta`; servers must never treat these values as
+# authorization, privacy policy, retention, or exporter selection.
+export watchdog_mcp_trace_metadata := func(trace_id, parent_span_id, tool_call_id) {
+    checked_trace := bounded_text(trace_id, "trace_id", 160, true)
+    if checked_trace["ok"] == false { return checked_trace }
+    checked_parent := bounded_text(parent_span_id, "parent_span_id", 160, true)
+    if checked_parent["ok"] == false { return checked_parent }
+    checked_call := bounded_text(tool_call_id, "tool_call_id", 160, true)
+    if checked_call["ok"] == false { return checked_call }
+    return {
+        "ok": true,
+        "meta": {
+            "io.kujolang.watchdog/schema": WATCHDOG_NATIVE_EVENT_SCHEMA,
+            "io.kujolang.watchdog/adapter": WATCHDOG_MCP_ADAPTER_VERSION,
+            "io.kujolang.watchdog/trace_id": checked_trace["value"],
+            "io.kujolang.watchdog/parent_span_id": checked_parent["value"],
+            "io.kujolang.watchdog/tool_call_id": checked_call["value"]
         }
     }
 }
