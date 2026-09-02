@@ -1,0 +1,140 @@
+from ability import ABILITY_INVOCATION_SCHEMA_ID, execute_ability, list_ability_definitions
+from src.abilities.projection import ability_to_mcp_tool
+
+func dict_get_or(obj, key, fallback) {
+    if type(obj) != "dict" { return fallback }
+    if has_key(obj, key) { return obj[key] }
+    return fallback
+}
+
+func failure(code, message, details) {
+    return {"ok": false, "code": code, "message": message, "details": details}
+}
+
+func safe_callback(callback, args, fallback) {
+    if type(callback) != "function" { return fallback }
+    result := fallback
+    callback_error := null
+    try { result = callback(args) } except e { callback_error = e }
+    if type(callback_error) != "null" { return fallback }
+    return result
+}
+
+func exposure_visible(entry, server_context, gateway_services) {
+    exposure := entry["exposure"]
+    if dict_get_or(exposure, "public", false) == true { return true }
+    authorize_discovery := dict_get_or(gateway_services, "authorize_discovery", null)
+    decision := safe_callback(authorize_discovery, {
+        "definition": entry["definition"],
+        "exposure": exposure,
+        "principal": dict_get_or(server_context, "principal", {}),
+        "server_context": server_context
+    }, false)
+    return decision == true
+}
+
+func find_visible_entry(registry, tool_name, server_context, gateway_services) {
+    for entry in list_ability_definitions(registry, "mcp") {
+        if exposure_visible(entry, server_context, gateway_services) {
+            projection := ability_to_mcp_tool(entry["definition"], entry["exposure"])
+            if projection["ok"] == false { return projection }
+            if projection["tool"]["name"] == tool_name {
+                return {"ok": true, "entry": entry, "tool": projection["tool"]}
+            }
+        }
+    }
+    return failure("ability_mcp_tool_not_found", "Ability MCP tool is not available to this principal", {"name": tool_name})
+}
+
+export list_ability_mcp_tools := func(registry, server_context_input, gateway_services_input) {
+    server_context := server_context_input
+    if type(server_context) != "dict" { server_context = {} }
+    gateway_services := gateway_services_input
+    if type(gateway_services) != "dict" { gateway_services = {} }
+    tools := []
+    names := {}
+    for entry in list_ability_definitions(registry, "mcp") {
+        if exposure_visible(entry, server_context, gateway_services) {
+            projection := ability_to_mcp_tool(entry["definition"], entry["exposure"])
+            if projection["ok"] == false { return projection }
+            name := projection["tool"]["name"]
+            if has_key(names, name) { return failure("ability_tool_name_collision", "Two visible MCP Ability exposures use the same tool name", {"name": name}) }
+            names[name] := true
+            tools = push(tools, projection["tool"])
+        }
+    }
+    return {"ok": true, "tools": tools}
+}
+
+func valid_principal(principal) {
+    if type(principal) != "dict" { return false }
+    if trim(to_string(dict_get_or(principal, "type", ""))) == "" { return false }
+    if trim(to_string(dict_get_or(principal, "id", ""))) == "" { return false }
+    if type(dict_get_or(principal, "tenant_id", "")) != "string" { return false }
+    if type(dict_get_or(principal, "claims", {})) != "dict" { return false }
+    return true
+}
+
+func request_value(server_context, key, fallback) {
+    value := dict_get_or(server_context, key, fallback)
+    if type(value) != "string" { return fallback }
+    value = trim(value)
+    if value == "" { return fallback }
+    return value
+}
+
+export execute_ability_mcp_tool := func(registry, tool_name_input, input_payload, server_context_input, ability_services_input, gateway_services_input) {
+    tool_name := trim(to_string(tool_name_input))
+    if tool_name == "" { return failure("invalid_ability_mcp_tool_name", "MCP tool name is required", {}) }
+    server_context := server_context_input
+    if type(server_context) != "dict" { return failure("invalid_ability_mcp_server_context", "Server-resolved MCP context is required", {}) }
+    principal := dict_get_or(server_context, "principal", null)
+    if valid_principal(principal) == false { return failure("ability_mcp_principal_required", "MCP execution requires a server-resolved principal", {}) }
+    gateway_services := gateway_services_input
+    if type(gateway_services) != "dict" { gateway_services = {} }
+    resolved := find_visible_entry(registry, tool_name, server_context, gateway_services)
+    if resolved["ok"] == false { return resolved }
+    definition := resolved["entry"]["definition"]
+    invocation_id := request_value(server_context, "invocation_id", "mcp-invocation-" + substring(sha256(tool_name + ":" + to_json(input_payload)), 0, 24))
+    request_id := request_value(server_context, "request_id", invocation_id)
+    trace_id := request_value(server_context, "trace_id", request_id)
+    invocation := {
+        "schema": ABILITY_INVOCATION_SCHEMA_ID,
+        "invocation_id": invocation_id,
+        "ability_id": definition["id"],
+        "ability_version": definition["version"],
+        "definition_digest": resolved["entry"]["digest"],
+        "input": input_payload,
+        "principal": principal,
+        "request_id": request_id,
+        "trace_id": trace_id,
+        "surface": "mcp",
+        "idempotency_key": to_string(dict_get_or(server_context, "idempotency_key", "")),
+        "approval": dict_get_or(server_context, "approval", {}),
+        "metadata": dict_get_or(server_context, "metadata", {})
+    }
+    ability_services := ability_services_input
+    if type(ability_services) != "dict" { ability_services = {} }
+    execution := execute_ability(registry, invocation, ability_services)
+    if has_key(execution, "receipt") == false { return execution }
+    receipt := execution["receipt"]
+    succeeded := receipt["status"] == "succeeded"
+    summary := {"status": receipt["status"], "receipt_id": receipt["receipt_id"], "ability_id": receipt["ability_id"], "ability_version": receipt["ability_version"]}
+    if succeeded { summary["result"] := receipt["result"] }
+    if succeeded == false { summary["error"] := receipt["error"] }
+    return {
+        "ok": succeeded,
+        "code": dict_get_or(execution, "code", ""),
+        "receipt": receipt,
+        "mcp_result": {
+            "content": [{"type": "text", "text": to_json(summary)}],
+            "structuredContent": summary,
+            "isError": succeeded == false,
+            "_meta": {
+                "com.kujolang/abilityReceiptId": receipt["receipt_id"],
+                "com.kujolang/abilityDefinitionDigest": receipt["definition_digest"],
+                "com.kujolang/abilityStatus": receipt["status"]
+            }
+        }
+    }
+}

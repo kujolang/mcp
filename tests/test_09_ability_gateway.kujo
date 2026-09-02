@@ -1,0 +1,50 @@
+from ability import ABILITY_BINDING_SCHEMA_ID, ABILITY_EXPOSURE_SCHEMA_ID, ABILITY_SCHEMA_ID, create_ability_registry, register_ability_binding, register_ability_definition, register_ability_exposure
+from src.abilities.gateway import execute_ability_mcp_tool, list_ability_mcp_tools
+
+definition := {
+    "schema": ABILITY_SCHEMA_ID,
+    "id": "kujo.docs.content.find",
+    "version": "1.0.0",
+    "description": "Find documentation records.",
+    "input_schema": {"type": "object", "required": ["query"], "properties": {"query": {"type": "string"}}, "additionalProperties": false},
+    "output_schema": {"type": "object", "required": ["count"], "properties": {"count": {"type": "integer"}}, "additionalProperties": false},
+    "effects": [{"kind": "read", "resource": "kujo.docs.content"}],
+    "idempotency": {"mode": "intrinsic"}
+}
+
+func handler(input, context) { return {"count": len(input["query"])} }
+func allow_policy(definition, invocation, exposure) { return {"schema": "kujo.ability.policy-decision/v1", "decision_id": "allow-mcp", "outcome": "allow", "reason": "Allowed by fixture policy.", "requirements": [], "policy_id": "kujo.mcp.fixture", "policy_version": "1.0.0"} }
+func audit_ok(phase, invocation, payload) { return {"ok": true, "phase": phase} }
+func fixed_clock() { return 1000 }
+func fixed_id(kind, invocation) { return kind + "-mcp-fixture" }
+func authorize_discovery(args) { return args["principal"]["id"] == "user-1" }
+
+registry := create_ability_registry()
+step := register_ability_definition(registry, definition); assert(step["ok"], "definition must register"); registry = step["registry"]
+binding := {"schema": ABILITY_BINDING_SCHEMA_ID, "ability_id": definition["id"], "ability_version": definition["version"], "handler_id": "kujo.docs.fixture", "handler_version": "1.0.0", "handler": handler, "timeout_ms": 30000, "metadata": {}}
+step = register_ability_binding(registry, binding); assert(step["ok"], "binding must register"); registry = step["registry"]
+exposure := {"schema": ABILITY_EXPOSURE_SCHEMA_ID, "ability_id": definition["id"], "ability_version": definition["version"], "surface": "mcp", "name": "find_docs", "enabled": true, "public": false, "metadata": {"allowed_effects": ["read"]}}
+step = register_ability_exposure(registry, exposure); assert(step["ok"], "exposure must register"); registry = step["registry"]
+
+anonymous := {"principal": {"type": "anonymous", "id": "anonymous", "tenant_id": "", "claims": {}}}
+hidden := list_ability_mcp_tools(registry, anonymous, {})
+assert(hidden["ok"] && len(hidden["tools"]) == 0, "private Abilities must be hidden without a discovery authorizer")
+
+server_context := {"principal": {"type": "user", "id": "user-1", "tenant_id": "tenant-1", "claims": {"scope": "docs.read"}}, "request_id": "request-1", "trace_id": "trace-1", "invocation_id": "invocation-1", "metadata": {}}
+gateway_services := {"authorize_discovery": authorize_discovery}
+listed := list_ability_mcp_tools(registry, server_context, gateway_services)
+assert(listed["ok"] && len(listed["tools"]) == 1, "authorized principal must discover the Ability")
+assert(listed["tools"][0]["name"] == "find_docs", "exposure name must be preserved")
+
+missing_principal := execute_ability_mcp_tool(registry, "find_docs", {"query": "ability"}, {}, {}, gateway_services)
+assert(missing_principal["code"] == "ability_mcp_principal_required", "execution must require server-resolved identity")
+
+ability_services := {"policy": allow_policy, "audit": audit_ok, "clock_ms": fixed_clock, "id_factory": fixed_id}
+executed := execute_ability_mcp_tool(registry, "find_docs", {"query": "ability"}, server_context, ability_services, gateway_services)
+assert(executed["ok"], "visible Ability must execute through the MCP gateway")
+assert(executed["receipt"]["surface"] == "mcp", "receipt must preserve MCP surface")
+assert(executed["receipt"]["principal"]["id"] == "user-1", "receipt must preserve server-resolved identity")
+assert(executed["mcp_result"]["structuredContent"]["result"]["count"] == 7, "MCP result must contain validated output")
+assert(executed["mcp_result"]["_meta"]["com.kujolang/abilityReceiptId"] == "receipt-mcp-fixture", "MCP metadata must link the canonical receipt")
+
+print("test_09_ability_gateway: all assertions passed")
