@@ -1,10 +1,11 @@
 {
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
   "mcpServers": {
     "kujo-ability": {
+      "type": "stdio",
       "command": "node",
       "args": ["${PLUGIN_ROOT}/bin/kujo-ability-mcp.mjs"],
-      "cwd": "${PLUGIN_ROOT}",
-      "env": { "KUJO_ABILITY_GATEWAY_URL": "https://cms.example.com" }
+      "cwd": "${PLUGIN_ROOT}"
     }
   }
 }

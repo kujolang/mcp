@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "kujo-ability",
+  "version": "1.1.0",
+  "description": "Discover and run policy-gated Kujo Abilities through a canonical MCP bridge.",
+  "author": {
+    "name": "Kujo",
+    "url": "https://kujolang.ai"
+  },
+  "homepage": "https://kujolang.ai/ecosystem/ability/",
+  "repository": "https://github.com/kujolang/mcp",
+  "license": "MIT",
+  "keywords": ["kujo", "ability", "mcp", "agent-plugin"]
+}

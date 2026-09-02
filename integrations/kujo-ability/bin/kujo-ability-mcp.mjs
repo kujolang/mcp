@@ -2,7 +2,7 @@
 import { createInterface } from "node:readline";
 import { randomUUID } from "node:crypto";
 
-const server = { name: "kujo-ability", version: "1.0.1" };
+const server = { name: "kujo-ability", version: "1.1.0" };
 const base = (process.env.KUJO_ABILITY_GATEWAY_URL || "http://127.0.0.1:8080").replace(/\/$/, "");
 const token = process.env.KUJO_ABILITY_GATEWAY_TOKEN || "";
 const allowApprovals = process.env.KUJO_ABILITY_ALLOW_APPROVALS === "1";
@@ -17,10 +17,14 @@ const fail = (id, code, message, data) => write({ jsonrpc: "2.0", id, error: { c
 
 async function gateway(path, options = {}) {
   const controller = new AbortController();
+  const cancel = () => controller.abort();
+  if (options.signal?.aborted) controller.abort();
+  else options.signal?.addEventListener("abort", cancel, { once: true });
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   const headers = { accept: "application/json", "content-type": "application/json", "x-request-id": randomUUID(), ...(token ? { authorization: `Bearer ${token}` } : {}), ...(options.headers || {}) };
   try {
-    const response = await fetch(`${base}${path}`, { ...options, headers, signal: controller.signal, redirect: "error" });
+    const { signal: _externalSignal, ...requestOptions } = options;
+    const response = await fetch(`${base}${path}`, { ...requestOptions, headers, signal: controller.signal, redirect: "error" });
     const raw = await response.text();
     if (raw.length > 1_048_576) throw new Error("gateway response exceeded 1 MiB");
     let body;
@@ -32,7 +36,10 @@ async function gateway(path, options = {}) {
       throw error;
     }
     return body?.data ?? body;
-  } finally { clearTimeout(timer); }
+  } finally {
+    clearTimeout(timer);
+    options.signal?.removeEventListener("abort", cancel);
+  }
 }
 
 let toolCache = new Map();
@@ -56,8 +63,8 @@ function hostInputSchema(schema) {
   };
 }
 
-async function listTools() {
-  const catalog = await gateway("/v1/ai/mcp/tools");
+async function listTools(signal) {
+  const catalog = await gateway("/v1/ai/mcp/tools", { signal });
   const tools = Array.isArray(catalog.tools) ? catalog.tools : [];
   toolCache = new Map(tools.map((tool) => [tool.name, tool]));
   const projected = tools.map(({ name, title, description, inputSchema, outputSchema, annotations, abilityId, abilityVersion, abilityDigest, effects }) => ({
@@ -75,15 +82,15 @@ async function listTools() {
 
 const mcpResult = (data, isError = false) => ({ content: [{ type: "text", text: JSON.stringify(data) }], structuredContent: data, ...(isError ? { isError: true } : {}) });
 
-async function callTool(name, args) {
+async function callTool(name, args, signal) {
   if (name === "kujo_ability_issue_approval") {
     if (!allowApprovals) throw new Error("approval issuance is disabled");
     if (args?.confirm !== true) throw new Error("confirm must be true");
     const parts = String(args.ability || "").split("/");
     if (parts.length !== 2 || !parts.every((part) => /^[a-z0-9][a-z0-9-]*$/.test(part))) throw new Error("ability must be namespace/name");
-    return mcpResult(await gateway(`/v1/abilities/${parts[0]}/${parts[1]}/approvals`, { method: "POST", body: JSON.stringify({ invocation_id: args.invocation_id }) }));
+    return mcpResult(await gateway(`/v1/abilities/${parts[0]}/${parts[1]}/approvals`, { method: "POST", body: JSON.stringify({ invocation_id: args.invocation_id }), signal }));
   }
-  if (!toolCache.has(name)) await listTools();
+  if (!toolCache.has(name)) await listTools(signal);
   const tool = toolCache.get(name);
   if (!tool) throw new Error(`unknown tool: ${name}`);
   const invocationId = typeof args?._kujo?.invocationId === "string" ? args._kujo.invocationId : `mcp-${randomUUID()}`;
@@ -94,17 +101,32 @@ async function callTool(name, args) {
     method: "POST",
     headers: { ...(idempotencyKey ? { "idempotency-key": idempotencyKey } : {}), ...(approvalId ? { "x-ability-approval": approvalId } : {}) },
     body: JSON.stringify({ input, invocation_id: invocationId, ...(approvalId ? { approval_id: approvalId } : {}) }),
+    signal,
   });
   return mcpResult(data);
 }
 
+const inflight = new Map();
+
 async function handle(request) {
   const { id, method, params = {} } = request;
-  if (method === "notifications/initialized" || method === "notifications/cancelled") return;
+  if (method === "notifications/initialized") return;
+  if (method === "notifications/cancelled") {
+    inflight.get(params.requestId)?.abort();
+    return;
+  }
   if (method === "initialize") return reply(id, { protocolVersion: "2025-11-25", capabilities: { tools: { listChanged: false } }, serverInfo: server });
   if (method === "ping") return reply(id, {});
   if (method === "tools/list") return reply(id, { tools: await listTools() });
-  if (method === "tools/call") return reply(id, await callTool(params.name, params.arguments || {}));
+  if (method === "tools/call") {
+    const controller = new AbortController();
+    inflight.set(id, controller);
+    try {
+      return reply(id, await callTool(params.name, params.arguments || {}, controller.signal));
+    } finally {
+      inflight.delete(id);
+    }
+  }
   fail(id, -32601, `method not found: ${method}`);
 }
 

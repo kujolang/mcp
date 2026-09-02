@@ -30,6 +30,9 @@ bash tests/test_03_endpoint_integration.sh
 "$KUJO_BIN" run tests/test_08_watchdog_telemetry.kujo --interpreter
 "$KUJO_BIN" run tests/test_07_ability_projection.kujo --interpreter
 "$KUJO_BIN" run tests/test_09_ability_gateway.kujo --interpreter
+node tests/portable_ability_plugin_test.mjs
+node tests/ability_contract_drift_test.mjs
+node tests/ability_connector_cli_test.mjs
 node tests/ability_host_bridge_test.mjs
 
 echo "run_all_tests: all checks passed"
