@@ -36,3 +36,5 @@ A managed gateway can implement the same catalog and execution endpoints, but a 
 Before promoting an adapter or gateway, run the MCP suite, canonical Ability consumer conformance, host-package test, plugin validation, an authenticated end-to-end test for each enabled Ability, denial and approval-replay tests, idempotency conflict tests, cancellation and timeout tests, secret-redaction tests, and a tenant-isolation test. Re-run the host matrix for Codex, Cursor, VS Code, Kujo Pi, and one generic MCP inspector whenever the MCP protocol version or client configuration changes.
 
 Host-specific features such as prompts, skills, roots, elicitation, UI resources, and enterprise administration can improve installation and user experience. They must remain additive projections. An operation's schemas, effects, policy boundary, and receipt meaning stay in Kujo Ability and the owning application.
+
+See [`ability-host-conformance.md`](ability-host-conformance.md) for the host matrix and evidence requirements.
