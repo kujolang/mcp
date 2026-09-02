@@ -2,7 +2,7 @@
 
 ## Verdict
 
-The implementation is ready through the pre-deployment boundary as an unpublished preview. The managed gateway and authoritative website are implemented and pushed. Live OAuth setup, deployment, authenticated VS Code certification, and package/marketplace publication remain blocked by credentials or release authority. No unresolved critical or high validated security finding remains in the pushed source.
+The implementation is ready through the credential boundary as an unpublished preview. The managed gateway and authoritative website are implemented and pushed, and the Cloudflare KV/D1 resources plus initial remote schema are provisioned. Live OAuth setup, Worker deployment, authenticated VS Code certification, and package/marketplace publication remain blocked by credentials or release authority. No unresolved critical or high validated security finding remains in the pushed source.
 
 ## Score
 
