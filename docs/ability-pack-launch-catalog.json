@@ -31,7 +31,7 @@
       "pack_id": "kujo.mcp.core",
       "pack_version": "1.0.0",
       "source_repository": "https://github.com/kujolang/mcp",
-      "source_revision": "7d7dcb4ca4135086a2d3a066cda7f57d840bb39b",
+      "source_revision": "c03f4577bc45e78b8ca21ed495b5ba2a9701acba",
       "manifest_path": "packs/mcp_core/pack.json",
       "ability_count": 2,
       "effects": ["read"],
