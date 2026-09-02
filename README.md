@@ -223,6 +223,7 @@ See full deployment guidance: `docs/production-deployment.md`.
 - `docs/ability-host-deployment.md`: local, customer-hosted, and managed Ability gateway profiles
 - `docs/ability-platform-inventory-2026-09-02.md`: immutable cross-repository Ability baseline
 - `docs/adr/0001-universal-ability-platform.md`: Ability ownership, topology, compatibility, and support-tier decision
+- `docs/release-evidence/kujo-ability-1.1.0-preview.md`: reproducible preview-package evidence and claim boundary
 - `docs/example-integrations.md`: local and remote integration examples
 - `docs/production-deployment.md`: operational deployment baseline and scaling notes
 - `docs/contributing-agent-workflow.md`: contributor workflow and completion criteria
