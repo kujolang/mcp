@@ -14,6 +14,20 @@ Set `KUJO_ABILITY_GATEWAY_URL` to the application origin and `KUJO_ABILITY_GATEW
 
 Codex can install the directory as a plugin. Cursor and VS Code can load the root Agent Plugin or use the equivalent configurations under `host-configs/`. The bridge supports MCP `initialize`, `ping`, `tools/list`, `tools/call`, and request cancellation, plus canonical receipts, request timeouts, bounded responses, keyed idempotency, and optional server-bound approvals.
 
+From the `mcp` repository root, current Codex CLI builds can use the repository's local marketplace without changing the package:
+
+```bash
+codex plugin marketplace add .
+codex plugin add kujo-ability@kujo-local
+codex plugin list
+
+# Remove tool exposure and the local marketplace registration:
+codex plugin remove kujo-ability@kujo-local
+codex plugin marketplace remove kujo-local
+```
+
+The checked-in clean-profile test runs that lifecycle under a temporary `CODEX_HOME`; it never changes the user's normal Codex profile.
+
 Each projected tool adds an optional `_kujo` adapter-control object for `invocationId`, `idempotencyKey`, and `approvalId`. The bridge removes that object before canonical input validation, so the domain schema and handler input remain unchanged.
 
 Approval issuance is disabled by default. Set `KUJO_ABILITY_ALLOW_APPROVALS=1` only when the host can collect explicit user confirmation and the bearer token is authorized for `admin.settings`.
@@ -41,6 +55,7 @@ Supported host selectors are `codex`, `cursor`, `vscode`, `generic`, and `auto`.
 node bin/kujo-ability.mjs version
 node ../../../tests/portable_ability_plugin_test.mjs
 node ../../../tests/ability_host_bridge_test.mjs
+node ../../../tests/codex_clean_profile_test.mjs
 node ../../../scripts/package-kujo-ability.mjs --verify-reproducible
 ```
 

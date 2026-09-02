@@ -2,7 +2,9 @@
 
 Evidence date: 2026-09-02
 
-Source revision: `ed4d190a04c1283b77e0ac388ea7568632e2da90`
+Package artifact source revision: `ed4d190a04c1283b77e0ac388ea7568632e2da90`
+
+Clean-profile Codex lifecycle source revision: `ad39b35`
 
 Release status: unpublished, unsigned preview
 
@@ -32,14 +34,15 @@ node tests/portable_ability_plugin_test.mjs
 node tests/ability_contract_drift_test.mjs
 node tests/ability_connector_cli_test.mjs
 node tests/ability_host_bridge_test.mjs
+node tests/codex_clean_profile_test.mjs
 node tests/ability_package_release_test.mjs
 ```
 
-The Codex plugin validator passed with zero warnings. PackWrite validation passed with zero warnings for the generated `agent/` pack. The official Agent Plugins 1.0 schema snapshots checked on this date had SHA-256 digests:
+The Codex plugin validator passed with zero warnings. A clean temporary profile on `codex-cli 0.144.4` passed local marketplace discovery, plugin install/enable, removal, and marketplace removal. PackWrite validation passed with zero warnings for the generated `agent/` pack. The official Agent Plugins 1.0 schema snapshots checked on this date had SHA-256 digests:
 
 - `plugin.schema.json`: `0a4aad95ce337878ad38802ebf0daa3fde76abe3f65400c86bcbb1ec0b3ab883`
 - `mcp.schema.json`: `6539175bfcdf43085855183e86da40ea94b166547a72b47ae9a0a390516d3acb`
 
 ## Evidence boundary
 
-This evidence proves repository tests, package structure, lifecycle behavior against temporary files, an authenticated mock-gateway bridge contract, deterministic archive generation, SBOM generation, and unsigned provenance metadata. It does not prove npm publication, signature verification, marketplace review, installation in a clean Codex/Cursor/VS Code profile, a production gateway, or enterprise certification. No primary host is certified by this artifact.
+This evidence proves repository tests, package structure, connector lifecycle behavior against temporary files, a clean-profile Codex installation lifecycle, an authenticated mock-gateway bridge contract, deterministic archive generation, SBOM generation, and unsigned provenance metadata. It does not prove npm publication, signature verification, public marketplace review, authenticated execution from Codex, installation in Cursor or VS Code, a production gateway, or enterprise certification.

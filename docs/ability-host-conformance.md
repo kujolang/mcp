@@ -19,12 +19,12 @@ The bridge implements MCP `initialize`, `ping`, `tools/list`, `tools/call`, and 
 
 ## Current support level
 
-The `1.1.0` package is a local, unpublished preview. Its Agent Plugins 1.0 manifest, Codex companion files, Copilot custom-agent overlay, MCP bridge, and npm artifact shape are validated in this repository. That evidence does **not** certify installation or authenticated execution in Codex, Cursor, VS Code, GitHub Copilot, or a production Kujo gateway.
+The `1.1.0` package is a local, unpublished preview. Its Agent Plugins 1.0 manifest, Codex companion files, Copilot custom-agent overlay, MCP bridge, and npm artifact shape are validated in this repository. A clean temporary Codex profile also proves local marketplace discovery, install, enablement, disable/removal, and marketplace removal with `codex-cli 0.144.4`. That evidence does **not** prove authenticated host execution in Codex, installation in Cursor or VS Code, GitHub Copilot behavior, or a production Kujo gateway.
 
 | Surface | Status on 2026-09-02 | Evidence boundary |
 | --- | --- | --- |
 | Agent Plugins 1.0 package | Locally validated preview | Manifest, MCP configuration, paths, metadata, and package contents only |
-| Codex plugin | Locally validated preview | Codex manifest validator and repository contract tests; no installed-host run |
+| Codex plugin | Clean-profile install validated | `codex-cli 0.144.4` local marketplace add/list/install/remove lifecycle in an isolated `CODEX_HOME`; authenticated execution remains separately unproven |
 | Cursor | Portable-format candidate | Agent Plugin files and configuration only; no Cursor-host run |
 | VS Code / Copilot | Portable-format candidate | Agent Plugin files and custom-agent metadata only; no extension-host run |
 | Generic MCP bridge | Contract tested | Real STDIO process against a mock authenticated gateway, including cancellation, approval, replay denial, and idempotency conflict |
@@ -48,9 +48,10 @@ Run from the `mcp` repository root:
 ```bash
 node tests/portable_ability_plugin_test.mjs
 node tests/ability_host_bridge_test.mjs
+node tests/codex_clean_profile_test.mjs
 node tests/ability_package_release_test.mjs
 npm pack --dry-run --json ./integrations/kujo-ability
 bash tests/run_all_tests.sh
 ```
 
-These commands establish package and bridge contract evidence. They intentionally make no claim about registry publication, marketplace review, host certification, a production gateway, or enterprise deployment.
+These commands establish package, clean-profile Codex installation, and bridge contract evidence. They intentionally make no claim about public marketplace review, authenticated Codex execution, Cursor or VS Code installation, a production gateway, or enterprise deployment.
