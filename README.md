@@ -222,6 +222,7 @@ See full deployment guidance: `docs/production-deployment.md`.
 - `docs/ability-host-conformance.md`: Ability host support tiers and conformance evidence requirements
 - `docs/ability-host-deployment.md`: local, customer-hosted, and managed Ability gateway profiles
 - `docs/ability-platform-inventory-2026-09-02.md`: immutable cross-repository Ability baseline
+- `docs/ability-platform-verification-2026-09-02.md`: cross-repository test evidence and current baseline failures
 - `docs/adr/0001-universal-ability-platform.md`: Ability ownership, topology, compatibility, and support-tier decision
 - `docs/release-evidence/kujo-ability-1.1.0-preview.md`: reproducible preview-package evidence and claim boundary
 - `docs/example-integrations.md`: local and remote integration examples
