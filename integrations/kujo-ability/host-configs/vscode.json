@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "kujo-ability": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["/absolute/path/to/kujo-ability/bin/kujo-ability-mcp.mjs"],
+      "env": { "KUJO_ABILITY_GATEWAY_URL": "https://cms.example.com", "KUJO_ABILITY_GATEWAY_TOKEN": "${input:kujoAbilityToken}" }
+    }
+  },
+  "inputs": [{ "id": "kujoAbilityToken", "type": "promptString", "description": "Least-privilege Kujo Ability bearer token", "password": true }]
+}

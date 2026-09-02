@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "kujo-ability": {
+      "command": "node",
+      "args": ["/absolute/path/to/kujo-ability/bin/kujo-ability-mcp.mjs"],
+      "env": { "KUJO_ABILITY_GATEWAY_URL": "https://cms.example.com", "KUJO_ABILITY_GATEWAY_TOKEN": "${env:KUJO_ABILITY_GATEWAY_TOKEN}" }
+    }
+  }
+}

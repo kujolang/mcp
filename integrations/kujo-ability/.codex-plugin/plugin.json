@@ -1,0 +1,23 @@
+{
+  "name": "kujo-ability",
+  "version": "1.0.1",
+  "description": "Discover and run policy-gated Kujo Abilities from Codex and compatible agent hosts.",
+  "author": { "name": "Kujo", "url": "https://kujolang.ai" },
+  "homepage": "https://kujolang.ai/ecosystem/ability/",
+  "repository": "https://github.com/kujolang/mcp",
+  "license": "MIT",
+  "keywords": ["kujo", "ability", "mcp", "codex", "agents"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Kujo Ability",
+    "shortDescription": "Run portable, policy-gated operations.",
+    "longDescription": "Connect Codex to a Kujo Ability gateway while the application keeps identity, authorization, approval, idempotency, and audit policy.",
+    "developerName": "Kujo",
+    "category": "Developer Tools",
+    "capabilities": ["MCP tools", "Approval-gated writes", "Canonical receipts"],
+    "websiteURL": "https://kujolang.ai/ecosystem/ability/",
+    "defaultPrompt": ["Show the Kujo Abilities available to me.", "Inspect this site's Kujo Ability capabilities.", "Run a read-only Kujo Ability and cite its receipt."],
+    "brandColor": "#000000"
+  }
+}

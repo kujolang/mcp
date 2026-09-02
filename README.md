@@ -77,6 +77,11 @@ into an MCP tool result. Authentication, durable stores, and transport
 configuration remain application concerns and are never part of the Ability
 definition.
 
+[`integrations/kujo-ability`](integrations/kujo-ability) adds a tested STDIO
+bridge plus Codex plugin, Cursor, VS Code, and generic MCP configuration. It
+connects to an application's authenticated Ability gateway; it does not turn
+the public `mcp.kujolang.ai` catalog into a privileged execution service.
+
 The canonical definition contract is maintained in and consumed directly from
 [`kujolang/ability`](https://github.com/kujolang/ability).
 
