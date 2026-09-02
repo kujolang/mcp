@@ -5,10 +5,13 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 const json = async (path) => JSON.parse(await read(path));
 
 const kennel = await read("kennel.toml");
+const project = await read("kujo.toml");
 const lock = await read("kennel.lock");
 const packageVersion = kennel.match(/\[package\][\s\S]*?\nversion = "([^"]+)"/)?.[1];
+const projectVersion = project.match(/\[project\][\s\S]*?\nversion = "([^"]+)"/)?.[1];
 const abilityCommit = kennel.match(/\[dependencies\.ability\][\s\S]*?\ncommit = "([0-9a-f]{40})"/)?.[1];
 assert.ok(packageVersion);
+assert.equal(projectVersion, packageVersion);
 assert.ok(abilityCommit);
 assert.match(lock, new RegExp(`requested = "${abilityCommit}"`));
 assert.match(lock, new RegExp(`resolved_commit = "${abilityCommit}"`));

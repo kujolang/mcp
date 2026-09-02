@@ -31,7 +31,7 @@ Weighted milestone score: 7.5/10. This score describes evidence coverage, not a 
 - Designate a separate privileged managed-service repository, origin, operator, identity/tenant model, retention policy, infrastructure, and security-review owner.
 - Supply release authority for npm/marketplaces, signing keys, production credentials, public deployment, external assessment, and legal/compliance review.
 - Resolve the authoritative website repository before changing public launch claims.
-- Make an explicit product version decision for MCP `kujo.toml` versus the unpublished `1.1.0` package line, then rerun Concord.
+- Rerun Concord after the approved MCP `1.1.0` metadata alignment.
 
 ## Evidence
 

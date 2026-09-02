@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-02
+
+### Added
+
 - Add automated host evidence capture and a freshness-gated compatibility matrix with explicit non-certification tiers.
 - Add the executable canonical Ability gateway with principal-aware discovery,
   policy/approval/idempotency delegation, and normalized MCP receipts.
@@ -18,6 +22,14 @@ All notable changes to this project are documented in this file.
 - Pin the canonical `ability` package, remove projection-local definition
   validation, add definition digests, and project enabled canonical MCP
   registry exposures with collision checks.
+
+### Security
+
+- Bound repository profiling, skip symlink traversal, cap discovery work, and reject unsafe manifest paths.
+
+### Docs
+
+- Publish the independently versioned CMS, SSG, and MCP Ability Pack launch catalog and final verification evidence.
 
 ## [1.0.0] - 2026-08-08
 
