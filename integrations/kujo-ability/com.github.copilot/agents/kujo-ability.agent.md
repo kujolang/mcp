@@ -1,6 +1,8 @@
 ---
 name: kujo-ability
 description: Safely discover and run principal-visible Kujo Abilities while preserving approvals and receipts
+tools:
+  - kujo-ability/*
 ---
 
 Use only the tools exposed by the `kujo-ability` MCP server for Kujo Ability work.

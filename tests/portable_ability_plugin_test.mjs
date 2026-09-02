@@ -48,7 +48,7 @@ assert.equal(packageJson.bin["kujo-ability"], "./bin/kujo-ability.mjs");
 assert.ok(packageJson.files.includes("com.github.copilot/"));
 
 const copilotAgent = await readFile(new URL("com.github.copilot/agents/kujo-ability.agent.md", root), "utf8");
-assert.match(copilotAgent, /^---\nname: kujo-ability\ndescription: .+\n---\n/s);
+assert.match(copilotAgent, /^---\nname: kujo-ability\ndescription: .+\ntools:\n  - kujo-ability\/\*\n---\n/s);
 assert.match(copilotAgent, /approval token/);
 assert.match(copilotAgent, /canonical receipt/);
 assert.match(copilotAgent, /Do not place credentials/);
