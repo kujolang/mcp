@@ -5,6 +5,9 @@ import { once } from "node:events";
 import { createInterface } from "node:readline";
 
 const requests = [];
+let approvalSequence = 0;
+const usedApprovals = new Set();
+const idempotencyInputs = new Map();
 const server = createServer(async (request, response) => {
   let raw = "";
   for await (const chunk of request) raw += chunk;
@@ -13,6 +16,7 @@ const server = createServer(async (request, response) => {
   if (request.url === "/v1/ai/mcp/tools") return response.end(JSON.stringify({ ok: true, data: { tools: [
     { name: "cms__inspect", title: "Inspect", description: "Inspect the CMS", inputSchema: { type: "object", properties: {}, additionalProperties: false }, outputSchema: { type: "object" }, annotations: { readOnlyHint: true }, abilityId: "kujo.cms.site.inspect", abilityVersion: "1.0.0", abilityDigest: "a".repeat(64), effects: [{ kind: "read", resource: "kujo.cms.site" }], execution: "/v1/abilities/cms/inspect/run" },
     { name: "cms__slow", title: "Slow", description: "Exercise cancellation", inputSchema: { type: "object", properties: {}, additionalProperties: false }, outputSchema: { type: "object" }, annotations: { readOnlyHint: true }, abilityId: "kujo.cms.site.slow", abilityVersion: "1.0.0", abilityDigest: "b".repeat(64), effects: [{ kind: "read", resource: "kujo.cms.site" }], execution: "/v1/abilities/cms/slow/run" },
+    { name: "cms__publish", title: "Publish", description: "Exercise approval and idempotency", inputSchema: { type: "object", properties: { title: { type: "string" } }, required: ["title"], additionalProperties: false }, outputSchema: { type: "object" }, annotations: { destructiveHint: true }, abilityId: "kujo.cms.site.publish", abilityVersion: "1.0.0", abilityDigest: "c".repeat(64), effects: [{ kind: "write", resource: "kujo.cms.site" }], execution: "/v1/abilities/cms/publish/run" },
   ] } }));
   if (request.url === "/v1/abilities/cms/inspect/run") return response.end(JSON.stringify({ ok: true, data: { result: { healthy: true }, receipt: { schema: "kujo.ability.receipt/v1", status: "succeeded" } } }));
   if (request.url === "/v1/abilities/cms/slow/run") {
@@ -20,11 +24,35 @@ const server = createServer(async (request, response) => {
     if (!response.destroyed) response.end(JSON.stringify({ ok: true, data: { receipt: { schema: "kujo.ability.receipt/v1", status: "succeeded" } } }));
     return;
   }
+  if (request.url === "/v1/abilities/cms/publish/approvals") {
+    approvalSequence += 1;
+    return response.end(JSON.stringify({ ok: true, data: { approval_id: `approval-${approvalSequence}`, invocation_id: requests.at(-1).body.invocation_id } }));
+  }
+  if (request.url === "/v1/abilities/cms/publish/run") {
+    const approval = request.headers["x-ability-approval"];
+    const idempotencyKey = request.headers["idempotency-key"];
+    const normalizedInput = JSON.stringify(requests.at(-1).body.input);
+    if (!approval) {
+      response.statusCode = 403;
+      return response.end(JSON.stringify({ error: { code: "approval_required", message: "approval required" } }));
+    }
+    if (idempotencyInputs.has(idempotencyKey) && idempotencyInputs.get(idempotencyKey) !== normalizedInput) {
+      response.statusCode = 409;
+      return response.end(JSON.stringify({ error: { code: "idempotency_conflict", message: "idempotency input conflict" } }));
+    }
+    if (usedApprovals.has(approval)) {
+      response.statusCode = 409;
+      return response.end(JSON.stringify({ error: { code: "approval_replayed", message: "approval already used" } }));
+    }
+    usedApprovals.add(approval);
+    idempotencyInputs.set(idempotencyKey, normalizedInput);
+    return response.end(JSON.stringify({ ok: true, data: { result: { published: true }, receipt: { schema: "kujo.ability.receipt/v1", status: "succeeded", invocation_id: requests.at(-1).body.invocation_id } } }));
+  }
   response.statusCode = 404; response.end(JSON.stringify({ error: { message: "not found" } }));
 });
 server.listen(0, "127.0.0.1");
 await once(server, "listening");
-const child = spawn(process.execPath, ["integrations/kujo-ability/bin/kujo-ability-mcp.mjs"], { env: { ...process.env, KUJO_ABILITY_GATEWAY_URL: `http://127.0.0.1:${server.address().port}`, KUJO_ABILITY_GATEWAY_TOKEN: "test-secret" }, stdio: ["pipe", "pipe", "pipe"] });
+const child = spawn(process.execPath, ["integrations/kujo-ability/bin/kujo-ability-mcp.mjs"], { env: { ...process.env, KUJO_ABILITY_GATEWAY_URL: `http://127.0.0.1:${server.address().port}`, KUJO_ABILITY_GATEWAY_TOKEN: "test-secret", KUJO_ABILITY_ALLOW_APPROVALS: "1" }, stdio: ["pipe", "pipe", "pipe"] });
 const messages = [];
 createInterface({ input: child.stdout }).on("line", (line) => messages.push(JSON.parse(line)));
 const send = (value) => child.stdin.write(`${JSON.stringify(value)}\n`);
@@ -60,6 +88,32 @@ send({ jsonrpc: "2.0", method: "notifications/cancelled", params: { requestId: 4
 const cancelled = await waitFor(4);
 assert.equal(cancelled.result.isError, true);
 assert.match(cancelled.result.structuredContent.error, /abort/i);
+
+send({ jsonrpc: "2.0", id: 5, method: "tools/call", params: { name: "cms__publish", arguments: { title: "First", _kujo: { invocationId: "publish-1", idempotencyKey: "publish-key" } } } });
+const denied = await waitFor(5);
+assert.equal(denied.result.isError, true);
+assert.equal(denied.result.structuredContent.details.code, "approval_required");
+assert.equal(denied.result.structuredContent.details.status, 403);
+
+send({ jsonrpc: "2.0", id: 6, method: "tools/call", params: { name: "kujo_ability_issue_approval", arguments: { ability: "cms/publish", invocation_id: "publish-1", confirm: true } } });
+const approval = await waitFor(6);
+assert.equal(approval.result.structuredContent.approval_id, "approval-1");
+send({ jsonrpc: "2.0", id: 7, method: "tools/call", params: { name: "cms__publish", arguments: { title: "First", _kujo: { invocationId: "publish-1", idempotencyKey: "publish-key", approvalId: "approval-1" } } } });
+const published = await waitFor(7);
+assert.equal(published.result.structuredContent.receipt.status, "succeeded");
+assert.equal(published.result.structuredContent.receipt.invocation_id, "publish-1");
+
+send({ jsonrpc: "2.0", id: 8, method: "tools/call", params: { name: "cms__publish", arguments: { title: "First", _kujo: { invocationId: "publish-1", idempotencyKey: "publish-key", approvalId: "approval-1" } } } });
+const replayed = await waitFor(8);
+assert.equal(replayed.result.isError, true);
+assert.equal(replayed.result.structuredContent.details.code, "approval_replayed");
+
+send({ jsonrpc: "2.0", id: 9, method: "tools/call", params: { name: "kujo_ability_issue_approval", arguments: { ability: "cms/publish", invocation_id: "publish-2", confirm: true } } });
+assert.equal((await waitFor(9)).result.structuredContent.approval_id, "approval-2");
+send({ jsonrpc: "2.0", id: 10, method: "tools/call", params: { name: "cms__publish", arguments: { title: "Changed", _kujo: { invocationId: "publish-2", idempotencyKey: "publish-key", approvalId: "approval-2" } } } });
+const conflicted = await waitFor(10);
+assert.equal(conflicted.result.isError, true);
+assert.equal(conflicted.result.structuredContent.details.code, "idempotency_conflict");
 
 child.kill(); server.close();
 console.log("ability host bridge contract passed");

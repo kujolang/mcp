@@ -3,11 +3,13 @@ import { createInterface } from "node:readline";
 import { randomUUID } from "node:crypto";
 
 const server = { name: "kujo-ability", version: "1.1.0" };
-const base = (process.env.KUJO_ABILITY_GATEWAY_URL || "http://127.0.0.1:8080").replace(/\/$/, "");
+const configuredBase = process.env.KUJO_ABILITY_GATEWAY_URL || "http://127.0.0.1:8080";
 const token = process.env.KUJO_ABILITY_GATEWAY_TOKEN || "";
 const allowApprovals = process.env.KUJO_ABILITY_ALLOW_APPROVALS === "1";
-const parsed = new URL(base);
+const parsed = new URL(configuredBase);
 if (parsed.protocol !== "https:" && !["127.0.0.1", "localhost", "::1"].includes(parsed.hostname)) throw new Error("KUJO_ABILITY_GATEWAY_URL must use HTTPS unless it is loopback");
+if (parsed.username || parsed.password || parsed.search || parsed.hash) throw new Error("KUJO_ABILITY_GATEWAY_URL must not contain credentials, query parameters, or a fragment");
+const base = `${parsed.origin}${parsed.pathname}`.replace(/\/$/, "");
 const configuredTimeout = Number(process.env.KUJO_ABILITY_REQUEST_TIMEOUT_MS || 30000);
 const timeoutMs = Number.isFinite(configuredTimeout) ? Math.min(Math.max(configuredTimeout, 1000), 60000) : 30000;
 
@@ -43,6 +45,18 @@ async function gateway(path, options = {}) {
 }
 
 let toolCache = new Map();
+function validateTool(tool) {
+  if (!tool || typeof tool !== "object") throw new Error("gateway tool descriptor must be an object");
+  if (typeof tool.name !== "string" || !/^[A-Za-z0-9_-]{1,128}$/.test(tool.name)) throw new Error("gateway tool descriptor has an invalid name");
+  if (typeof tool.abilityId !== "string" || !/^[a-z0-9][a-z0-9.-]{2,199}$/.test(tool.abilityId)) throw new Error(`gateway tool '${tool.name}' has an invalid Ability ID`);
+  if (typeof tool.abilityVersion !== "string" || !/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(tool.abilityVersion)) throw new Error(`gateway tool '${tool.name}' has an invalid Ability version`);
+  if (typeof tool.abilityDigest !== "string" || !/^[0-9a-f]{64}$/.test(tool.abilityDigest)) throw new Error(`gateway tool '${tool.name}' has an invalid Ability digest`);
+  if (!Array.isArray(tool.effects)) throw new Error(`gateway tool '${tool.name}' has invalid effects`);
+  if (!tool.inputSchema || tool.inputSchema.type !== "object" || typeof tool.inputSchema.properties !== "object") throw new Error(`gateway tool '${tool.name}' has an invalid input schema`);
+  if (typeof tool.execution !== "string" || !/^\/v1\/abilities\/[a-z0-9][a-z0-9-]*\/[a-z0-9][a-z0-9-]*\/run$/.test(tool.execution)) throw new Error(`gateway tool '${tool.name}' has an invalid execution path`);
+  return tool;
+}
+
 function hostInputSchema(schema) {
   if (!schema || schema.type !== "object" || typeof schema.properties !== "object") return schema;
   return {
@@ -65,7 +79,9 @@ function hostInputSchema(schema) {
 
 async function listTools(signal) {
   const catalog = await gateway("/v1/ai/mcp/tools", { signal });
-  const tools = Array.isArray(catalog.tools) ? catalog.tools : [];
+  if (!Array.isArray(catalog.tools)) throw new Error("gateway returned an invalid tool catalog");
+  const tools = catalog.tools.map(validateTool);
+  if (new Set(tools.map((tool) => tool.name)).size !== tools.length) throw new Error("gateway returned duplicate tool names");
   toolCache = new Map(tools.map((tool) => [tool.name, tool]));
   const projected = tools.map(({ name, title, description, inputSchema, outputSchema, annotations, abilityId, abilityVersion, abilityDigest, effects }) => ({
     name, title, description, inputSchema: hostInputSchema(inputSchema), outputSchema, annotations,
@@ -117,12 +133,14 @@ async function handle(request) {
   }
   if (method === "initialize") return reply(id, { protocolVersion: "2025-11-25", capabilities: { tools: { listChanged: false } }, serverInfo: server });
   if (method === "ping") return reply(id, {});
-  if (method === "tools/list") return reply(id, { tools: await listTools() });
-  if (method === "tools/call") {
+  if (method === "tools/list" || method === "tools/call") {
     const controller = new AbortController();
     inflight.set(id, controller);
     try {
-      return reply(id, await callTool(params.name, params.arguments || {}, controller.signal));
+      const result = method === "tools/list"
+        ? { tools: await listTools(controller.signal) }
+        : await callTool(params.name, params.arguments || {}, controller.signal);
+      return reply(id, result);
     } finally {
       inflight.delete(id);
     }

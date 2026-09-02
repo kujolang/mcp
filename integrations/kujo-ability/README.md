@@ -41,8 +41,11 @@ Supported host selectors are `codex`, `cursor`, `vscode`, `generic`, and `auto`.
 node bin/kujo-ability.mjs version
 node ../../../tests/portable_ability_plugin_test.mjs
 node ../../../tests/ability_host_bridge_test.mjs
+node ../../../scripts/package-kujo-ability.mjs --verify-reproducible
 ```
 
 Set gateway variables only in the process that starts the bridge. Diagnostics and test output must never print the token.
+
+The packaging command emits a byte-for-byte reproducibility result, versioned npm archive, `SHA256SUMS`, SPDX 2.3 SBOM, and unsigned SLSA provenance statement under `dist/kujo-ability/` by default. CI repeats the build. The provenance statement is metadata, not a signature; signed attestations and registry publication remain release-authorized external actions.
 
 See [`../../docs/ability-host-deployment.md`](../../docs/ability-host-deployment.md) for local, customer-hosted, managed-service, security, operations, and release-gate requirements.

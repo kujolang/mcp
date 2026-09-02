@@ -27,7 +27,7 @@ The `1.1.0` package is a local, unpublished preview. Its Agent Plugins 1.0 manif
 | Codex plugin | Locally validated preview | Codex manifest validator and repository contract tests; no installed-host run |
 | Cursor | Portable-format candidate | Agent Plugin files and configuration only; no Cursor-host run |
 | VS Code / Copilot | Portable-format candidate | Agent Plugin files and custom-agent metadata only; no extension-host run |
-| Generic MCP bridge | Contract tested | Real STDIO process against a mock authenticated gateway, including cancellation |
+| Generic MCP bridge | Contract tested | Real STDIO process against a mock authenticated gateway, including cancellation, approval, replay denial, and idempotency conflict |
 | Kujo Pi | Existing native integration | Covered by its own repository and release process, not certified by this package |
 
 “Compatible,” “certified,” and “supported” are not synonyms. A host becomes certified only after the authenticated end-to-end criteria below pass on a pinned host version and the result is recorded in a release artifact.
@@ -35,7 +35,7 @@ The `1.1.0` package is a local, unpublished preview. Its Agent Plugins 1.0 manif
 ## Conformance checks
 
 1. The portable manifest and MCP configuration pass repository contract checks, and the Codex companion manifest validates with the Codex plugin validator.
-2. The bridge test starts a real STDIO child, performs initialization and discovery, calls a mock authenticated gateway, and checks token forwarding, identity metadata, adapter controls, invocation ID, idempotency header, receipt preservation, and cancellation.
+2. The bridge test starts a real STDIO child, performs initialization and discovery, calls a mock authenticated gateway, and checks token forwarding, identity metadata, adapter controls, invocation ID, idempotency header, receipt preservation, cancellation, approval-required denial, an approved write, one-time approval replay denial, and conflicting idempotency input denial.
 3. The canonical MCP projection and executable gateway tests verify effect gates, private discovery, principal requirements, collision rejection, execution delegation, and receipt mapping.
 4. The full MCP suite covers path, request, authentication, size, timeout, rate-limit, and generated-server boundaries.
 
@@ -48,6 +48,7 @@ Run from the `mcp` repository root:
 ```bash
 node tests/portable_ability_plugin_test.mjs
 node tests/ability_host_bridge_test.mjs
+node tests/ability_package_release_test.mjs
 npm pack --dry-run --json ./integrations/kujo-ability
 bash tests/run_all_tests.sh
 ```
