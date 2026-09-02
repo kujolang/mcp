@@ -2,7 +2,7 @@
 
 ## Verdict
 
-The implementation is ready through the credential boundary as an unpublished preview. The managed gateway and authoritative website are implemented and pushed, and the Cloudflare KV/D1 resources plus initial remote schema are provisioned. Live OAuth setup, Worker deployment, authenticated VS Code certification, and package/marketplace publication remain blocked by credentials or release authority. No unresolved critical or high validated security finding remains in the pushed source.
+The implementation is ready through the final OAuth-secret boundary as an unpublished preview. The managed gateway and authoritative website are implemented and pushed; Cloudflare KV/D1, the initial remote schema, an unrouted Worker version, the organization OAuth App, and the signed Membership webhook are provisioned. GitHub privileged confirmation to generate the OAuth client secret, public Worker deployment, authenticated VS Code certification, and package/marketplace publication remain. No unresolved critical or high validated security finding remains in the pushed source.
 
 ## Score
 
