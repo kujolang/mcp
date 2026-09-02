@@ -9,3 +9,5 @@ Codex can install the directory as a plugin. Cursor and VS Code can use the equi
 Approval issuance is disabled by default. Set `KUJO_ABILITY_ALLOW_APPROVALS=1` only when the host can collect explicit user confirmation and the bearer token is authorized for `admin.settings`.
 
 This v1.0.1 bridge targets the current CMS gateway endpoints. A hosted multi-tenant gateway should expose the same contract behind OAuth 2.1 and must not reuse the public read-only ecosystem catalog at `mcp.kujolang.ai`.
+
+See [`../../docs/ability-host-deployment.md`](../../docs/ability-host-deployment.md) for local, customer-hosted, managed-service, security, operations, and release-gate requirements.

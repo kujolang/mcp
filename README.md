@@ -81,6 +81,8 @@ definition.
 bridge plus Codex plugin, Cursor, VS Code, and generic MCP configuration. It
 connects to an application's authenticated Ability gateway; it does not turn
 the public `mcp.kujolang.ai` catalog into a privileged execution service.
+Deployment profiles and the enterprise control checklist are documented in
+[`docs/ability-host-deployment.md`](docs/ability-host-deployment.md).
 
 The canonical definition contract is maintained in and consumed directly from
 [`kujolang/ability`](https://github.com/kujolang/ability).
