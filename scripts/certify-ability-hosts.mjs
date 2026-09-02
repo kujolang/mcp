@@ -36,7 +36,7 @@ const kujoBin = join(workspace, "kujo/target/debug/kujo");
 const checks = [];
 checks.push(record("portable-package", "portable", "package-validated", "node tests/portable_ability_plugin_test.mjs", command("node", ["tests/portable_ability_plugin_test.mjs"], root)));
 checks.push(record("generic-stdio", "generic-stdio", "protocol-certified", "node tests/ability_host_bridge_test.mjs", command("node", ["tests/ability_host_bridge_test.mjs"], root)));
-checks.push(record("codex-clean-profile", "codex", "install-validated", "node tests/codex_clean_profile_test.mjs", command("node", ["tests/codex_clean_profile_test.mjs"], root), ["Authenticated execution was not driven by the Codex host."]));
+checks.push(record("codex-clean-profile", "codex", "install-validated", "KUJO_REQUIRE_CODEX=1 node tests/codex_clean_profile_test.mjs", command("node", ["tests/codex_clean_profile_test.mjs"], root, { KUJO_REQUIRE_CODEX: "1" }), ["Authenticated execution was not driven by the Codex host."]));
 const connector = command("node", ["tests/ability_connector_cli_test.mjs"], root);
 checks.push(record("cursor-config", "cursor", "configuration-validated", "node tests/ability_connector_cli_test.mjs", connector, ["Cursor binary was unavailable; no installed-host run."]));
 checks.push(record("vscode-config", "vscode-copilot", "configuration-validated", "node tests/ability_connector_cli_test.mjs", connector, ["VS Code binary was unavailable; no extension-host run."]));

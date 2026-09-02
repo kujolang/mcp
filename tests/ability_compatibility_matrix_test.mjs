@@ -25,6 +25,8 @@ try {
   assert.notEqual((await generate(missing, "missing")).result.status, 0);
   const stale = structuredClone(source); stale.generated_at = "2020-01-01T00:00:00Z";
   assert.notEqual((await generate(stale, "stale")).result.status, 0);
+  const wrongRevision = structuredClone(source); wrongRevision.source_revisions.mcp = "d80722e67b9a2a0661d5ab05d474d7e4a1da1ce0";
+  assert.notEqual((await generate(wrongRevision, "wrong-revision")).result.status, 0);
 } finally {
   await rm(directory, { recursive: true, force: true });
 }

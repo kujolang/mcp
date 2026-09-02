@@ -35,6 +35,7 @@ node tests/ability_contract_drift_test.mjs
 node tests/ability_connector_cli_test.mjs
 node tests/ability_host_bridge_test.mjs
 node tests/codex_clean_profile_test.mjs
+node tests/codex_clean_profile_required_test.mjs
 node tests/ability_compatibility_matrix_test.mjs
 node tests/ability_package_release_test.mjs
 

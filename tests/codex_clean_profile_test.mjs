@@ -6,7 +6,12 @@ import { spawnSync } from "node:child_process";
 
 const probe = spawnSync("codex", ["--version"], { encoding: "utf8" });
 if (probe.error?.code === "ENOENT") {
-  console.log("Codex clean-profile certification skipped: codex CLI is unavailable");
+  const message = "Codex clean-profile certification skipped: codex CLI is unavailable";
+  if (process.env.KUJO_REQUIRE_CODEX === "1") {
+    console.error(message);
+    process.exit(1);
+  }
+  console.log(message);
   process.exit(0);
 }
 assert.equal(probe.status, 0, probe.stderr);
