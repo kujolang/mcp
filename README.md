@@ -223,6 +223,7 @@ See full deployment guidance: `docs/production-deployment.md`.
 - `docs/security-model.md`: trust boundaries, threat model, and hardening defaults
 - `docs/ability-host-conformance.md`: Ability host support tiers and conformance evidence requirements
 - `docs/ability-host-deployment.md`: local, customer-hosted, and managed Ability gateway profiles
+- `docs/ability-pack-launch-catalog.md`: versioned CMS, SSG, and MCP launch-pack evidence and deferred-candidate boundary
 - `docs/ability-platform-inventory-2026-09-02.md`: immutable cross-repository Ability baseline
 - `docs/ability-platform-verification-2026-09-02.md`: cross-repository test evidence and current baseline failures
 - `docs/adr/0001-universal-ability-platform.md`: Ability ownership, topology, compatibility, and support-tier decision

@@ -1,0 +1,45 @@
+{
+  "schema": "kujo.ability-pack-catalog/v1",
+  "generated_at": "2026-09-02T00:00:00Z",
+  "catalog_version": "1.0.0",
+  "entries": [
+    {
+      "pack_id": "kujo.cms.core",
+      "pack_version": "1.0.0",
+      "source_repository": "https://github.com/kujolang/cms",
+      "source_revision": "189438bf1a9495b1bd8af0bd904ab37f3afcec99",
+      "manifest_path": "ability-pack.json",
+      "ability_count": 6,
+      "effects": ["read", "write"],
+      "evidence_level": "local-reference-gateway-certified",
+      "evidence_path": "docs/ability-pack-certification-2026-09-02.md",
+      "selection_reason": "Proves authenticated application-owned discovery, request-bound approval, keyed idempotency, canonical receipts, and audit for high-value CMS reads and writes."
+    },
+    {
+      "pack_id": "kujo.ssg.core",
+      "pack_version": "1.0.0",
+      "source_repository": "https://github.com/kujolang/ssg",
+      "source_revision": "d893c350f7e9927def219edf7abc9d1889f89bcd",
+      "manifest_path": "abilities/registry.json",
+      "ability_count": 10,
+      "effects": ["read", "write", "external"],
+      "evidence_level": "repository-fixture-certified",
+      "evidence_path": "docs/ability-integration.md",
+      "selection_reason": "Proves deterministic local source, build, shard, output, link, metadata, readiness, comparison, and artifact-export workflows without deployment credentials."
+    },
+    {
+      "pack_id": "kujo.mcp.core",
+      "pack_version": "1.0.0",
+      "source_repository": "https://github.com/kujolang/mcp",
+      "source_revision": "7d7dcb4ca4135086a2d3a066cda7f57d840bb39b",
+      "manifest_path": "packs/mcp_core/pack.json",
+      "ability_count": 2,
+      "effects": ["read"],
+      "evidence_level": "repository-fixture-certified",
+      "evidence_path": "tests/test_11_mcp_core_ability_pack.kujo",
+      "selection_reason": "Adds a low-risk ecosystem workflow for redacted MCP repository profiling and generated-manifest validation without executing discovered commands."
+    }
+  ],
+  "deferred_candidates": ["howl", "lens", "shipcheck", "fence", "eval", "spec", "dispatch", "watchdog", "runledger", "rag", "scent", "casefile", "kennel"],
+  "defer_reason": "A launch candidate remains deferred until its domain repository owns an independently versioned manifest, bounded handler, offline fixtures, effect policy, and canonical receipt conformance."
+}
