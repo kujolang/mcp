@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+- Add the executable canonical Ability gateway with principal-aware discovery,
+  policy/approval/idempotency delegation, and normalized MCP receipts.
+- Add a tested portable STDIO host package with a Codex plugin, Ability skill,
+  Cursor, VS Code, and generic MCP configuration.
+- Add local, customer-hosted, and managed deployment boundaries plus the
+  enterprise security and release-control checklist.
+- Add metadata-only Watchdog lifecycle projection for MCP correlation.
 - Pin the production-stable Ability 1.0.1 contract package.
 - Pin the canonical `ability` package, remove projection-local definition
   validation, add definition digests, and project enabled canonical MCP
