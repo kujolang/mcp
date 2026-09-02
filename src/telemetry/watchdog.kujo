@@ -1,0 +1,115 @@
+export WATCHDOG_NATIVE_EVENT_SCHEMA := "watchdog.native-event.v1"
+
+func bounded_text(value, field, max_length, required) {
+    text := trim(to_string(value))
+    if required && text == "" { return {"ok": false, "error": field + " is required"} }
+    if len(text) > max_length { return {"ok": false, "error": field + " exceeds its length bound"} }
+    return {"ok": true, "value": text}
+}
+
+func nonnegative_integer(value, field) {
+    if type(value) != "int" || value < 0 { return {"ok": false, "error": field + " must be a non-negative integer"} }
+    return {"ok": true, "value": value}
+}
+
+func base_references(session_id, request_id, tool_call_id) {
+    refs := []
+    if session_id != "" { refs = push(refs, {"type": "session", "id": session_id, "namespace": "mcp", "relation": "source"}) }
+    if request_id != "" { refs = push(refs, {"type": "request", "id": request_id, "namespace": "mcp", "relation": "source"}) }
+    if tool_call_id != "" { refs = push(refs, {"type": "tool_call", "id": tool_call_id, "namespace": "mcp", "relation": "source"}) }
+    return refs
+}
+
+func validate_identity(input) {
+    event_id := bounded_text(input["event_id"], "event_id", 160, true)
+    if event_id["ok"] == false { return event_id }
+    trace_id := bounded_text(input["trace_id"], "trace_id", 160, true)
+    if trace_id["ok"] == false { return trace_id }
+    span_id := bounded_text(input["span_id"], "span_id", 160, true)
+    if span_id["ok"] == false { return span_id }
+    tool_name := bounded_text(input["tool_name"], "tool_name", 128, true)
+    if tool_name["ok"] == false { return tool_name }
+    server_name := bounded_text(input["server_name"], "server_name", 128, true)
+    if server_name["ok"] == false { return server_name }
+    return {"ok": true, "event_id": event_id["value"], "trace_id": trace_id["value"], "span_id": span_id["value"], "tool_name": tool_name["value"], "server_name": server_name["value"]}
+}
+
+# Returns metadata-only MCP tool telemetry. The caller owns delivery; this
+# helper never writes Watchdog storage or performs network I/O.
+export watchdog_mcp_tool_event := func(input) {
+    if type(input) != "dict" { return {"ok": false, "error": "input must be an object"} }
+    identity := validate_identity(input)
+    if identity["ok"] == false { return identity }
+    started := nonnegative_integer(input["started_at_ms"], "started_at_ms")
+    if started["ok"] == false { return started }
+    ended_at := null
+    if has_key(input, "ended_at_ms") && input["ended_at_ms"] != null {
+        ended := nonnegative_integer(input["ended_at_ms"], "ended_at_ms")
+        if ended["ok"] == false { return ended }
+        if ended["value"] < started["value"] { return {"ok": false, "error": "ended_at_ms cannot precede started_at_ms"} }
+        ended_at = ended["value"]
+    }
+    phase := "client"
+    if has_key(input, "phase") { phase = input["phase"] }
+    if phase != "client" && phase != "server" { return {"ok": false, "error": "phase must be client or server"} }
+    status := "unset"
+    if has_key(input, "status") { status = input["status"] }
+    if status != "unset" && status != "ok" && status != "error" && status != "cancelled" && status != "timeout" && status != "denied" { return {"ok": false, "error": "status is invalid"} }
+    input_bytes := 0
+    if has_key(input, "input_bytes") { input_bytes = input["input_bytes"] }
+    checked_input_bytes := nonnegative_integer(input_bytes, "input_bytes")
+    if checked_input_bytes["ok"] == false { return checked_input_bytes }
+    output_bytes := 0
+    if has_key(input, "output_bytes") { output_bytes = input["output_bytes"] }
+    checked_output_bytes := nonnegative_integer(output_bytes, "output_bytes")
+    if checked_output_bytes["ok"] == false { return checked_output_bytes }
+    session_id := ""
+    if has_key(input, "session_id") { session_id = bounded_text(input["session_id"], "session_id", 160, false)["value"] }
+    request_id := ""
+    if has_key(input, "request_id") { request_id = bounded_text(input["request_id"], "request_id", 160, false)["value"] }
+    tool_call_id := ""
+    if has_key(input, "tool_call_id") { tool_call_id = bounded_text(input["tool_call_id"], "tool_call_id", 160, false)["value"] }
+    approval := "unknown"
+    if has_key(input, "approval") { approval = input["approval"] }
+    if approval != "unknown" && approval != "not_required" && approval != "approved" && approval != "denied" { return {"ok": false, "error": "approval is invalid"} }
+    risk := "unknown"
+    if has_key(input, "risk") { risk = input["risk"] }
+    if risk != "unknown" && risk != "read_only" && risk != "write" && risk != "external" && risk != "destructive" { return {"ok": false, "error": "risk is invalid"} }
+    parent_span_id := null
+    if has_key(input, "parent_span_id") && input["parent_span_id"] != null {
+        parent := bounded_text(input["parent_span_id"], "parent_span_id", 160, false)
+        if parent["ok"] == false { return parent }
+        parent_span_id = parent["value"]
+    }
+    error_value := null
+    if status == "error" { error_value = {"category": "mcp_tool", "message": null} }
+    return {
+        "ok": true,
+        "event": {
+            "schema_version": WATCHDOG_NATIVE_EVENT_SCHEMA,
+            "event_id": identity["event_id"],
+            "event_kind": "tool",
+            "instantaneous": ended_at == null,
+            "trace_id": identity["trace_id"],
+            "span_id": identity["span_id"],
+            "parent_span_id": parent_span_id,
+            "name": "mcp.tool." + identity["tool_name"],
+            "status": status,
+            "started_at_ms": started["value"],
+            "ended_at_ms": ended_at,
+            "references": base_references(session_id, request_id, tool_call_id),
+            "attributes": {
+                "mcp.phase": phase,
+                "mcp.server.name": identity["server_name"],
+                "mcp.tool.name": identity["tool_name"],
+                "mcp.input_bytes": checked_input_bytes["value"],
+                "mcp.output_bytes": checked_output_bytes["value"],
+                "mcp.approval": approval,
+                "mcp.risk": risk
+            },
+            "usage": null,
+            "costs": [],
+            "error": error_value
+        }
+    }
+}

@@ -27,4 +27,8 @@ bash tests/test_01_unit_harness.sh
 bash tests/test_02_security_regression_suite.sh
 bash tests/test_03_endpoint_integration.sh
 
+"$KUJO_BIN" run tests/test_08_watchdog_telemetry.kujo --interpreter
+"$KUJO_BIN" run tests/test_07_ability_projection.kujo --interpreter
+"$KUJO_BIN" run tests/test_09_ability_gateway.kujo --interpreter
+
 echo "run_all_tests: all checks passed"

@@ -52,6 +52,11 @@ This project gives you a local MCP server foundation with configurable tools/res
 - Security and integration regression test suites
 - Deployment baseline template included
 - Explicit, effect-gated projection of portable `kujo.ability/v1` definitions into MCP tools
+- Metadata-only Watchdog lifecycle helper for client/server tool correlation
+
+## Watchdog telemetry helper
+
+`src/telemetry/watchdog.kujo` maps MCP client or server tool lifecycles into the shared `watchdog.native-event.v1` ingestion contract. It is a pure adapter: it performs no network or database I/O, retains tool/server identity, timing, status, source correlation IDs, approval/risk classification, and input/output byte counts, and never accepts raw tool inputs or outputs. The host owns delivery to Watchdog and should use one trace across the client request, server execution, and nested work while preserving source IDs as references.
 
 ## Portable Ability Projection
 
@@ -63,8 +68,13 @@ Schemas plus canonical Ability identity and definition digest, and defaults to
 read-only effects. `ability_registry_to_mcp_tools` projects every enabled
 canonical `mcp` exposure and rejects duplicate tool names.
 Write, delete, and external effects require an explicit `allowed_effects`
-exposure policy. Runtime handlers, authentication, approval, and transport
-configuration remain MCP server concerns and are never part of the Ability
+exposure policy. `src/abilities/gateway.kujo` provides the executable bridge
+for servers that own an Ability registry. It filters private discovery through
+a server-supplied authorization callback, requires a server-resolved
+principal, constructs a canonical MCP invocation, delegates policy, approval,
+idempotency, and auditing to `execute_ability`, and maps the terminal receipt
+into an MCP tool result. Authentication, durable stores, and transport
+configuration remain application concerns and are never part of the Ability
 definition.
 
 The canonical definition contract is maintained in and consumed directly from

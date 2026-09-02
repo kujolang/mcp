@@ -1,0 +1,22 @@
+from src.telemetry.watchdog import watchdog_mcp_tool_event
+
+event_result := watchdog_mcp_tool_event({
+    "event_id": "mcp-event-1", "trace_id": "trace-source-1", "span_id": "span-source-1", "parent_span_id": "parent-source-1",
+    "session_id": "session-1", "request_id": "request-1", "tool_call_id": "call-1",
+    "server_name": "docs-server", "tool_name": "read_docs", "phase": "server", "status": "ok",
+    "started_at_ms": 1000, "ended_at_ms": 1012, "input_bytes": 42, "output_bytes": 84,
+    "approval": "not_required", "risk": "read_only"
+})
+assert(event_result["ok"], "valid MCP event should normalize")
+event := event_result["event"]
+assert(event["schema_version"] == "watchdog.native-event.v1", "native schema must be explicit")
+assert(event["event_kind"] == "tool", "MCP calls are tool telemetry")
+assert(event["attributes"]["mcp.server.name"] == "docs-server", "server identity must survive")
+assert(event["attributes"]["mcp.input_bytes"] == 42, "only payload byte size should be retained")
+assert(len(event["references"]) == 3, "source correlation IDs must survive")
+
+invalid := watchdog_mcp_tool_event({"event_id": "event", "trace_id": "trace", "span_id": "span", "server_name": "server", "tool_name": "tool", "started_at_ms": 20, "ended_at_ms": 10})
+assert(invalid["ok"] == false, "negative duration must be rejected")
+assert(index_of(invalid["error"], "cannot precede") >= 0, "invalid timing must be specific")
+
+print("test_08_watchdog_telemetry: all assertions passed")
