@@ -19,7 +19,7 @@
       "pack_id": "kujo.ssg.core",
       "pack_version": "1.0.0",
       "source_repository": "https://github.com/kujolang/ssg",
-      "source_revision": "d893c350f7e9927def219edf7abc9d1889f89bcd",
+      "source_revision": "c9b90f5fab6b9fa6c2a9eba22bb94e1e59827bcb",
       "manifest_path": "abilities/registry.json",
       "ability_count": 10,
       "effects": ["read", "write", "external"],
