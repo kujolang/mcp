@@ -2,6 +2,8 @@
 
 All hosts consume the same principal-visible catalog and canonical execution receipt. Host-specific files improve installation and interaction; they do not fork an Ability definition.
 
+The current machine-generated support tiers are in [the Ability host compatibility matrix](generated/ability-host-compatibility.md). Its source artifact records exact revisions, versions, commands, duration, and output digests; generation fails closed when a required row is missing, failed, future-dated, or stale.
+
 ## Compatibility surface
 
 | Capability | Codex | Cursor | VS Code / Copilot | Kujo Pi | Generic MCP |
@@ -44,6 +46,8 @@ A host is conformant only when an authenticated end-to-end test also proves its 
 
 No Cursor or Copilot hooks are bundled. The MCP server already owns discovery and execution, and an unconditional client hook would add local code execution without strengthening application authorization. Cursor-specific rules and commands are likewise omitted from the portable package; the shared skill and the Copilot custom agent provide the bounded guidance needed for the current preview.
 
+Generic Streamable HTTP is not listed as certified because this package currently ships a STDIO bridge and no repeatable HTTP-host harness. An application gateway may expose HTTP separately, but that transport requires its own authentication, cancellation, isolation, and receipt evidence.
+
 ## Reproducible local evidence
 
 Run from the `mcp` repository root:
@@ -52,6 +56,7 @@ Run from the `mcp` repository root:
 node tests/portable_ability_plugin_test.mjs
 node tests/ability_host_bridge_test.mjs
 node tests/codex_clean_profile_test.mjs
+node tests/ability_compatibility_matrix_test.mjs
 node tests/ability_package_release_test.mjs
 npm pack --dry-run --json ./integrations/kujo-ability
 bash tests/run_all_tests.sh

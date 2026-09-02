@@ -1,5 +1,9 @@
 # Changelog
 
+## Next preview
+
+- Add generated, freshness-gated host compatibility evidence and isolated lifecycle coverage for primary host configurations.
+
 ## 1.1.0 - 2026-09-02
 
 - Add the portable Agent Plugins 1.0 manifest and MCP configuration.

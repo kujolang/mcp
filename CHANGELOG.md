@@ -4,6 +4,7 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+- Add automated host evidence capture and a freshness-gated compatibility matrix with explicit non-certification tiers.
 - Add the executable canonical Ability gateway with principal-aware discovery,
   policy/approval/idempotency delegation, and normalized MCP receipts.
 - Add a tested portable STDIO host package with a Codex plugin, Ability skill,

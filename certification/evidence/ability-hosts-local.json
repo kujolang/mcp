@@ -1,0 +1,109 @@
+{
+  "schema": "kujo.ability.host-certification/v1",
+  "generated_at": "2026-09-02T08:26:00.968Z",
+  "source_revisions": {
+    "mcp": "29619791c04114dacb1393f03473337ece52eb72",
+    "agents-sdk": "c48cde3303003e0952aca8a720f5754c59ea9bf7",
+    "kujo-pi": "9d977bdda760830e3cb00c1e0e756ab2d9acfe1e"
+  },
+  "versions": {
+    "package": "1.1.0",
+    "gateway_contract": "1.0.0",
+    "mcp_protocol": "2025-11-25",
+    "codex": "codex-cli 0.144.4",
+    "cursor": "unavailable",
+    "vscode": "unavailable"
+  },
+  "checks": [
+    {
+      "id": "portable-package",
+      "host": "portable",
+      "tier": "package-validated",
+      "command": "node tests/portable_ability_plugin_test.mjs",
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 196,
+      "output_sha256": "df2b9a315a307dbbe140681448498cfc136500f4401d5ef925982c7338506ff9",
+      "summary": "portable Ability plugin contract passed",
+      "limitations": []
+    },
+    {
+      "id": "generic-stdio",
+      "host": "generic-stdio",
+      "tier": "protocol-certified",
+      "command": "node tests/ability_host_bridge_test.mjs",
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 1028,
+      "output_sha256": "7de97e2fceda4e8921e0db18b20be69230cdb64546104f365c752c2c3390fa31",
+      "summary": "ability host bridge contract passed",
+      "limitations": []
+    },
+    {
+      "id": "codex-clean-profile",
+      "host": "codex",
+      "tier": "install-validated",
+      "command": "node tests/codex_clean_profile_test.mjs",
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 3371,
+      "output_sha256": "8376225e9ff1ffcfb240a13eeb0dc4322701abfaeb12b4f2a4769febe3acace6",
+      "summary": "Codex clean-profile plugin lifecycle passed (codex-cli 0.144.4)",
+      "limitations": [
+        "Authenticated execution was not driven by the Codex host."
+      ]
+    },
+    {
+      "id": "cursor-config",
+      "host": "cursor",
+      "tier": "configuration-validated",
+      "command": "node tests/ability_connector_cli_test.mjs",
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 2561,
+      "output_sha256": "ffaeda963bebc68bb50bb8bdde87bbc247ece0e1bdf33abfd04cfc5dc07b904f",
+      "summary": "ability connector CLI lifecycle passed",
+      "limitations": [
+        "Cursor binary was unavailable; no installed-host run."
+      ]
+    },
+    {
+      "id": "vscode-config",
+      "host": "vscode-copilot",
+      "tier": "configuration-validated",
+      "command": "node tests/ability_connector_cli_test.mjs",
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 2561,
+      "output_sha256": "ffaeda963bebc68bb50bb8bdde87bbc247ece0e1bdf33abfd04cfc5dc07b904f",
+      "summary": "ability connector CLI lifecycle passed",
+      "limitations": [
+        "VS Code binary was unavailable; no extension-host run."
+      ]
+    },
+    {
+      "id": "agents-sdk",
+      "host": "agents-sdk",
+      "tier": "native-conformant",
+      "command": "kujo test-run tests/ability_contract_tests.kujo -v",
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 2532,
+      "output_sha256": "c7e8558f630204ca99a94a0b1d67f5ba6790e3a2284a074896e9c1d89eeb3697",
+      "summary": "All tests passed! ✨",
+      "limitations": []
+    },
+    {
+      "id": "kujo-pi",
+      "host": "kujo-pi",
+      "tier": "native-conformant",
+      "command": "npm test",
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 23461,
+      "output_sha256": "65c83f4a3ba8a91115676dfb163d4ce964bb73884aa1a8f80d50622f9930d92a",
+      "summary": "kujo-pi release-readiness validation passed",
+      "limitations": []
+    }
+  ]
+}
