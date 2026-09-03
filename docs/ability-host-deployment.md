@@ -1,6 +1,6 @@
 # Ability host deployment
 
-The v1.1.0 preview host package supports one executable topology: an MCP client starts the packaged STDIO bridge, and the bridge calls an application-owned Ability gateway over loopback HTTP or HTTPS. Kujo CMS is the reference gateway. The bridge never loads application handlers or credentials into an Ability definition.
+The v1.1.0 preview host package supports the portable STDIO topology: an MCP client starts the packaged bridge, and the bridge calls an application-owned Ability gateway over loopback HTTP or HTTPS. Kujo CMS is the reference application gateway. The separately deployed Kujo managed beta also exposes native Streamable HTTP MCP at `https://ability.kujolang.ai/mcp` behind OAuth 2.1. Neither topology loads application handlers or credentials into an Ability definition.
 
 Architecture ownership and compatibility decisions are recorded in [ADR 0001](adr/0001-universal-ability-platform.md). The original cross-repository baseline is preserved in [the 2026-09-02 inventory](ability-platform-inventory-2026-09-02.md).
 
@@ -16,7 +16,7 @@ Deploy the application gateway inside the customer's environment and connect eac
 
 ### Managed
 
-A managed gateway can implement the same catalog and execution endpoints, but a shared public service needs OAuth 2.1 authorization-code flow with PKCE, protected-resource metadata, audience validation, tenant-scoped discovery, token revocation, quotas, region and retention controls, and an operator support boundary. Those controls are not supplied by this repository. Until they are deployed and independently validated, do not advertise a public privileged Ability endpoint.
+The managed beta implements OAuth 2.1 authorization code with PKCE, protected-resource metadata, audience validation, tenant-scoped discovery, revocation hooks, quotas, retention cleanup, and an operator boundary in the separate `ability-gateway` repository. Its current editor evidence is a controlled-beta smoke certificate, not an unrestricted public or enterprise certification. Continue to require the gateway release checklist before onboarding broader tenants or enabling production mutations.
 
 `mcp.kujolang.ai` remains the public read-only ecosystem catalog. Do not reuse it for customer credentials or mutating operations. A future managed execution service should have a separate origin and threat model.
 

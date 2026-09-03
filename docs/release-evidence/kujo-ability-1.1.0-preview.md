@@ -35,6 +35,7 @@ node tests/ability_contract_drift_test.mjs
 node tests/ability_connector_cli_test.mjs
 node tests/ability_host_bridge_test.mjs
 node tests/codex_clean_profile_test.mjs
+node tests/vscode_managed_evidence_test.mjs
 node tests/ability_package_release_test.mjs
 ```
 
@@ -45,4 +46,4 @@ The Codex plugin validator passed with zero warnings. A clean temporary profile 
 
 ## Evidence boundary
 
-This evidence proves repository tests, package structure, connector lifecycle behavior against temporary files, a clean-profile Codex installation lifecycle, clean-profile registration by an installed VS Code 1.135.0 CLI, an authenticated mock-gateway bridge contract, deterministic archive generation, SBOM generation, and unsigned provenance metadata. It does not prove npm publication, signature verification, public marketplace review, authenticated execution from Codex or VS Code/Copilot, installation in Cursor, a production gateway, or enterprise certification.
+This evidence proves repository tests, package structure, connector lifecycle behavior against temporary files, a clean-profile Codex installation lifecycle, clean-profile registration by VS Code 1.135.0, a live managed-gateway VS Code `gateway_echo` smoke invocation, an authenticated mock-gateway bridge contract, deterministic archive generation, SBOM generation, and unsigned provenance metadata. It does not prove npm publication, signature verification, public marketplace review, native VS Code URL-handler OAuth completion, authenticated execution from Codex, installation in Cursor, or enterprise certification.

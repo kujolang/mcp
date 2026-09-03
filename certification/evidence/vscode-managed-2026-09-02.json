@@ -1,0 +1,36 @@
+{
+  "schema": "kujo.ability.managed-host-certification/v1",
+  "recorded_at": "2026-09-03T00:04:05.193Z",
+  "host": {
+    "name": "Visual Studio Code",
+    "version": "1.135.0",
+    "commit": "08d4889f9ec4a1685d257b9b95de036c8e1ce1e5",
+    "architecture": "x64"
+  },
+  "endpoint": "https://ability.kujolang.ai/mcp",
+  "source_revisions": {
+    "mcp": "37f1ffc5b4c34c50457e61563b0014cced57f8f6",
+    "ability_gateway": "f7ad7d7b764b4de6f4b68744ddf898cf7558420b"
+  },
+  "worker_version": "50b2f70c-475c-45d0-ac49-2174600cb58f",
+  "authorization": {
+    "flow": "authorization_code_pkce_s256",
+    "token_response_status": 200,
+    "manual_bearer_copy": false,
+    "credential_persisted_in_configuration": false,
+    "subject_scheme": "github:numeric"
+  },
+  "mcp": {
+    "connection_state": "Running",
+    "discovered_tools": 2,
+    "invoked_tool": "gateway_echo",
+    "input_text": "editor-certification-vscode-1.1",
+    "output_text": "editor-certification-vscode-1.1",
+    "receipt_outcome": "succeeded",
+    "receipt_id": "evt_61ebb6afbe2e46b497de53018ab0a622"
+  },
+  "limitations": [
+    "The OAuth/PKCE exchange and the VS Code MCP execution were exercised in one isolated certification profile using an ephemeral process credential; a native VS Code URL-handler token exchange is not claimed by this artifact.",
+    "Mutating Ability approval, revocation, tenant-isolation, cancellation, and replay behavior remain covered by gateway and bridge integration gates rather than this editor smoke certificate."
+  ]
+}
