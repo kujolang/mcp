@@ -1,6 +1,6 @@
 # Kujo Ability 1.1.0 preview evidence
 
-Evidence date: 2026-09-02
+Evidence date: 2026-09-03
 
 Package artifact source revision: `ed4d190a04c1283b77e0ac388ea7568632e2da90`
 
@@ -46,4 +46,4 @@ The Codex plugin validator passed with zero warnings. A clean temporary profile 
 
 ## Evidence boundary
 
-This evidence proves repository tests, package structure, connector lifecycle behavior against temporary files, a clean-profile Codex installation lifecycle, clean-profile registration by VS Code 1.136.0, a live managed-gateway VS Code `gateway_echo` smoke invocation, an authenticated mock-gateway bridge contract, deterministic archive generation, SBOM generation, and unsigned provenance metadata. It does not prove npm publication, signature verification, public marketplace review, native VS Code URL-handler OAuth completion, authenticated execution from Codex, installation in Cursor, or enterprise certification.
+This evidence proves repository tests, package structure, connector lifecycle behavior against temporary files, a clean-profile Codex installation lifecycle, clean-profile registration by VS Code 1.136.0, VS Code's native localhost callback and PKCE exchange, refreshable-session restoration after restart, a live `gateway_echo` invocation through the editor tool API, an authenticated mock-gateway bridge contract, deterministic archive generation, SBOM generation, and unsigned provenance metadata. The user-approved consent redirect required an external HTTP follow to reach the native callback. This evidence does not prove a completely browser-driven consent round trip, npm publication, signature verification, public marketplace review, authenticated execution from Codex, installation in Cursor, mutating editor certification, or enterprise certification.

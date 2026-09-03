@@ -1,0 +1,71 @@
+{
+  "schema": "kujo.ability.managed-host-certification/v1",
+  "recorded_at": "2026-09-03T14:07:30.480Z",
+  "host": {
+    "name": "Visual Studio Code",
+    "version": "1.136.0",
+    "commit": "520fb30b2d3d324b4cb2342f6e88e2cd93751de1",
+    "architecture": "x64",
+    "profile": "clean-isolated"
+  },
+  "endpoint": "https://ability.kujolang.ai/mcp",
+  "source_revisions": {
+    "mcp": "d31c3cdfc53e9ac95d05223f62b51784e65360a4",
+    "ability_gateway": "6f8835d392232253eb9fdae2f4643d4363d25df2"
+  },
+  "worker_version": "50b2f70c-475c-45d0-ac49-2174600cb58f",
+  "worker_observations": {
+    "authorization_cpu_ms": 14,
+    "tools_list_cpu_ms": 10,
+    "gateway_echo_cpu_ms": 5,
+    "gateway_echo_wall_ms": 207,
+    "source": "short redacted wrangler tail window"
+  },
+  "authorization": {
+    "flow": "authorization_code_pkce_s256",
+    "token_response_status": 200,
+    "manual_bearer_copy": false,
+    "credential_persisted_in_configuration": false,
+    "native_callback_received": true,
+    "native_code_exchange": true,
+    "refreshable_session_created": true,
+    "session_restored_after_host_restart": true,
+    "consent_handoff": "user-approved redirect followed to the native localhost callback",
+    "subject_scheme": "github:numeric",
+    "scopes": [
+      "mcp:read",
+      "ability:invoke",
+      "approval:request",
+      "audit:read"
+    ]
+  },
+  "mcp": {
+    "protocol_version": "2025-11-25",
+    "connection_state": "Running",
+    "discovered_tools": 2,
+    "tool_names": [
+      "gateway_echo",
+      "gateway_publish_preview"
+    ],
+    "invocation_api": "vscode.lm.invokeTool",
+    "invoked_tool": "gateway_echo",
+    "input_text": "VS Code native certification",
+    "output_text": "VS Code native certification",
+    "receipt": {
+      "id": "evt_562c6d20e13247f5aff483af4f278260",
+      "tenant_id": "tenant_kujolang",
+      "subject_id": "github:9917957",
+      "ability_id": "gateway.echo",
+      "operation": "run",
+      "outcome": "succeeded",
+      "request_digest": "b7a12a350b41dca4a4e38a15c7373c1ed4f4060a23f87cfd0eda30bcac3d93a3",
+      "recorded_at": "2026-09-03T14:07:30.480Z"
+    }
+  },
+  "limitations": [
+    "The consent page required the already-approved redirect response to be followed to VS Code's localhost callback; VS Code itself received the authorization code, performed the PKCE exchange, created the refreshable session, restored it after restart, discovered the tools, and invoked the tool.",
+    "This certificate covers authenticated read-only discovery and gateway_echo execution. Mutating approval, revocation, tenant-isolation, cancellation, and replay behavior remain covered by gateway and bridge integration gates rather than this editor smoke certificate.",
+    "The sampled authorization request used 14 ms of Worker CPU, above the configured 10 ms Free-plan request budget; broader onboarding remains paused pending representative resampling or explicit paid-plan approval.",
+    "Public marketplace review, package signing, Cursor installation, authenticated Codex execution, and enterprise certification are not claimed."
+  ]
+}
