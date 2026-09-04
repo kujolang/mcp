@@ -1,13 +1,13 @@
 {
   "schema": "kujo.ability.host-certification/v1",
-  "generated_at": "2026-09-04T12:12:32.662Z",
+  "generated_at": "2026-09-04T12:35:24.694Z",
   "source_revisions": {
-    "mcp": "4c775a0f005f78b81ff1914c05021523b1c8dfa9",
+    "mcp": "be29feee072ecf5736b051191ef37720a7e27b12",
     "agents-sdk": "c48cde3303003e0952aca8a720f5754c59ea9bf7",
     "kujo-pi": "9d977bdda760830e3cb00c1e0e756ab2d9acfe1e"
   },
   "versions": {
-    "package": "1.1.0",
+    "package": "1.1.1",
     "gateway_contract": "1.0.0",
     "mcp_protocol": "2025-11-25",
     "codex": "codex-cli 0.144.4",
@@ -22,7 +22,7 @@
       "command": "node tests/portable_ability_plugin_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 200,
+      "duration_ms": 193,
       "output_sha256": "df2b9a315a307dbbe140681448498cfc136500f4401d5ef925982c7338506ff9",
       "summary": "portable Ability plugin contract passed",
       "limitations": []
@@ -34,7 +34,7 @@
       "command": "node tests/ability_host_bridge_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 1063,
+      "duration_ms": 1064,
       "output_sha256": "7de97e2fceda4e8921e0db18b20be69230cdb64546104f365c752c2c3390fa31",
       "summary": "ability host bridge contract passed",
       "limitations": []
@@ -46,7 +46,7 @@
       "command": "KUJO_REQUIRE_CODEX=1 node tests/codex_clean_profile_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 3663,
+      "duration_ms": 3170,
       "output_sha256": "8376225e9ff1ffcfb240a13eeb0dc4322701abfaeb12b4f2a4769febe3acace6",
       "summary": "Codex clean-profile plugin lifecycle passed (codex-cli 0.144.4)",
       "limitations": [
@@ -60,7 +60,7 @@
       "command": "node tests/ability_connector_cli_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 2996,
+      "duration_ms": 2495,
       "output_sha256": "ffaeda963bebc68bb50bb8bdde87bbc247ece0e1bdf33abfd04cfc5dc07b904f",
       "summary": "ability connector CLI lifecycle passed",
       "limitations": [
@@ -74,7 +74,7 @@
       "command": "KUJO_REQUIRE_VSCODE=1 node tests/vscode_clean_profile_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 2340,
+      "duration_ms": 1278,
       "output_sha256": "0bb4c87344317d3582d73d53473abca3013f0332b301d607e1864e3ee3c5c634",
       "summary": "VS Code clean-profile MCP registration passed (1.136.1, a44adf7f53e00964ab890f9f8758a334f1fc15bc, x64)",
       "limitations": [
@@ -88,8 +88,8 @@
       "command": "kujo test-run tests/ability_contract_tests.kujo -v",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 2712,
-      "output_sha256": "bcb70a93f4d050526bad864ab6c3991c5d6008371545e4d04213713ea759e3e6",
+      "duration_ms": 2973,
+      "output_sha256": "2b8421e6ae416ccc5fab744d541c087451aae3f850e1ec663c764a428280b083",
       "summary": "All tests passed! ✨",
       "limitations": []
     },
@@ -100,8 +100,8 @@
       "command": "npm test",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 24430,
-      "output_sha256": "984afac487fa9d21fcfed6c59f495ace871032d57b89da7a9f98aa17fd94fbd7",
+      "duration_ms": 21732,
+      "output_sha256": "c9ce6378861c6a3ae1ebf9b59ee3358e59bc23605a5e2b8ce4cf20db0d09379b",
       "summary": "kujo-pi release-readiness validation passed",
       "limitations": []
     }

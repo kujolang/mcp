@@ -2,7 +2,7 @@
 
 Evidence date: 2026-09-04
 
-Package: `1.1.0`  
+Package: `1.1.1`  
 Gateway contract: `1.0.0`  
 MCP protocol: `2025-11-25`
 
