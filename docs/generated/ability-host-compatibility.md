@@ -1,6 +1,6 @@
 # Generated Ability host compatibility
 
-Evidence date: 2026-09-03
+Evidence date: 2026-09-04
 
 Package: `1.1.0`  
 Gateway contract: `1.0.0`  
