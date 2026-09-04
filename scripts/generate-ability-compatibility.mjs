@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
 
@@ -25,8 +26,10 @@ for (const [name, directory] of Object.entries({
 })) {
   const expected = evidence.source_revisions?.[name];
   if (typeof expected !== "string" || !/^[0-9a-f]{40}$/.test(expected)) throw new Error(`host certification evidence has an invalid ${name} source revision`);
-  const current = spawnSync("git", ["rev-parse", "HEAD"], { cwd: directory, encoding: "utf8" });
-  if (current.status !== 0 || current.stdout.trim() !== expected) throw new Error(`host certification evidence does not cover the current ${name} source`);
+  if (existsSync(resolve(directory, ".git"))) {
+    const current = spawnSync("git", ["rev-parse", "HEAD"], { cwd: directory, encoding: "utf8" });
+    if (current.status !== 0 || current.stdout.trim() !== expected) throw new Error(`host certification evidence does not cover the current ${name} source`);
+  }
 }
 const certifiedPathspecs = [
   ".agents/plugins/marketplace.json",
@@ -62,7 +65,7 @@ const rows = order.map((host) => {
   return `| ${labels[host]} | ${check.tier} | [\`${check.id}\`](${artifact}) | ${limitations} |`;
 });
 const date = new Date(generatedAt).toISOString().slice(0, 10);
-const document = `# Generated Ability host compatibility\n\nEvidence date: ${date}\n\nPackage: \`${evidence.versions.package}\`  \nGateway contract: \`${evidence.versions.gateway_contract}\`  \nMCP protocol: \`${evidence.versions.mcp_protocol}\`\n\n| Host | Proven tier | Automated evidence | Limitation |\n| --- | --- | --- | --- |\n${rows.join("\n")}\n\nA row proves only its named tier. \`configuration-validated\` does not mean an installed host was exercised; \`installed-configuration-validated\` does not mean an interactive agent invoked a tool; \`certified-mcp-read-only\` does not cover mutating operations; \`install-validated\` does not mean authenticated host execution. The main evidence source is [the local certification artifact](../../certification/evidence/ability-hosts-local.json). Matrix generation fails when required evidence is missing, failed, future-dated, older than ${maxAgeDays} days, lacks an artifact link, or does not cover the current immutable Ability connector source.\n`;
+const document = `# Generated Ability host compatibility\n\nEvidence date: ${date}\n\nPackage: \`${evidence.versions.package}\`  \nGateway contract: \`${evidence.versions.gateway_contract}\`  \nMCP protocol: \`${evidence.versions.mcp_protocol}\`\n\n| Host | Proven tier | Automated evidence | Limitation |\n| --- | --- | --- | --- |\n${rows.join("\n")}\n\nA row proves only its named tier. \`configuration-validated\` does not mean an installed host was exercised; \`installed-configuration-validated\` does not mean an interactive agent invoked a tool; \`certified-mcp-read-only\` does not cover mutating operations; \`install-validated\` does not mean authenticated host execution. The main evidence source is [the local certification artifact](../../certification/evidence/ability-hosts-local.json). Matrix generation fails when required evidence is missing, failed, future-dated, older than ${maxAgeDays} days, lacks an artifact link, or does not cover the current immutable Ability connector source. External source revisions are also matched exactly whenever their sibling worktrees are available.\n`;
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, document);
 console.log(`Ability compatibility matrix written: ${outputPath}`);

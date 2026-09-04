@@ -2,7 +2,7 @@
 
 All hosts consume the same principal-visible catalog and canonical execution receipt. Host-specific files improve installation and interaction; they do not fork an Ability definition.
 
-The current machine-generated support tiers are in [the Ability host compatibility matrix](generated/ability-host-compatibility.md). Its source artifact records exact revisions, versions, commands, duration, output digests, and evidence links; generation fails closed when a required row is missing, failed, future-dated, stale, lacks an artifact, or does not cover the current MCP, Ability Gateway, Agents SDK, and Kujo Pi sources.
+The current machine-generated support tiers are in [the Ability host compatibility matrix](generated/ability-host-compatibility.md). Its source artifact records exact revisions, versions, commands, duration, output digests, and evidence links; generation fails closed when a required row is missing, failed, future-dated, stale, lacks an artifact, or does not cover the current MCP source. Available sibling Ability Gateway, Agents SDK, and Kujo Pi worktrees must also match their recorded revisions exactly.
 
 ## Compatibility surface
 
