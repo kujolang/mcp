@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "kujo-ability",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Discover and run policy-gated Kujo Abilities through a canonical MCP bridge.",
   "author": {
     "name": "Kujo",

@@ -38,7 +38,7 @@ try {
   assert.match(available, /kujo-ability@kujo-local\s+not installed/);
 
   const installed = JSON.parse(run(["plugin", "add", "kujo-ability@kujo-local", "--json"]));
-  assert.equal(installed.version, "1.1.0");
+  assert.equal(installed.version, "1.1.1");
   const installedRoot = installed.installedPath;
   await access(join(installedRoot, ".mcp.json"));
   await access(join(installedRoot, "bin", "kujo-ability-mcp.mjs"));

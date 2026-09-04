@@ -32,7 +32,7 @@ Each projected tool adds an optional `_kujo` adapter-control object for `invocat
 
 The generic MCP bridge never issues approvals because an ordinary tool argument cannot prove independent human intent. A trusted host or out-of-band application UI must collect confirmation and issue a server-bound approval, then inject only the resulting approval ID through `_kujo.approvalId`. Do not give the agent process approval-issuance credentials.
 
-This v1.1.0 preview bridge targets the current CMS gateway endpoints. The `kujo-ability` npm name was unclaimed when checked on 2026-09-02, but this package has not been published. Do not use an `npx kujo-ability` installation command until a signed release is published and verified. A hosted multi-tenant gateway should expose the same contract behind OAuth 2.1 and must not reuse the public read-only ecosystem catalog at `mcp.kujolang.ai`.
+This v1.1.1 bridge targets the current CMS gateway endpoints. The package is release-ready for the `kujo-ability` npm name, with executable launchers, a reproducible archive, SBOM, and provenance metadata. Until registry publication is verified, install it from the tagged repository rather than relying on `npx`. A hosted multi-tenant gateway should expose the same contract behind OAuth 2.1 and must not reuse the public read-only ecosystem catalog at `mcp.kujolang.ai`.
 
 ## Connector lifecycle
 

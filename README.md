@@ -1,6 +1,6 @@
 # MCP Server Framework
 
-[![Version](https://img.shields.io/badge/version-1.1.0-black)](https://github.com/kujolang/mcp)
+[![Version](https://img.shields.io/badge/version-1.1.1-black)](https://github.com/kujolang/mcp/releases/tag/v1.1.1)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![built with Kujo](https://img.shields.io/badge/built%20with-Kujo-white.svg)](https://github.com/kujolang/kujo)
 [![CI](https://github.com/kujolang/mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/kujolang/mcp/actions/workflows/ci.yml)
@@ -102,7 +102,7 @@ Default endpoint: `http://127.0.0.1:8931/mcp/v1`
 Expected health response shape:
 
 ```json
-{"status":"ok","server":"mcp-demo","version":"1.1.0"}
+{"status":"ok","server":"mcp-demo","version":"1.1.1"}
 ```
 
 If you want to run the binary directly, resolve the runtime path first:

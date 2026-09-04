@@ -8,21 +8,21 @@ import { join } from "node:path";
 const output = await mkdtemp(join(tmpdir(), "kujo-ability-release-"));
 try {
   const result = JSON.parse(execFileSync(process.execPath, ["scripts/package-kujo-ability.mjs", "--output", output, "--verify-reproducible"], { encoding: "utf8" }));
-  assert.equal(result.package, "kujo-ability@1.1.0");
+  assert.equal(result.package, "kujo-ability@1.1.1");
   assert.equal(result.reproducible, true);
   assert.equal(result.signed, false);
 
   const names = (await readdir(output)).sort();
-  assert.deepEqual(names, ["SHA256SUMS", "kujo-ability-1.1.0.provenance.json", "kujo-ability-1.1.0.spdx.json", "kujo-ability-1.1.0.tgz"]);
+  assert.deepEqual(names, ["SHA256SUMS", "kujo-ability-1.1.1.provenance.json", "kujo-ability-1.1.1.spdx.json", "kujo-ability-1.1.1.tgz"]);
   const archive = await readFile(join(output, result.archive));
   assert.equal(createHash("sha256").update(archive).digest("hex"), result.sha256);
 
-  const sbom = JSON.parse(await readFile(join(output, "kujo-ability-1.1.0.spdx.json"), "utf8"));
+  const sbom = JSON.parse(await readFile(join(output, "kujo-ability-1.1.1.spdx.json"), "utf8"));
   assert.equal(sbom.spdxVersion, "SPDX-2.3");
   assert.ok(sbom.files.some((file) => file.fileName === "./plugin.json"));
   assert.ok(sbom.files.some((file) => file.fileName === "./bin/kujo-ability.mjs"));
 
-  const provenance = JSON.parse(await readFile(join(output, "kujo-ability-1.1.0.provenance.json"), "utf8"));
+  const provenance = JSON.parse(await readFile(join(output, "kujo-ability-1.1.1.provenance.json"), "utf8"));
   assert.equal(provenance.predicateType, "https://slsa.dev/provenance/v1");
   assert.equal(provenance.subject[0].digest.sha256, result.sha256);
 

@@ -4,6 +4,17 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-09-04
+
+### Fixed
+
+- Preserve executable file modes for both portable Ability package launchers so npm installs expose the `kujo-ability` command instead of removing an invalid non-executable bin entry.
+- Fetch full Git history in CI so immutable host-certification ancestor checks work on hosted runners.
+
+### Changed
+
+- Refresh the host compatibility evidence against VS Code 1.136.1 and the current release source.
+
 ## [1.1.0] - 2026-09-02
 
 ### Added

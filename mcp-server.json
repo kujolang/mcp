@@ -1,7 +1,7 @@
 {
   "server": {
     "name": "mcp-demo",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "MCP Server Framework Demo"
   },
   "http": {

@@ -5,7 +5,7 @@ import { constants } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const VERSION = "1.1.0";
+const VERSION = "1.1.1";
 const SERVER_NAME = "kujo-ability";
 const bridgePath = fileURLToPath(new URL("./kujo-ability-mcp.mjs", import.meta.url));
 const command = process.argv[2] || "serve";

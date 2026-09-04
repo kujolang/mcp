@@ -3,6 +3,11 @@
 - Remove in-band MCP approval issuance; approvals must now come from a trusted host or out-of-band UI.
 - Bind compatibility evidence to the certified Ability connector source and make required Codex certification fail closed.
 
+## 1.1.1 - 2026-09-04
+
+- Preserve executable modes for the CLI and MCP bridge launchers in npm packages.
+- Refresh release metadata and current host compatibility evidence.
+
 ## Next preview
 
 - Add generated, freshness-gated host compatibility evidence and isolated lifecycle coverage for primary host configurations.

@@ -68,7 +68,7 @@ const waitFor = async (id) => {
 send({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} });
 const initialized = await waitFor(1);
 assert.equal(initialized.result.serverInfo.name, "kujo-ability");
-assert.equal(initialized.result.serverInfo.version, "1.1.0");
+assert.equal(initialized.result.serverInfo.version, "1.1.1");
 send({ jsonrpc: "2.0", id: 2, method: "tools/list", params: {} });
 const listed = await waitFor(2);
 assert.equal(listed.result.tools[0].name, "cms__inspect");

@@ -2,7 +2,7 @@
 import { createInterface } from "node:readline";
 import { randomUUID } from "node:crypto";
 
-const server = { name: "kujo-ability", version: "1.1.0" };
+const server = { name: "kujo-ability", version: "1.1.1" };
 const configuredBase = process.env.KUJO_ABILITY_GATEWAY_URL || "http://127.0.0.1:8080";
 const token = process.env.KUJO_ABILITY_GATEWAY_TOKEN || "";
 const parsed = new URL(configuredBase);

@@ -1,10 +1,10 @@
 {
   "name": "kujo-ability",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Portable Kujo Ability Agent Plugin and MCP bridge.",
   "type": "module",
   "bin": {
-    "kujo-ability": "./bin/kujo-ability.mjs"
+    "kujo-ability": "bin/kujo-ability.mjs"
   },
   "files": [
     ".codex-plugin/",
@@ -31,5 +31,13 @@
     "directory": "integrations/kujo-ability"
   },
   "homepage": "https://kujolang.ai/ecosystem/ability/",
-  "keywords": ["kujo", "ability", "mcp", "agent-plugin", "codex", "cursor", "copilot"]
+  "keywords": [
+    "kujo",
+    "ability",
+    "mcp",
+    "agent-plugin",
+    "codex",
+    "cursor",
+    "copilot"
+  ]
 }

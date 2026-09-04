@@ -1,6 +1,6 @@
 {
   "name": "kujo-ability",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Discover and run policy-gated Kujo Abilities from Codex and compatible agent hosts.",
   "author": { "name": "Kujo", "url": "https://kujolang.ai" },
   "homepage": "https://kujolang.ai/ecosystem/ability/",
