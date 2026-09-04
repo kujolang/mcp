@@ -16,7 +16,10 @@ try {
   assert.equal(current.result.status, 0, current.result.stderr);
   assert.match(current.text, /Codex \| install-validated/);
   assert.match(current.text, /Cursor \| configuration-validated/);
-  assert.match(current.text, /VS Code \/ Copilot \| installed-configuration-validated/);
+  assert.match(current.text, /VS Code \/ Copilot package \| installed-configuration-validated/);
+  assert.match(current.text, /VS Code managed MCP \| certified-mcp-read-only/);
+  assert.match(current.text, /Generic Streamable HTTP MCP \| protocol-certified/);
+  assert.match(current.text, /vscode-managed-2026-09-03\.json/);
   assert.doesNotMatch(current.text, /Cursor \| certified/);
   assert.equal(current.text, await readFile("docs/generated/ability-host-compatibility.md", "utf8"), "committed compatibility matrix must match current evidence");
 
@@ -24,6 +27,10 @@ try {
   assert.notEqual((await generate(failed, "failed")).result.status, 0);
   const missing = structuredClone(source); missing.checks = missing.checks.filter((check) => check.host !== "kujo-pi");
   assert.notEqual((await generate(missing, "missing")).result.status, 0);
+  const missingArtifact = structuredClone(source); delete missingArtifact.checks[0].artifact;
+  assert.notEqual((await generate(missingArtifact, "missing-artifact")).result.status, 0);
+  const unsafeArtifact = structuredClone(source); unsafeArtifact.checks[0].artifact = "../../outside.json";
+  assert.notEqual((await generate(unsafeArtifact, "unsafe-artifact")).result.status, 0);
   const stale = structuredClone(source); stale.generated_at = "2020-01-01T00:00:00Z";
   assert.notEqual((await generate(stale, "stale")).result.status, 0);
   const wrongRevision = structuredClone(source); wrongRevision.source_revisions.mcp = "d80722e67b9a2a0661d5ab05d474d7e4a1da1ce0";

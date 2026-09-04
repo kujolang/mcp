@@ -8,6 +8,7 @@ import { spawnSync } from "node:child_process";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const workspace = resolve(root, "..");
+const abilityGateway = join(workspace, "ability-gateway");
 const output = resolve(process.argv[2] || join(root, "certification/evidence/ability-hosts-local.json"));
 
 function command(executable, args, cwd, env = {}) {
@@ -28,8 +29,8 @@ function revision(repository) {
   if (result.status !== 0) throw new Error(`cannot resolve revision for ${repository}`);
   return result.stdout.trim();
 }
-function record(id, host, tier, displayCommand, result, limitations = []) {
-  return { id, host, tier, command: displayCommand, ...result, limitations };
+function record(id, host, tier, displayCommand, result, limitations = [], artifact = "certification/evidence/ability-hosts-local.json") {
+  return { id, host, tier, command: displayCommand, ...result, limitations, artifact };
 }
 
 const kujoBin = join(workspace, "kujo/target/debug/kujo");
@@ -41,6 +42,8 @@ const connector = command("node", ["tests/ability_connector_cli_test.mjs"], root
 checks.push(record("cursor-config", "cursor", "configuration-validated", "node tests/ability_connector_cli_test.mjs", connector, ["Cursor binary was unavailable; no installed-host run."]));
 const vscode = command("node", ["tests/vscode_clean_profile_test.mjs"], root, { KUJO_REQUIRE_VSCODE: "1" });
 checks.push(record("vscode-clean-profile", "vscode-copilot", "installed-configuration-validated", "KUJO_REQUIRE_VSCODE=1 node tests/vscode_clean_profile_test.mjs", vscode, ["The installed VS Code CLI accepted a clean-profile MCP registration; an interactive Copilot tool invocation was not driven."]));
+checks.push(record("vscode-managed-read", "vscode-managed", "certified-mcp-read-only", "node tests/vscode_managed_evidence_test.mjs", command("node", ["tests/vscode_managed_evidence_test.mjs"], root), ["The certificate covers managed OAuth, discovery, session restoration, and a read-only invocation. Mutating editor conformance remains a separate gate."], "certification/evidence/vscode-managed-2026-09-03.json"));
+checks.push(record("generic-streamable-http", "generic-streamable-http", "protocol-certified", "npx vitest run test/control-plane.test.ts", command("npx", ["vitest", "run", "test/control-plane.test.ts"], abilityGateway), ["The generic client is a controlled Workers fixture with injected authenticated principal properties; the production OAuth transport is exercised separately by the managed VS Code certificate."]));
 checks.push(record("agents-sdk", "agents-sdk", "native-conformant", "kujo test-run tests/ability_contract_tests.kujo -v", command(kujoBin, ["test-run", "tests/ability_contract_tests.kujo", "-v"], join(workspace, "agents-sdk"))));
 checks.push(record("kujo-pi", "kujo-pi", "native-conformant", "npm test", command("npm", ["test"], join(workspace, "kujo-pi"))));
 
@@ -48,7 +51,7 @@ const codexVersion = command("codex", ["--version"], root);
 const artifact = {
   schema: "kujo.ability.host-certification/v1",
   generated_at: new Date().toISOString(),
-  source_revisions: { mcp: revision(root), "agents-sdk": revision(join(workspace, "agents-sdk")), "kujo-pi": revision(join(workspace, "kujo-pi")) },
+  source_revisions: { mcp: revision(root), "ability-gateway": revision(abilityGateway), "agents-sdk": revision(join(workspace, "agents-sdk")), "kujo-pi": revision(join(workspace, "kujo-pi")) },
   versions: { package: "1.1.1", gateway_contract: "1.0.0", mcp_protocol: "2025-11-25", codex: codexVersion.status === "passed" ? codexVersion.summary : "unavailable", cursor: "unavailable", vscode: vscode.status === "passed" ? vscode.summary.match(/\((\d+\.\d+\.\d+),/)?.[1] || "installed" : "unavailable" },
   checks,
 };
