@@ -44,7 +44,7 @@ assert.equal(codexMcp.mcpServers, undefined);
 const packageJson = await readJson("package.json");
 assert.equal(packageJson.name, manifest.name);
 assert.equal(packageJson.version, manifest.version);
-assert.equal(packageJson.bin["kujo-ability"], "./bin/kujo-ability.mjs");
+assert.equal(packageJson.bin["kujo-ability"], "bin/kujo-ability.mjs");
 assert.ok(packageJson.files.includes("com.github.copilot/"));
 
 const copilotAgent = await readFile(new URL("com.github.copilot/agents/kujo-ability.agent.md", root), "utf8");

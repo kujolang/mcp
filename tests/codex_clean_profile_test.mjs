@@ -48,7 +48,7 @@ try {
   assert.ok(mcp["kujo-ability"].args.some((value) => value.includes("${PLUGIN_ROOT}")));
 
   const enabled = run(["plugin", "list"]);
-  assert.match(enabled, /kujo-ability@kujo-local\s+installed, enabled\s+1\.1\.0/);
+  assert.match(enabled, /kujo-ability@kujo-local\s+installed, enabled\s+1\.1\.1/);
 
   run(["plugin", "remove", "kujo-ability@kujo-local"]);
   const removed = run(["plugin", "list"]);
