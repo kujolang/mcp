@@ -35,6 +35,8 @@ try {
   assert.notEqual((await generate(stale, "stale")).result.status, 0);
   const wrongRevision = structuredClone(source); wrongRevision.source_revisions.mcp = "d80722e67b9a2a0661d5ab05d474d7e4a1da1ce0";
   assert.notEqual((await generate(wrongRevision, "wrong-revision")).result.status, 0);
+  const wrongGatewayRevision = structuredClone(source); wrongGatewayRevision.source_revisions["ability-gateway"] = "d80722e67b9a2a0661d5ab05d474d7e4a1da1ce0";
+  assert.notEqual((await generate(wrongGatewayRevision, "wrong-gateway-revision")).result.status, 0);
 } finally {
   await rm(directory, { recursive: true, force: true });
 }

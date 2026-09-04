@@ -18,6 +18,16 @@ for (const check of evidence.checks) {
 }
 const evidenceRevision = evidence.source_revisions?.mcp;
 if (typeof evidenceRevision !== "string" || !/^[0-9a-f]{40}$/.test(evidenceRevision)) throw new Error("host certification evidence has an invalid MCP source revision");
+for (const [name, directory] of Object.entries({
+  "ability-gateway": resolve("../ability-gateway"),
+  "agents-sdk": resolve("../agents-sdk"),
+  "kujo-pi": resolve("../kujo-pi"),
+})) {
+  const expected = evidence.source_revisions?.[name];
+  if (typeof expected !== "string" || !/^[0-9a-f]{40}$/.test(expected)) throw new Error(`host certification evidence has an invalid ${name} source revision`);
+  const current = spawnSync("git", ["rev-parse", "HEAD"], { cwd: directory, encoding: "utf8" });
+  if (current.status !== 0 || current.stdout.trim() !== expected) throw new Error(`host certification evidence does not cover the current ${name} source`);
+}
 const certifiedPathspecs = [
   ".agents/plugins/marketplace.json",
   ".github/workflows/ability-spec-drift.yml",
