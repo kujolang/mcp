@@ -1,0 +1,29 @@
+{
+  "schema": "kujo.ability.gateway-live-conformance/v1",
+  "started_at": "2026-09-05T14:46:16.207Z",
+  "completed_at": "2026-09-05T14:47:29.450Z",
+  "origin": "https://ability.kujolang.ai",
+  "runner_source_revision": "3c17c114cbda2bad1d1f51e8b984dbffaea8e2f3",
+  "deployed_source_revision": "4ac0dcd7abe6de83126381ab25cfe8c3d99debd7",
+  "worker_version": "fb20a4da-af12-4bba-972e-7d184bd77b63",
+  "mode": "read-only",
+  "checks": [
+    "oauth_metadata",
+    "wrong_audience_rejected",
+    "authorization_code_pkce",
+    "browser_https_loopback_relay",
+    "tenant_catalog",
+    "read_execution_receipt",
+    "audit_receipt_redaction",
+    "refresh_rotation",
+    "refresh_replacement_activated",
+    "old_refresh_rejected",
+    "revocation",
+    "revoked_token_rejected"
+  ],
+  "secrets_persisted": false,
+  "limitations": [
+    "The opt-in write and human approval exercise was not run.",
+    "Expired-token timing, inactive membership refresh, non-member identity, two-tenant isolation, and destructive operations remain separate exercises."
+  ]
+}

@@ -40,6 +40,7 @@ node tests/codex_clean_profile_test.mjs
 node tests/codex_clean_profile_required_test.mjs
 node tests/vscode_clean_profile_test.mjs
 node tests/vscode_managed_evidence_test.mjs
+node tests/ability_gateway_live_evidence_test.mjs
 node tests/ability_compatibility_matrix_test.mjs
 node tests/ability_package_release_test.mjs
 node tests/ability_pack_catalog_test.mjs
