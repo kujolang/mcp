@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const source = await readFile('src/cloudflare/worker_template.js', 'utf8');
+const data = {source:{name:'fixture',url:'https://kujolang.ai',version:'fixture',snapshot_sha256:'a'.repeat(64)},server_version:'fixture',counts:{projects:1,skills:0,workflows:0,total:1},installation:{default_command:'default',all_command:'all',profile_commands:{core:'core',agent:'agent'},profiles:{core:['kujo'],agent:['kujo','workcell']}},items:[{kind:'project',slug:'kujo',title:'Kujo',description:'Runtime',category:'Primitives',tags:[],install_command:'inert',github_url:'https://github.com/kujolang/kujo',website_url:'https://kujolang.ai/ecosystem/kujo/',version:'1.4.0',scope_note:'released',latest_release_url:'https://github.com/kujolang/kujo/releases/tag/v1.4.0',release_status:'published GitHub Release',last_updated:'2026-09-09',source_path:'fixture'}]};
+const worker = (await import('data:text/javascript;base64,'+Buffer.from(source.replace('__KUJO_MCP_DATA__',JSON.stringify(data))).toString('base64'))).default;
+async function call(method,params){const response=await worker.fetch(new Request('https://mcp.kujolang.ai/mcp',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params})}));assert.equal(response.status,200);return response.json()}
+const list=await call('tools/list',{});assert.ok(list.result.tools.find(t=>t.name==='get_installation').inputSchema.properties.profile.enum.includes('agent'));
+const agent=await call('tools/call',{name:'get_installation',arguments:{profile:'agent'}});assert.equal(agent.result.isError,false);assert.deepEqual(agent.result.structuredContent.members,['kujo','workcell']);
+const item=await call('tools/call',{name:'get_catalog_item',arguments:{slug:'kujo'}});assert.equal(item.result.structuredContent.latest_release_url,data.items[0].latest_release_url);assert.equal(item.result.structuredContent.release_status,'published GitHub Release');
+for(const profile of ['unknown','constructor','__proto__']){const invalid=await call('tools/call',{name:'get_installation',arguments:{profile}});assert.equal(invalid.result.isError,true)}
+console.log('Cloudflare catalog metadata and dynamic profile regressions passed');
