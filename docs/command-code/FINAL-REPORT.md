@@ -78,3 +78,73 @@ validate the packed artifact on macOS arm64, Linux x64/arm64, and Windows x64
 before npm publication. Promote each catalog entry into its product repository
 as a signed domain-owned Ability pack as those packages adopt the stable
 profile/local-host contract.
+
+## Exact changed files
+
+Ability repository:
+
+- `README.md`
+- `ability.kujo`
+- `schema/ability-profile.schema.json`
+- `src/index.kujo`
+- `src/profile.kujo`
+- `tests/contract_tests.kujo`
+
+MCP repository:
+
+- `.github/workflows/kujo-cmd.yml`
+- `README.md`
+- `certification/evidence/ability-hosts-local.json`
+- `certification/evidence/command-code-kujo-cmd-live-2026-09-13.json`
+- `docs/ability-host-conformance.md`
+- `docs/command-code/ADR.md`
+- `docs/command-code/COMMAND-CODE.md`
+- `docs/command-code/FINAL-REPORT.md`
+- `docs/command-code/GAP-ANALYSIS.md`
+- `docs/command-code/RESEARCH.md`
+- `docs/command-code/THREAT-MODEL.md`
+- `integrations/kujo-ability/CHANGELOG.md`
+- `integrations/kujo-ability/README.md`
+- `integrations/kujo-ability/lib/local-runtime.mjs`
+- `integrations/kujo-ability/package.json`
+- `integrations/kujo-cmd/.gitignore`
+- `integrations/kujo-cmd/CHANGELOG.md`
+- `integrations/kujo-cmd/LICENSE`
+- `integrations/kujo-cmd/README.md`
+- `integrations/kujo-cmd/SECURITY.md`
+- `integrations/kujo-cmd/bin/kujo-cmd-mcp.mjs`
+- `integrations/kujo-cmd/bin/kujo-cmd.mjs`
+- `integrations/kujo-cmd/catalog/abilities.json`
+- `integrations/kujo-cmd/catalog/profiles.json`
+- `integrations/kujo-cmd/catalog/sources.json`
+- `integrations/kujo-cmd/lib/app.mjs`
+- `integrations/kujo-cmd/lib/catalog.mjs`
+- `integrations/kujo-cmd/lib/executor.mjs`
+- `integrations/kujo-cmd/lib/install.mjs`
+- `integrations/kujo-cmd/lib/io.mjs`
+- `integrations/kujo-cmd/lib/paths.mjs`
+- `integrations/kujo-cmd/lib/process.mjs`
+- `integrations/kujo-cmd/package-lock.json`
+- `integrations/kujo-cmd/package.json`
+- `integrations/kujo-cmd/scripts/build-release.mjs`
+- `integrations/kujo-cmd/tests/catalog.test.mjs`
+- `integrations/kujo-cmd/tests/runtime.test.mjs`
+- `integrations/kujo-cmd/tests/setup.test.mjs`
+- `scripts/run-command-code-kujo-cmd-demo.sh`
+- `tests/command_code_kujo_cmd_live_evidence_test.mjs`
+- `tests/command_code_local_package_test.mjs`
+- `tests/command_code_package_release_test.mjs`
+- `tests/run_all_tests.sh`
+- `tests/test_13_command_code_catalog.kujo`
+
+## Commands executed for final verification
+
+- `KUJO_BIN=../kujo/target/release/kujo bash tests/run_tests.sh` in the
+  Ability repository.
+- `npm test` and `npm audit --omit=dev` in `integrations/kujo-cmd`.
+- `node scripts/certify-ability-hosts.mjs` and
+  `node scripts/generate-ability-compatibility.mjs`.
+- `bash tests/run_all_tests.sh` in the MCP repository.
+- Packed-tarball `npx --package=<tarball> kujo-cmd setup`, fresh pinned-source
+  acquisition, real Command Code configuration inspection, optional Watchdog
+  start/health/stop, and a model-driven `ollama/glm-5.3:cloud` tool call.
