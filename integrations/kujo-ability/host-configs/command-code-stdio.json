@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "kujo-ability": {
+      "transport": "stdio",
+      "enabled": true,
+      "command": "node",
+      "args": ["${PLUGIN_ROOT}/bin/kujo-ability-mcp.mjs"],
+      "env": {
+        "KUJO_ABILITY_GATEWAY_URL": "https://cms.example.com"
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+@font-face {
+  font-family: "Kujo Departure Mono";
+  src: url("DepartureMono-Regular.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 400;
+}
+
+:root {
+  --canvas: #060606;
+  --surface: #111111;
+  --surface-alt: #1b1b1b;
+  --text: #eeeeee;
+  --muted: #b8b8b8;
+  --faint: #a3a3a3;
+  --border: #3e3e3e;
+  --border-strong: #858585;
+  --success: #6fdc8c;
+  --warning: #ffd166;
+  --danger: #ff8c8c;
+  --info: #7dd3fc;
+  --signal: #ffffff;
+  --mono: "Kujo Departure Mono", monospace;
+  --sans: Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--canvas); color: var(--text); }
+.frame { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--canvas); }
+.bg-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 48px 48px; opacity: 0.13; }
+.bg-art { position: absolute; width: 1180px; right: -120px; top: -100px; opacity: 0.065; filter: invert(1); }
+.topbar { position: absolute; left: 64px; right: 64px; top: 48px; height: 48px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); font: 20px/1 var(--mono); color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+.topbar strong { color: var(--text); font-weight: 400; }
+.eyebrow { font: 22px/1 var(--mono); color: var(--info); letter-spacing: 0.12em; text-transform: uppercase; }
+.display { font: 400 112px/0.94 var(--mono); letter-spacing: -0.055em; text-transform: uppercase; }
+.body-copy { font: 32px/1.35 var(--sans); color: var(--muted); }
+.bottom-rail { position: absolute; left: 64px; right: 64px; bottom: 48px; height: 48px; display: flex; align-items: center; gap: 28px; border-top: 1px solid var(--border); font: 18px/1 var(--mono); color: var(--faint); letter-spacing: 0.08em; text-transform: uppercase; }
+.bottom-rail .active { color: var(--text); }
+.bottom-rail .ok { color: var(--success); }
+.signal-edge { position: absolute; left: 0; top: 0; width: 6px; height: 1080px; background: var(--signal); transform-origin: top center; }
+.technical { font-family: var(--mono); }
+.status-dot { display: inline-block; width: 12px; height: 12px; margin-right: 12px; background: var(--success); }

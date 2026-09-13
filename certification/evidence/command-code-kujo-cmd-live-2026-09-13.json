@@ -1,0 +1,28 @@
+{
+  "schema": "kujo.cmd.command-code-live/v1",
+  "captured_at": "2026-09-13T19:23:03Z",
+  "package": {"name": "@kujolang/kujo-cmd", "version": "0.1.0", "publication": "release-candidate"},
+  "host": {"name": "Command Code", "version": "1.53.1", "mode": "local-only-byok", "account_session": false, "auth_gate_workaround": "non-secret local-only sentinel"},
+  "provider": {"name": "Ollama", "version": "0.34.0", "model": "ollama/glm-5.3:cloud"},
+  "mcp": {"transport": "stdio", "server": "kujo", "tool": "mcp__kujo__kujo_ability_catalog", "tool_call_count": 1},
+  "ability": {
+    "id": "kujo.ability.catalog.list",
+    "version": "1.0.0",
+    "definition_digest": "da017f6e555aab210a07a19f1eb726109a6716941ee5514bc08a99e0f74adc09",
+    "invocation_id": "invocation-c86febf2-c0c1-4b86-8c31-49723c40c852",
+    "receipt_id": "receipt-faa96598-3829-49f1-a879-f35cca06d3eb",
+    "status": "succeeded",
+    "policy_outcome": "allow",
+    "audit_written": true,
+    "profile": "kujo.profile.essentials",
+    "visible_abilities": 5
+  },
+  "command_code_observation": {"run_exit_code": 0, "stop_reason": "end_turn", "duration_ms": 9309, "model_request_start": "ollama/glm-5.3:cloud"},
+  "hosted_kujo_service": false,
+  "secrets_persisted": false,
+  "notes": [
+    "The model route and tool call name came from Command Code's NDJSON events; the Ability identity and outcome came from the returned local receipt.",
+    "Command Code 1.53.1 checks that an auth value exists before documented local-only BYOK mode. CMD_LOCAL_ONLY=1 plus a non-secret sentinel satisfies only that local gate and is not a Command Code credential.",
+    "The first live attempt exposed a missing MCP 2025-03-26 negotiation version; support was added and the exact model-driven rerun passed."
+  ]
+}

@@ -31,12 +31,18 @@ bash tests/test_03_endpoint_integration.sh
 "$KUJO_BIN" run tests/test_07_ability_projection.kujo --interpreter
 "$KUJO_BIN" run tests/test_09_ability_gateway.kujo --interpreter
 "$KUJO_BIN" run tests/test_11_mcp_core_ability_pack.kujo --interpreter
+"$KUJO_BIN" run tests/test_13_command_code_catalog.kujo --interpreter
 bash tests/test_12_profile_symlink_guard.sh
 node tests/portable_ability_plugin_test.mjs
 node tests/ability_contract_drift_test.mjs
 node tests/ability_connector_cli_test.mjs
 node tests/ability_host_bridge_test.mjs
 node tests/codex_clean_profile_test.mjs
+node tests/command_code_clean_profile_test.mjs
+node tests/command_code_ollama_live_evidence_test.mjs
+node tests/command_code_kujo_cmd_live_evidence_test.mjs
+node tests/command_code_package_release_test.mjs
+node tests/command_code_local_package_test.mjs
 node tests/codex_clean_profile_required_test.mjs
 node tests/vscode_clean_profile_test.mjs
 node tests/vscode_managed_evidence_test.mjs

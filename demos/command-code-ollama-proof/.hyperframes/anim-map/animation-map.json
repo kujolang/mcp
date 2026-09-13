@@ -1,0 +1,3593 @@
+{
+  "composition": ".",
+  "duration": 25,
+  "totalTweens": 38,
+  "mappedTweens": 31,
+  "skippedMicroTweens": 7,
+  "tweens": [
+    {
+      "index": 1,
+      "selector": "#claim-kicker",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity",
+        "x"
+      ],
+      "start": 0.18,
+      "end": 0.56,
+      "duration": 0.38,
+      "ease": "power3.out",
+      "bboxes": [
+        {
+          "t": 0.212,
+          "x": 70,
+          "y": 210,
+          "w": 1540,
+          "h": 22,
+          "opacity": 0.1945,
+          "visible": true
+        },
+        {
+          "t": 0.275,
+          "x": 85,
+          "y": 210,
+          "w": 1540,
+          "h": 22,
+          "opacity": 0.6449,
+          "visible": true
+        },
+        {
+          "t": 0.338,
+          "x": 92,
+          "y": 210,
+          "w": 1540,
+          "h": 22,
+          "opacity": 0.8734,
+          "visible": true
+        },
+        {
+          "t": 0.402,
+          "x": 95,
+          "y": 210,
+          "w": 1540,
+          "h": 22,
+          "opacity": 0.9686,
+          "visible": true
+        },
+        {
+          "t": 0.465,
+          "x": 96,
+          "y": 210,
+          "w": 1540,
+          "h": 22,
+          "opacity": 0.9877,
+          "visible": true
+        },
+        {
+          "t": 0.528,
+          "x": 96,
+          "y": 210,
+          "w": 1540,
+          "h": 22,
+          "opacity": 0.9994,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "#claim-kicker animates opacity+x over 0.38s (power3.out). moves 26px right. opacity 0.2→1.0. ends at (96, 210) 1540×22px."
+    },
+    {
+      "index": 2,
+      "selector": "#claim-w1",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "y"
+      ],
+      "start": 0.48,
+      "end": 0.67,
+      "duration": 0.19,
+      "ease": "power4.out",
+      "bboxes": [
+        {
+          "t": 0.496,
+          "x": 96,
+          "y": 288,
+          "w": 130,
+          "h": 114,
+          "opacity": 0,
+          "visible": true
+        },
+        {
+          "t": 0.527,
+          "x": 96,
+          "y": 333,
+          "w": 130,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.559,
+          "x": 96,
+          "y": 303,
+          "w": 130,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.591,
+          "x": 96,
+          "y": 292,
+          "w": 130,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.622,
+          "x": 96,
+          "y": 289,
+          "w": 130,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.654,
+          "x": 96,
+          "y": 288,
+          "w": 130,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [
+        "paced-fast"
+      ],
+      "summary": "#claim-w1 animates y over 0.19s (power4.out). fades in. ends at (96, 288) 130×114px. FLAGS: paced-fast."
+    },
+    {
+      "index": 3,
+      "selector": "#claim-w2",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "y"
+      ],
+      "start": 0.69,
+      "end": 0.84,
+      "duration": 0.15,
+      "ease": "power4.out",
+      "bboxes": [
+        {
+          "t": 0.702,
+          "x": 260,
+          "y": 322,
+          "w": 456,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.727,
+          "x": 260,
+          "y": 322,
+          "w": 456,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.752,
+          "x": 260,
+          "y": 297,
+          "w": 456,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.777,
+          "x": 260,
+          "y": 289,
+          "w": 456,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.802,
+          "x": 260,
+          "y": 288,
+          "w": 456,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.827,
+          "x": 260,
+          "y": 288,
+          "w": 456,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [
+        "paced-fast"
+      ],
+      "summary": "#claim-w2 animates y over 0.15s (power4.out). moves 34px up. ends at (260, 288) 456×114px. FLAGS: paced-fast."
+    },
+    {
+      "index": 4,
+      "selector": "#claim-w3",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "y"
+      ],
+      "start": 0.82,
+      "end": 0.98,
+      "duration": 0.16,
+      "ease": "power4.out",
+      "bboxes": [
+        {
+          "t": 0.833,
+          "x": 96,
+          "y": 402,
+          "w": 1540,
+          "h": 114,
+          "opacity": 0,
+          "visible": true
+        },
+        {
+          "t": 0.86,
+          "x": 96,
+          "y": 446,
+          "w": 1540,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.887,
+          "x": 96,
+          "y": 414,
+          "w": 1540,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.913,
+          "x": 96,
+          "y": 404,
+          "w": 1540,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.94,
+          "x": 96,
+          "y": 402,
+          "w": 1540,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 0.967,
+          "x": 96,
+          "y": 402,
+          "w": 1540,
+          "h": 114,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [
+        "paced-fast"
+      ],
+      "summary": "#claim-w3 animates y over 0.16s (power4.out). fades in. ends at (96, 402) 1540×114px. FLAGS: paced-fast."
+    },
+    {
+      "index": 5,
+      "selector": "#claim-rule",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "strokeDashoffset"
+      ],
+      "start": 1.03,
+      "end": 1.75,
+      "duration": 0.72,
+      "ease": "power2.out",
+      "bboxes": [
+        {
+          "t": 1.09,
+          "x": 96,
+          "y": 578,
+          "w": 1210,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 1.21,
+          "x": 96,
+          "y": 578,
+          "w": 1210,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 1.33,
+          "x": 96,
+          "y": 578,
+          "w": 1210,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 1.45,
+          "x": 96,
+          "y": 578,
+          "w": 1210,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 1.57,
+          "x": 96,
+          "y": 578,
+          "w": 1210,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 1.69,
+          "x": 96,
+          "y": 578,
+          "w": 1210,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [
+        "degenerate"
+      ],
+      "summary": "#claim-rule animates strokeDashoffset over 0.72s (power2.out). ends at (96, 578) 1210×0px. FLAGS: degenerate."
+    },
+    {
+      "index": 6,
+      "selector": "#claim-sub",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity"
+      ],
+      "start": 1.66,
+      "end": 2.12,
+      "duration": 0.46,
+      "ease": "power1.out",
+      "bboxes": [
+        {
+          "t": 1.698,
+          "x": 96,
+          "y": 624,
+          "w": 1540,
+          "h": 43,
+          "opacity": 0.0288,
+          "visible": true
+        },
+        {
+          "t": 1.775,
+          "x": 96,
+          "y": 624,
+          "w": 1540,
+          "h": 43,
+          "opacity": 0.41,
+          "visible": true
+        },
+        {
+          "t": 1.852,
+          "x": 96,
+          "y": 624,
+          "w": 1540,
+          "h": 43,
+          "opacity": 0.6116,
+          "visible": true
+        },
+        {
+          "t": 1.928,
+          "x": 96,
+          "y": 624,
+          "w": 1540,
+          "h": 43,
+          "opacity": 0.7713,
+          "visible": true
+        },
+        {
+          "t": 2.005,
+          "x": 96,
+          "y": 624,
+          "w": 1540,
+          "h": 43,
+          "opacity": 0.9319,
+          "visible": true
+        },
+        {
+          "t": 2.082,
+          "x": 96,
+          "y": 624,
+          "w": 1540,
+          "h": 43,
+          "opacity": 0.9866,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "#claim-sub animates opacity over 0.46s (power1.out). fades in. ends at (96, 624) 1540×43px."
+    },
+    {
+      "index": 7,
+      "selector": "#route-n1",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "scale",
+        "opacity",
+        "y"
+      ],
+      "start": 4.28,
+      "end": 4.76,
+      "duration": 0.48,
+      "ease": "power3.out",
+      "bboxes": [
+        {
+          "t": 4.32,
+          "x": 120,
+          "y": 460,
+          "w": 355,
+          "h": 277,
+          "opacity": 0.1565,
+          "visible": true
+        },
+        {
+          "t": 4.4,
+          "x": 105,
+          "y": 434,
+          "w": 384,
+          "h": 300,
+          "opacity": 0.6836,
+          "visible": true
+        },
+        {
+          "t": 4.48,
+          "x": 100,
+          "y": 425,
+          "w": 394,
+          "h": 308,
+          "opacity": 0.8605,
+          "visible": true
+        },
+        {
+          "t": 4.56,
+          "x": 97,
+          "y": 420,
+          "w": 399,
+          "h": 312,
+          "opacity": 0.9503,
+          "visible": true
+        },
+        {
+          "t": 4.64,
+          "x": 96,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 0.9952,
+          "visible": true
+        },
+        {
+          "t": 4.72,
+          "x": 96,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 0.9998,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "#route-n1 animates scale+opacity+y over 0.48s (power3.out). moves 42px up and 24px left. opacity 0.2→1.0. scales. width 355→402px. height 277→314px. ends at (96, 418) 402×314px."
+    },
+    {
+      "index": 8,
+      "selector": "#route-line-a",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "strokeDashoffset"
+      ],
+      "start": 4.76,
+      "end": 5.31,
+      "duration": 0.55,
+      "ease": "power2.out",
+      "bboxes": [
+        {
+          "t": 4.806,
+          "x": 440,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 4.897,
+          "x": 440,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 4.989,
+          "x": 440,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 5.081,
+          "x": 440,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 5.172,
+          "x": 440,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 5.264,
+          "x": 440,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [
+        "degenerate"
+      ],
+      "summary": "#route-line-a animates strokeDashoffset over 0.55s (power2.out). ends at (440, 575) 140×0px. FLAGS: degenerate."
+    },
+    {
+      "index": 9,
+      "selector": "#route-n2",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "scale",
+        "opacity",
+        "y"
+      ],
+      "start": 5.2,
+      "end": 5.68,
+      "duration": 0.48,
+      "ease": "power3.out",
+      "bboxes": [
+        {
+          "t": 5.24,
+          "x": 559,
+          "y": 455,
+          "w": 360,
+          "h": 281,
+          "opacity": 0.2502,
+          "visible": true
+        },
+        {
+          "t": 5.32,
+          "x": 549,
+          "y": 438,
+          "w": 380,
+          "h": 297,
+          "opacity": 0.6072,
+          "visible": true
+        },
+        {
+          "t": 5.4,
+          "x": 541,
+          "y": 424,
+          "w": 395,
+          "h": 309,
+          "opacity": 0.8842,
+          "visible": true
+        },
+        {
+          "t": 5.48,
+          "x": 539,
+          "y": 420,
+          "w": 400,
+          "h": 312,
+          "opacity": 0.961,
+          "visible": true
+        },
+        {
+          "t": 5.56,
+          "x": 538,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 0.9913,
+          "visible": true
+        },
+        {
+          "t": 5.64,
+          "x": 538,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 0.9999,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "#route-n2 animates scale+opacity+y over 0.48s (power3.out). moves 37px up and 21px left. opacity 0.3→1.0. scales. width 360→402px. height 281→314px. ends at (538, 418) 402×314px."
+    },
+    {
+      "index": 10,
+      "selector": "#route-line-b",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "strokeDashoffset"
+      ],
+      "start": 5.68,
+      "end": 6.23,
+      "duration": 0.55,
+      "ease": "power2.out",
+      "bboxes": [
+        {
+          "t": 5.726,
+          "x": 890,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 5.817,
+          "x": 890,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 5.909,
+          "x": 890,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 6.001,
+          "x": 890,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 6.092,
+          "x": 890,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 6.184,
+          "x": 890,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [
+        "degenerate"
+      ],
+      "summary": "#route-line-b animates strokeDashoffset over 0.55s (power2.out). ends at (890, 575) 140×0px. FLAGS: degenerate."
+    },
+    {
+      "index": 11,
+      "selector": "#route-n3",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "scale",
+        "opacity",
+        "y"
+      ],
+      "start": 6.12,
+      "end": 6.6,
+      "duration": 0.48,
+      "ease": "power3.out",
+      "bboxes": [
+        {
+          "t": 6.16,
+          "x": 1005,
+          "y": 463,
+          "w": 352,
+          "h": 275,
+          "opacity": 0.1066,
+          "visible": true
+        },
+        {
+          "t": 6.24,
+          "x": 990,
+          "y": 435,
+          "w": 383,
+          "h": 299,
+          "opacity": 0.6595,
+          "visible": true
+        },
+        {
+          "t": 6.32,
+          "x": 984,
+          "y": 426,
+          "w": 393,
+          "h": 307,
+          "opacity": 0.8474,
+          "visible": true
+        },
+        {
+          "t": 6.4,
+          "x": 981,
+          "y": 420,
+          "w": 400,
+          "h": 313,
+          "opacity": 0.9699,
+          "visible": true
+        },
+        {
+          "t": 6.48,
+          "x": 980,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 0.994,
+          "visible": true
+        },
+        {
+          "t": 6.56,
+          "x": 980,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 0.9996,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "#route-n3 animates scale+opacity+y over 0.48s (power3.out). moves 45px up and 25px left. opacity 0.1→1.0. scales. width 352→402px. height 275→314px. ends at (980, 418) 402×314px."
+    },
+    {
+      "index": 12,
+      "selector": "#route-line-c",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "strokeDashoffset"
+      ],
+      "start": 6.6,
+      "end": 7.15,
+      "duration": 0.55,
+      "ease": "power2.out",
+      "bboxes": [
+        {
+          "t": 6.646,
+          "x": 1340,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 6.737,
+          "x": 1340,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 6.829,
+          "x": 1340,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 6.921,
+          "x": 1340,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 7.012,
+          "x": 1340,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 7.104,
+          "x": 1340,
+          "y": 575,
+          "w": 140,
+          "h": 0,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [
+        "degenerate"
+      ],
+      "summary": "#route-line-c animates strokeDashoffset over 0.55s (power2.out). ends at (1340, 575) 140×0px. FLAGS: degenerate."
+    },
+    {
+      "index": 13,
+      "selector": "#route-n4",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "scale",
+        "opacity",
+        "y"
+      ],
+      "start": 7.04,
+      "end": 7.52,
+      "duration": 0.48,
+      "ease": "power3.out",
+      "bboxes": [
+        {
+          "t": 7.08,
+          "x": 1444,
+          "y": 458,
+          "w": 357,
+          "h": 279,
+          "opacity": 0.2044,
+          "visible": true
+        },
+        {
+          "t": 7.16,
+          "x": 1434,
+          "y": 439,
+          "w": 378,
+          "h": 295,
+          "opacity": 0.5789,
+          "visible": true
+        },
+        {
+          "t": 7.24,
+          "x": 1426,
+          "y": 424,
+          "w": 395,
+          "h": 308,
+          "opacity": 0.8728,
+          "visible": true
+        },
+        {
+          "t": 7.32,
+          "x": 1423,
+          "y": 420,
+          "w": 400,
+          "h": 312,
+          "opacity": 0.9559,
+          "visible": true
+        },
+        {
+          "t": 7.4,
+          "x": 1422,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 0.9961,
+          "visible": true
+        },
+        {
+          "t": 7.48,
+          "x": 1422,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 0.9998,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "#route-n4 animates scale+opacity+y over 0.48s (power3.out). moves 40px up and 22px left. opacity 0.2→1.0. scales. width 357→402px. height 279→314px. ends at (1422, 418) 402×314px."
+    },
+    {
+      "index": 14,
+      "selector": "#route-n4",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "borderColor"
+      ],
+      "start": 8.15,
+      "end": 8.39,
+      "duration": 0.24,
+      "ease": "power1.inOut",
+      "bboxes": [
+        {
+          "t": 8.17,
+          "x": 1422,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 8.21,
+          "x": 1422,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 8.25,
+          "x": 1422,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 8.29,
+          "x": 1422,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 8.33,
+          "x": 1422,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 8.37,
+          "x": 1422,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "#route-n4 animates borderColor over 0.24s (power1.inOut). ends at (1422, 418) 402×314px."
+    },
+    {
+      "index": 15,
+      "selector": "(onUpdate driver)",
+      "driver": "onUpdate",
+      "targets": 0,
+      "props": [
+        "chars",
+        "snap"
+      ],
+      "start": 10.24,
+      "end": 11.49,
+      "duration": 1.25,
+      "ease": "none",
+      "bboxes": [],
+      "flags": [],
+      "summary": "an onUpdate driver animates chars+snap over 1.25s (none) — motion is applied in JS, so no element geometry was measured."
+    },
+    {
+      "index": 16,
+      "selector": "div.proof-fact",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity",
+        "x"
+      ],
+      "start": 10.62,
+      "end": 10.98,
+      "duration": 0.36,
+      "ease": "power3.out",
+      "bboxes": [
+        {
+          "t": 10.65,
+          "x": 43,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 0.1401,
+          "visible": true
+        },
+        {
+          "t": 10.71,
+          "x": 55,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 0.634,
+          "visible": true
+        },
+        {
+          "t": 10.77,
+          "x": 61,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 0.8767,
+          "visible": true
+        },
+        {
+          "t": 10.83,
+          "x": 63,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 0.9375,
+          "visible": true
+        },
+        {
+          "t": 10.89,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 0.9902,
+          "visible": true
+        },
+        {
+          "t": 10.95,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 0.9997,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "div.proof-fact animates opacity+x over 0.36s (power3.out). moves 21px right. opacity 0.1→1.0. ends at (64, 258) 385×68px."
+    },
+    {
+      "index": 17,
+      "selector": "div.proof-fact",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity",
+        "x"
+      ],
+      "start": 11.1,
+      "end": 11.46,
+      "duration": 0.36,
+      "ease": "expo.out",
+      "bboxes": [
+        {
+          "t": 11.13,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 11.19,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 11.25,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 11.31,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 11.37,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 11.43,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "div.proof-fact animates opacity+x over 0.36s (expo.out). ends at (64, 258) 385×68px."
+    },
+    {
+      "index": 18,
+      "selector": "#proof-cursor",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity"
+      ],
+      "start": 11.5,
+      "end": 11.68,
+      "duration": 0.18,
+      "ease": "none",
+      "bboxes": [
+        {
+          "t": 11.515,
+          "x": 1189,
+          "y": 242,
+          "w": 15,
+          "h": 29,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 11.545,
+          "x": 1189,
+          "y": 242,
+          "w": 15,
+          "h": 29,
+          "opacity": 0.8148,
+          "visible": true
+        },
+        {
+          "t": 11.575,
+          "x": 1189,
+          "y": 242,
+          "w": 15,
+          "h": 29,
+          "opacity": 0.6296,
+          "visible": true
+        },
+        {
+          "t": 11.605,
+          "x": 1189,
+          "y": 242,
+          "w": 15,
+          "h": 29,
+          "opacity": 0.4444,
+          "visible": true
+        },
+        {
+          "t": 11.635,
+          "x": 1189,
+          "y": 242,
+          "w": 15,
+          "h": 29,
+          "opacity": 0.2593,
+          "visible": true
+        },
+        {
+          "t": 11.665,
+          "x": 1189,
+          "y": 242,
+          "w": 15,
+          "h": 29,
+          "opacity": 0.2593,
+          "visible": true
+        }
+      ],
+      "flags": [
+        "paced-fast"
+      ],
+      "summary": "#proof-cursor animates opacity over 0.18s (none). opacity 1.0→0.3. ends at (1189, 242) 15×29px. FLAGS: paced-fast."
+    },
+    {
+      "index": 19,
+      "selector": "div.proof-fact",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity",
+        "x"
+      ],
+      "start": 11.58,
+      "end": 11.94,
+      "duration": 0.36,
+      "ease": "power3.out",
+      "bboxes": [
+        {
+          "t": 11.61,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 11.67,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 11.73,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 11.79,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 11.85,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 11.91,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "div.proof-fact animates opacity+x over 0.36s (power3.out). ends at (64, 258) 385×68px."
+    },
+    {
+      "index": 20,
+      "selector": "div.proof-fact",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity",
+        "x"
+      ],
+      "start": 12.06,
+      "end": 12.42,
+      "duration": 0.36,
+      "ease": "expo.out",
+      "bboxes": [
+        {
+          "t": 12.09,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 12.15,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 12.21,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 12.27,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 12.33,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 12.39,
+          "x": 64,
+          "y": 258,
+          "w": 385,
+          "h": 68,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "div.proof-fact animates opacity+x over 0.36s (expo.out). ends at (64, 258) 385×68px."
+    },
+    {
+      "index": 21,
+      "selector": "div.proof-row",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity",
+        "y"
+      ],
+      "start": 12.15,
+      "end": 12.49,
+      "duration": 0.34,
+      "ease": "power4.out",
+      "bboxes": [
+        {
+          "t": 12.178,
+          "x": 589,
+          "y": 332,
+          "w": 1228,
+          "h": 36,
+          "opacity": 0.2222,
+          "visible": true
+        },
+        {
+          "t": 12.235,
+          "x": 589,
+          "y": 318,
+          "w": 1228,
+          "h": 36,
+          "opacity": 0.7548,
+          "visible": true
+        },
+        {
+          "t": 12.292,
+          "x": 589,
+          "y": 315,
+          "w": 1228,
+          "h": 36,
+          "opacity": 0.8777,
+          "visible": true
+        },
+        {
+          "t": 12.348,
+          "x": 589,
+          "y": 312,
+          "w": 1228,
+          "h": 36,
+          "opacity": 0.9792,
+          "visible": true
+        },
+        {
+          "t": 12.405,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 0.9987,
+          "visible": true
+        },
+        {
+          "t": 12.462,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 0.9999,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "div.proof-row animates opacity+y over 0.34s (power4.out). moves 21px up. opacity 0.2→1.0. ends at (589, 311) 1228×36px."
+    },
+    {
+      "index": 22,
+      "selector": "div.proof-row",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity",
+        "y"
+      ],
+      "start": 12.97,
+      "end": 13.31,
+      "duration": 0.34,
+      "ease": "power4.out",
+      "bboxes": [
+        {
+          "t": 12.998,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 13.055,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 13.112,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 13.168,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 13.225,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 13.282,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "div.proof-row animates opacity+y over 0.34s (power4.out). ends at (589, 311) 1228×36px."
+    },
+    {
+      "index": 23,
+      "selector": "div.proof-row",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity",
+        "y"
+      ],
+      "start": 13.79,
+      "end": 14.37,
+      "duration": 0.58,
+      "ease": "power3.out",
+      "bboxes": [
+        {
+          "t": 13.838,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 13.935,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 14.032,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 14.128,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 14.225,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 14.322,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "div.proof-row animates opacity+y over 0.58s (power3.out). ends at (589, 311) 1228×36px."
+    },
+    {
+      "index": 24,
+      "selector": "div.proof-row",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity",
+        "y"
+      ],
+      "start": 14.61,
+      "end": 14.95,
+      "duration": 0.34,
+      "ease": "power4.out",
+      "bboxes": [
+        {
+          "t": 14.638,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 14.695,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 14.752,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 14.808,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 14.865,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 14.922,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "div.proof-row animates opacity+y over 0.34s (power4.out). ends at (589, 311) 1228×36px."
+    },
+    {
+      "index": 25,
+      "selector": "div.proof-row",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity",
+        "y"
+      ],
+      "start": 15.43,
+      "end": 15.77,
+      "duration": 0.34,
+      "ease": "power4.out",
+      "bboxes": [
+        {
+          "t": 15.458,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 15.515,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 15.572,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 15.628,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 15.685,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 15.742,
+          "x": 589,
+          "y": 311,
+          "w": 1228,
+          "h": 36,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "div.proof-row animates opacity+y over 0.34s (power4.out). ends at (589, 311) 1228×36px."
+    },
+    {
+      "index": 26,
+      "selector": "#proof-terminal",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "borderColor"
+      ],
+      "start": 17.25,
+      "end": 17.53,
+      "duration": 0.28,
+      "ease": "power1.inOut",
+      "bboxes": [
+        {
+          "t": 17.273,
+          "x": 550,
+          "y": 146,
+          "w": 1306,
+          "h": 814,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 17.32,
+          "x": 550,
+          "y": 146,
+          "w": 1306,
+          "h": 814,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 17.367,
+          "x": 550,
+          "y": 146,
+          "w": 1306,
+          "h": 814,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 17.413,
+          "x": 550,
+          "y": 146,
+          "w": 1306,
+          "h": 814,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 17.46,
+          "x": 550,
+          "y": 146,
+          "w": 1306,
+          "h": 814,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 17.507,
+          "x": 550,
+          "y": 146,
+          "w": 1306,
+          "h": 814,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "#proof-terminal animates borderColor over 0.28s (power1.inOut). ends at (550, 146) 1306×814px."
+    },
+    {
+      "index": 27,
+      "selector": "#verdict-mark",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "scale",
+        "opacity"
+      ],
+      "start": 20.22,
+      "end": 20.68,
+      "duration": 0.46,
+      "ease": "power3.out",
+      "bboxes": [
+        {
+          "t": 20.258,
+          "x": 118,
+          "y": 212,
+          "w": 235,
+          "h": 235,
+          "opacity": 0.111,
+          "visible": true
+        },
+        {
+          "t": 20.335,
+          "x": 104,
+          "y": 198,
+          "w": 264,
+          "h": 264,
+          "opacity": 0.6774,
+          "visible": true
+        },
+        {
+          "t": 20.412,
+          "x": 99,
+          "y": 193,
+          "w": 273,
+          "h": 273,
+          "opacity": 0.8627,
+          "visible": true
+        },
+        {
+          "t": 20.488,
+          "x": 97,
+          "y": 191,
+          "w": 278,
+          "h": 278,
+          "opacity": 0.9537,
+          "visible": true
+        },
+        {
+          "t": 20.565,
+          "x": 96,
+          "y": 190,
+          "w": 279,
+          "h": 279,
+          "opacity": 0.9897,
+          "visible": true
+        },
+        {
+          "t": 20.642,
+          "x": 96,
+          "y": 190,
+          "w": 280,
+          "h": 280,
+          "opacity": 0.9999,
+          "visible": true
+        }
+      ],
+      "flags": [
+        "collision"
+      ],
+      "summary": "#verdict-mark animates scale+opacity over 0.46s (power3.out). moves 22px up and 22px left. opacity 0.1→1.0. scales. width 235→280px. height 235→280px. ends at (96, 190) 280×280px. Overlaps another animated element."
+    },
+    {
+      "index": 28,
+      "selector": "#verdict-ring",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "strokeDashoffset"
+      ],
+      "start": 20.38,
+      "end": 21.1,
+      "duration": 0.72,
+      "ease": "power2.out",
+      "bboxes": [
+        {
+          "t": 20.44,
+          "x": 122,
+          "y": 216,
+          "w": 229,
+          "h": 229,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 20.56,
+          "x": 120,
+          "y": 214,
+          "w": 232,
+          "h": 232,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 20.68,
+          "x": 120,
+          "y": 214,
+          "w": 232,
+          "h": 232,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 20.8,
+          "x": 120,
+          "y": 214,
+          "w": 232,
+          "h": 232,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 20.92,
+          "x": 120,
+          "y": 214,
+          "w": 232,
+          "h": 232,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 21.04,
+          "x": 120,
+          "y": 214,
+          "w": 232,
+          "h": 232,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [
+        "collision"
+      ],
+      "summary": "#verdict-ring animates strokeDashoffset over 0.72s (power2.out). ends at (120, 214) 232×232px. Overlaps another animated element."
+    },
+    {
+      "index": 29,
+      "selector": "div.display",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity",
+        "x"
+      ],
+      "start": 20.48,
+      "end": 21.1,
+      "duration": 0.62,
+      "ease": "expo.out",
+      "bboxes": [
+        {
+          "t": 20.532,
+          "x": 96,
+          "y": 288,
+          "w": 1540,
+          "h": 228,
+          "opacity": 1,
+          "visible": false
+        },
+        {
+          "t": 20.635,
+          "x": 96,
+          "y": 288,
+          "w": 1540,
+          "h": 228,
+          "opacity": 1,
+          "visible": false
+        },
+        {
+          "t": 20.738,
+          "x": 96,
+          "y": 288,
+          "w": 1540,
+          "h": 228,
+          "opacity": 1,
+          "visible": false
+        },
+        {
+          "t": 20.842,
+          "x": 96,
+          "y": 288,
+          "w": 1540,
+          "h": 228,
+          "opacity": 1,
+          "visible": false
+        },
+        {
+          "t": 20.945,
+          "x": 96,
+          "y": 288,
+          "w": 1540,
+          "h": 228,
+          "opacity": 1,
+          "visible": false
+        },
+        {
+          "t": 21.048,
+          "x": 96,
+          "y": 288,
+          "w": 1540,
+          "h": 228,
+          "opacity": 1,
+          "visible": false
+        }
+      ],
+      "flags": [
+        "collision"
+      ],
+      "summary": "div.display animates opacity+x over 0.62s (expo.out). ends at (96, 288) 1540×228px. Overlaps another animated element."
+    },
+    {
+      "index": 30,
+      "selector": "#verdict-check",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "strokeDashoffset"
+      ],
+      "start": 20.92,
+      "end": 21.42,
+      "duration": 0.5,
+      "ease": "power2.out",
+      "bboxes": [
+        {
+          "t": 20.962,
+          "x": 174,
+          "y": 284,
+          "w": 128,
+          "h": 94,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 21.045,
+          "x": 174,
+          "y": 284,
+          "w": 128,
+          "h": 94,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 21.128,
+          "x": 174,
+          "y": 284,
+          "w": 128,
+          "h": 94,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 21.212,
+          "x": 174,
+          "y": 284,
+          "w": 128,
+          "h": 94,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 21.295,
+          "x": 174,
+          "y": 284,
+          "w": 128,
+          "h": 94,
+          "opacity": 1,
+          "visible": true
+        },
+        {
+          "t": 21.378,
+          "x": 174,
+          "y": 284,
+          "w": 128,
+          "h": 94,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "#verdict-check animates strokeDashoffset over 0.50s (power2.out). ends at (174, 284) 128×94px."
+    },
+    {
+      "index": 31,
+      "selector": "#verdict-flow",
+      "driver": "target",
+      "targets": 1,
+      "props": [
+        "opacity",
+        "y"
+      ],
+      "start": 21.62,
+      "end": 22.04,
+      "duration": 0.42,
+      "ease": "power4.out",
+      "bboxes": [
+        {
+          "t": 21.655,
+          "x": 96,
+          "y": 556,
+          "w": 1728,
+          "h": 83,
+          "opacity": 0.149,
+          "visible": true
+        },
+        {
+          "t": 21.725,
+          "x": 96,
+          "y": 544,
+          "w": 1728,
+          "h": 83,
+          "opacity": 0.6523,
+          "visible": true
+        },
+        {
+          "t": 21.795,
+          "x": 96,
+          "y": 539,
+          "w": 1728,
+          "h": 83,
+          "opacity": 0.8833,
+          "visible": true
+        },
+        {
+          "t": 21.865,
+          "x": 96,
+          "y": 537,
+          "w": 1728,
+          "h": 83,
+          "opacity": 0.9712,
+          "visible": true
+        },
+        {
+          "t": 21.935,
+          "x": 96,
+          "y": 536,
+          "w": 1728,
+          "h": 83,
+          "opacity": 0.9989,
+          "visible": true
+        },
+        {
+          "t": 22.005,
+          "x": 96,
+          "y": 536,
+          "w": 1728,
+          "h": 83,
+          "opacity": 1,
+          "visible": true
+        }
+      ],
+      "flags": [],
+      "summary": "#verdict-flow animates opacity+y over 0.42s (power4.out). moves 20px up. opacity 0.1→1.0. ends at (96, 536) 1728×83px."
+    }
+  ],
+  "choreography": "Timeline (25.0s, each char ≈ 0.42s):\n  0s                                                    25s\n  ┼───────────────────────────────────────────────────────────┤\n  ██                                                            #claim-kicker opacity+x\n   █                                                            #claim-w1 y\n   ██                                                           #claim-w2 y\n   ██                                                           #claim-w3 y\n    ███                                                         #claim-rule strokeDashoffset\n     ███                                                        #claim-sub opacity\n            ██                                                  #route-n1 scale+opacity+y\n             ██                                                 #route-line-a strokeDashoffset\n              ██                                                #route-n2 scale+opacity+y\n               ██                                               #route-line-b strokeDashoffset\n                ██                                              #route-n3 scale+opacity+y\n                 ███                                            #route-line-c strokeDashoffset\n                  ███                                           #route-n4 scale+opacity+y\n                     ██                                         #route-n4 borderColor\n                          ████                                  (onUpdate driver) chars+snap\n                           ██                                   div.proof-fact opacity+x\n                            ██                                  div.proof-fact opacity+x\n                             ██                                 #proof-cursor opacity\n                             ██                                 div.proof-fact opacity+x\n                              ██                                div.proof-fact opacity+x\n                               █                                div.proof-row opacity+y\n                                 █                              div.proof-row opacity+y\n                                   ██                           div.proof-row opacity+y\n                                     █                          div.proof-row opacity+y\n                                       █                        div.proof-row opacity+y\n                                           ██                   #proof-terminal borderColor\n                                                  ██            #verdict-mark scale+opacity\n                                                  ███           #verdict-ring strokeDashoffset\n                                                   ██           div.display opacity+x\n                                                    ██          #verdict-check strokeDashoffset\n                                                     ██         #verdict-flow opacity+y",
+  "density": [
+    {
+      "t": 0,
+      "activeTweens": 2
+    },
+    {
+      "t": 0.5,
+      "activeTweens": 4
+    },
+    {
+      "t": 1,
+      "activeTweens": 1
+    },
+    {
+      "t": 1.5,
+      "activeTweens": 2
+    },
+    {
+      "t": 2,
+      "activeTweens": 1
+    },
+    {
+      "t": 2.5,
+      "activeTweens": 0
+    },
+    {
+      "t": 3,
+      "activeTweens": 0
+    },
+    {
+      "t": 3.5,
+      "activeTweens": 0
+    },
+    {
+      "t": 4,
+      "activeTweens": 1
+    },
+    {
+      "t": 4.5,
+      "activeTweens": 2
+    },
+    {
+      "t": 5,
+      "activeTweens": 2
+    },
+    {
+      "t": 5.5,
+      "activeTweens": 2
+    },
+    {
+      "t": 6,
+      "activeTweens": 2
+    },
+    {
+      "t": 6.5,
+      "activeTweens": 2
+    },
+    {
+      "t": 7,
+      "activeTweens": 2
+    },
+    {
+      "t": 7.5,
+      "activeTweens": 1
+    },
+    {
+      "t": 8,
+      "activeTweens": 1
+    },
+    {
+      "t": 8.5,
+      "activeTweens": 0
+    },
+    {
+      "t": 9,
+      "activeTweens": 0
+    },
+    {
+      "t": 9.5,
+      "activeTweens": 0
+    },
+    {
+      "t": 10,
+      "activeTweens": 1
+    },
+    {
+      "t": 10.5,
+      "activeTweens": 2
+    },
+    {
+      "t": 11,
+      "activeTweens": 3
+    },
+    {
+      "t": 11.5,
+      "activeTweens": 2
+    },
+    {
+      "t": 12,
+      "activeTweens": 2
+    },
+    {
+      "t": 12.5,
+      "activeTweens": 1
+    },
+    {
+      "t": 13,
+      "activeTweens": 1
+    },
+    {
+      "t": 13.5,
+      "activeTweens": 1
+    },
+    {
+      "t": 14,
+      "activeTweens": 1
+    },
+    {
+      "t": 14.5,
+      "activeTweens": 1
+    },
+    {
+      "t": 15,
+      "activeTweens": 1
+    },
+    {
+      "t": 15.5,
+      "activeTweens": 1
+    },
+    {
+      "t": 16,
+      "activeTweens": 0
+    },
+    {
+      "t": 16.5,
+      "activeTweens": 0
+    },
+    {
+      "t": 17,
+      "activeTweens": 1
+    },
+    {
+      "t": 17.5,
+      "activeTweens": 1
+    },
+    {
+      "t": 18,
+      "activeTweens": 0
+    },
+    {
+      "t": 18.5,
+      "activeTweens": 0
+    },
+    {
+      "t": 19,
+      "activeTweens": 0
+    },
+    {
+      "t": 19.5,
+      "activeTweens": 0
+    },
+    {
+      "t": 20,
+      "activeTweens": 3
+    },
+    {
+      "t": 20.5,
+      "activeTweens": 4
+    },
+    {
+      "t": 21,
+      "activeTweens": 3
+    },
+    {
+      "t": 21.5,
+      "activeTweens": 1
+    },
+    {
+      "t": 22,
+      "activeTweens": 1
+    },
+    {
+      "t": 22.5,
+      "activeTweens": 0
+    },
+    {
+      "t": 23,
+      "activeTweens": 0
+    },
+    {
+      "t": 23.5,
+      "activeTweens": 0
+    },
+    {
+      "t": 24,
+      "activeTweens": 0
+    },
+    {
+      "t": 24.5,
+      "activeTweens": 0
+    }
+  ],
+  "staggers": [
+    {
+      "elements": [
+        "#claim-w1",
+        "#claim-w2",
+        "#claim-w3"
+      ],
+      "props": [
+        "y"
+      ],
+      "count": 3,
+      "intervals": [
+        0.21,
+        0.13
+      ],
+      "avgInterval": 0.17,
+      "consistent": true,
+      "note": "3 elements stagger at 170ms intervals"
+    },
+    {
+      "elements": [
+        "#route-n1",
+        "#route-n2",
+        "#route-n3"
+      ],
+      "props": [
+        "scale",
+        "opacity",
+        "y"
+      ],
+      "count": 3,
+      "intervals": [
+        0.92,
+        0.92
+      ],
+      "avgInterval": 0.92,
+      "consistent": true,
+      "note": "3 elements stagger at 920ms intervals"
+    },
+    {
+      "elements": [
+        "#route-line-a",
+        "#route-line-b",
+        "#route-line-c"
+      ],
+      "props": [
+        "strokeDashoffset"
+      ],
+      "count": 3,
+      "intervals": [
+        0.92,
+        0.92
+      ],
+      "avgInterval": 0.92,
+      "consistent": true,
+      "note": "3 elements stagger at 920ms intervals"
+    },
+    {
+      "elements": [
+        "div.proof-fact",
+        "div.proof-fact",
+        "div.proof-fact"
+      ],
+      "props": [
+        "opacity",
+        "x"
+      ],
+      "count": 3,
+      "intervals": [
+        0.48,
+        0.48
+      ],
+      "avgInterval": 0.48,
+      "consistent": true,
+      "note": "3 elements stagger at 480ms intervals"
+    }
+  ],
+  "elements": {
+    "#claim-kicker": {
+      "firstAppears": 0.18,
+      "lastAnimates": 0.56,
+      "tweenCount": 1,
+      "props": [
+        "opacity",
+        "x"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 96,
+        "y": 210,
+        "w": 1540,
+        "h": 22
+      }
+    },
+    "#claim-w1": {
+      "firstAppears": 0.48,
+      "lastAnimates": 0.67,
+      "tweenCount": 1,
+      "props": [
+        "y"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 96,
+        "y": 288,
+        "w": 130,
+        "h": 114
+      }
+    },
+    "#claim-w2": {
+      "firstAppears": 0.69,
+      "lastAnimates": 0.84,
+      "tweenCount": 1,
+      "props": [
+        "y"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 260,
+        "y": 288,
+        "w": 456,
+        "h": 114
+      }
+    },
+    "#claim-w3": {
+      "firstAppears": 0.82,
+      "lastAnimates": 0.98,
+      "tweenCount": 1,
+      "props": [
+        "y"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 96,
+        "y": 402,
+        "w": 1540,
+        "h": 114
+      }
+    },
+    "#claim-rule": {
+      "firstAppears": 1.03,
+      "lastAnimates": 1.75,
+      "tweenCount": 1,
+      "props": [
+        "strokeDashoffset"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 96,
+        "y": 578,
+        "w": 1210,
+        "h": 0
+      }
+    },
+    "#claim-sub": {
+      "firstAppears": 1.66,
+      "lastAnimates": 2.12,
+      "tweenCount": 1,
+      "props": [
+        "opacity"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 96,
+        "y": 624,
+        "w": 1540,
+        "h": 43
+      }
+    },
+    "#route-n1": {
+      "firstAppears": 4.28,
+      "lastAnimates": 4.76,
+      "tweenCount": 1,
+      "props": [
+        "scale",
+        "opacity",
+        "y"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 96,
+        "y": 418,
+        "w": 402,
+        "h": 314
+      }
+    },
+    "#route-line-a": {
+      "firstAppears": 4.76,
+      "lastAnimates": 5.31,
+      "tweenCount": 1,
+      "props": [
+        "strokeDashoffset"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 440,
+        "y": 575,
+        "w": 140,
+        "h": 0
+      }
+    },
+    "#route-n2": {
+      "firstAppears": 5.2,
+      "lastAnimates": 5.68,
+      "tweenCount": 1,
+      "props": [
+        "scale",
+        "opacity",
+        "y"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 538,
+        "y": 418,
+        "w": 402,
+        "h": 314
+      }
+    },
+    "#route-line-b": {
+      "firstAppears": 5.68,
+      "lastAnimates": 6.23,
+      "tweenCount": 1,
+      "props": [
+        "strokeDashoffset"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 890,
+        "y": 575,
+        "w": 140,
+        "h": 0
+      }
+    },
+    "#route-n3": {
+      "firstAppears": 6.12,
+      "lastAnimates": 6.6,
+      "tweenCount": 1,
+      "props": [
+        "scale",
+        "opacity",
+        "y"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 980,
+        "y": 418,
+        "w": 402,
+        "h": 314
+      }
+    },
+    "#route-line-c": {
+      "firstAppears": 6.6,
+      "lastAnimates": 7.15,
+      "tweenCount": 1,
+      "props": [
+        "strokeDashoffset"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 1340,
+        "y": 575,
+        "w": 140,
+        "h": 0
+      }
+    },
+    "#route-n4": {
+      "firstAppears": 7.04,
+      "lastAnimates": 8.39,
+      "tweenCount": 2,
+      "props": [
+        "scale",
+        "opacity",
+        "y",
+        "borderColor"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 1422,
+        "y": 418,
+        "w": 402,
+        "h": 314
+      }
+    },
+    "div.proof-fact": {
+      "firstAppears": 10.62,
+      "lastAnimates": 12.42,
+      "tweenCount": 4,
+      "props": [
+        "opacity",
+        "x"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 64,
+        "y": 258,
+        "w": 385,
+        "h": 68
+      }
+    },
+    "#proof-cursor": {
+      "firstAppears": 11.5,
+      "lastAnimates": 11.68,
+      "tweenCount": 1,
+      "props": [
+        "opacity"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 1189,
+        "y": 242,
+        "w": 15,
+        "h": 29
+      }
+    },
+    "div.proof-row": {
+      "firstAppears": 12.15,
+      "lastAnimates": 15.77,
+      "tweenCount": 5,
+      "props": [
+        "opacity",
+        "y"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 589,
+        "y": 311,
+        "w": 1228,
+        "h": 36
+      }
+    },
+    "#proof-terminal": {
+      "firstAppears": 17.25,
+      "lastAnimates": 17.53,
+      "tweenCount": 1,
+      "props": [
+        "borderColor"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 550,
+        "y": 146,
+        "w": 1306,
+        "h": 814
+      }
+    },
+    "#verdict-mark": {
+      "firstAppears": 20.22,
+      "lastAnimates": 20.68,
+      "tweenCount": 1,
+      "props": [
+        "scale",
+        "opacity"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 96,
+        "y": 190,
+        "w": 280,
+        "h": 280
+      }
+    },
+    "#verdict-ring": {
+      "firstAppears": 20.38,
+      "lastAnimates": 21.1,
+      "tweenCount": 1,
+      "props": [
+        "strokeDashoffset"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 120,
+        "y": 214,
+        "w": 232,
+        "h": 232
+      }
+    },
+    "div.display": {
+      "firstAppears": 20.48,
+      "lastAnimates": 21.1,
+      "tweenCount": 1,
+      "props": [
+        "opacity",
+        "x"
+      ],
+      "endsVisible": false,
+      "finalPosition": {
+        "x": 96,
+        "y": 288,
+        "w": 1540,
+        "h": 228
+      }
+    },
+    "#verdict-check": {
+      "firstAppears": 20.92,
+      "lastAnimates": 21.42,
+      "tweenCount": 1,
+      "props": [
+        "strokeDashoffset"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 174,
+        "y": 284,
+        "w": 128,
+        "h": 94
+      }
+    },
+    "#verdict-flow": {
+      "firstAppears": 21.62,
+      "lastAnimates": 22.04,
+      "tweenCount": 1,
+      "props": [
+        "opacity",
+        "y"
+      ],
+      "endsVisible": true,
+      "finalPosition": {
+        "x": 96,
+        "y": 536,
+        "w": 1728,
+        "h": 83
+      }
+    }
+  },
+  "deadZones": [
+    {
+      "start": 2.5,
+      "end": 4,
+      "duration": 1.5,
+      "note": "No animation for 1.5s. Intentional hold or missing entrance?"
+    },
+    {
+      "start": 8.5,
+      "end": 10,
+      "duration": 1.5,
+      "note": "No animation for 1.5s. Intentional hold or missing entrance?"
+    },
+    {
+      "start": 16,
+      "end": 17,
+      "duration": 1,
+      "note": "No animation for 1.0s. Intentional hold or missing entrance?"
+    },
+    {
+      "start": 18,
+      "end": 20,
+      "duration": 2,
+      "note": "No animation for 2.0s. Intentional hold or missing entrance?"
+    },
+    {
+      "start": 22.5,
+      "end": 25,
+      "duration": 2.5,
+      "note": "No animation for 2.5s at end. Final hold or missing outro?"
+    }
+  ],
+  "snapshots": [
+    {
+      "t": 0,
+      "visibleElements": 10,
+      "animatingNow": [],
+      "elements": [
+        {
+          "id": "root",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "scene-claim",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "scene-route",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "scene-proof",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "proof-terminal",
+          "x": 550,
+          "y": 146,
+          "w": 1306,
+          "h": 814,
+          "opacity": 1
+        },
+        {
+          "id": "proof-command",
+          "x": 618,
+          "y": 242,
+          "w": 571,
+          "h": 29,
+          "opacity": 1
+        },
+        {
+          "id": "proof-cursor",
+          "x": 1189,
+          "y": 242,
+          "w": 15,
+          "h": 29,
+          "opacity": 1
+        },
+        {
+          "id": "scene-verdict",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "verdict-ring",
+          "x": 141,
+          "y": 235,
+          "w": 190,
+          "h": 190,
+          "opacity": 1
+        },
+        {
+          "id": "verdict-check",
+          "x": 185,
+          "y": 292,
+          "w": 105,
+          "h": 77,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "t": 6.25,
+      "visibleElements": 18,
+      "animatingNow": [
+        "#route-n3"
+      ],
+      "elements": [
+        {
+          "id": "root",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "scene-claim",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "claim-kicker",
+          "x": 96,
+          "y": 210,
+          "w": 1540,
+          "h": 22,
+          "opacity": 1
+        },
+        {
+          "id": "claim-w1",
+          "x": 96,
+          "y": 288,
+          "w": 130,
+          "h": 114,
+          "opacity": 1
+        },
+        {
+          "id": "claim-w2",
+          "x": 260,
+          "y": 288,
+          "w": 456,
+          "h": 114,
+          "opacity": 1
+        },
+        {
+          "id": "claim-w3",
+          "x": 96,
+          "y": 402,
+          "w": 1540,
+          "h": 114,
+          "opacity": 1
+        },
+        {
+          "id": "claim-sub",
+          "x": 96,
+          "y": 624,
+          "w": 1540,
+          "h": 43,
+          "opacity": 1
+        },
+        {
+          "id": "scene-route",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "route-n1",
+          "x": 96,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "route-n2",
+          "x": 538,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "route-n3",
+          "x": 990,
+          "y": 435,
+          "w": 383,
+          "h": 299,
+          "opacity": 0.66
+        },
+        {
+          "id": "scene-proof",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "proof-terminal",
+          "x": 550,
+          "y": 146,
+          "w": 1306,
+          "h": 814,
+          "opacity": 1
+        },
+        {
+          "id": "proof-command",
+          "x": 618,
+          "y": 242,
+          "w": 571,
+          "h": 29,
+          "opacity": 1
+        },
+        {
+          "id": "proof-cursor",
+          "x": 1189,
+          "y": 242,
+          "w": 15,
+          "h": 29,
+          "opacity": 1
+        },
+        {
+          "id": "scene-verdict",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "verdict-ring",
+          "x": 141,
+          "y": 235,
+          "w": 190,
+          "h": 190,
+          "opacity": 1
+        },
+        {
+          "id": "verdict-check",
+          "x": 185,
+          "y": 292,
+          "w": 105,
+          "h": 77,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "t": 12.5,
+      "visibleElements": 19,
+      "animatingNow": [],
+      "elements": [
+        {
+          "id": "root",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "scene-claim",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "claim-kicker",
+          "x": 96,
+          "y": 210,
+          "w": 1540,
+          "h": 22,
+          "opacity": 1
+        },
+        {
+          "id": "claim-w1",
+          "x": 96,
+          "y": 288,
+          "w": 130,
+          "h": 114,
+          "opacity": 1
+        },
+        {
+          "id": "claim-w2",
+          "x": 260,
+          "y": 288,
+          "w": 456,
+          "h": 114,
+          "opacity": 1
+        },
+        {
+          "id": "claim-w3",
+          "x": 96,
+          "y": 402,
+          "w": 1540,
+          "h": 114,
+          "opacity": 1
+        },
+        {
+          "id": "claim-sub",
+          "x": 96,
+          "y": 624,
+          "w": 1540,
+          "h": 43,
+          "opacity": 1
+        },
+        {
+          "id": "scene-route",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "route-n1",
+          "x": 96,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "route-n2",
+          "x": 538,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "route-n3",
+          "x": 980,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "route-n4",
+          "x": 1422,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "scene-proof",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "proof-terminal",
+          "x": 550,
+          "y": 146,
+          "w": 1306,
+          "h": 814,
+          "opacity": 1
+        },
+        {
+          "id": "proof-command",
+          "x": 618,
+          "y": 242,
+          "w": 571,
+          "h": 29,
+          "opacity": 1
+        },
+        {
+          "id": "proof-cursor",
+          "x": 1189,
+          "y": 242,
+          "w": 15,
+          "h": 29,
+          "opacity": 0.56
+        },
+        {
+          "id": "scene-verdict",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "verdict-ring",
+          "x": 141,
+          "y": 235,
+          "w": 190,
+          "h": 190,
+          "opacity": 1
+        },
+        {
+          "id": "verdict-check",
+          "x": 185,
+          "y": 292,
+          "w": 105,
+          "h": 77,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "t": 18.75,
+      "visibleElements": 19,
+      "animatingNow": [],
+      "elements": [
+        {
+          "id": "root",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "scene-claim",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "claim-kicker",
+          "x": 96,
+          "y": 210,
+          "w": 1540,
+          "h": 22,
+          "opacity": 1
+        },
+        {
+          "id": "claim-w1",
+          "x": 96,
+          "y": 288,
+          "w": 130,
+          "h": 114,
+          "opacity": 1
+        },
+        {
+          "id": "claim-w2",
+          "x": 260,
+          "y": 288,
+          "w": 456,
+          "h": 114,
+          "opacity": 1
+        },
+        {
+          "id": "claim-w3",
+          "x": 96,
+          "y": 402,
+          "w": 1540,
+          "h": 114,
+          "opacity": 1
+        },
+        {
+          "id": "claim-sub",
+          "x": 96,
+          "y": 624,
+          "w": 1540,
+          "h": 43,
+          "opacity": 1
+        },
+        {
+          "id": "scene-route",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "route-n1",
+          "x": 96,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "route-n2",
+          "x": 538,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "route-n3",
+          "x": 980,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "route-n4",
+          "x": 1422,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "scene-proof",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "proof-terminal",
+          "x": 550,
+          "y": 146,
+          "w": 1306,
+          "h": 814,
+          "opacity": 1
+        },
+        {
+          "id": "proof-command",
+          "x": 618,
+          "y": 242,
+          "w": 571,
+          "h": 29,
+          "opacity": 1
+        },
+        {
+          "id": "proof-cursor",
+          "x": 1189,
+          "y": 242,
+          "w": 15,
+          "h": 29,
+          "opacity": 1
+        },
+        {
+          "id": "scene-verdict",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "verdict-ring",
+          "x": 141,
+          "y": 235,
+          "w": 190,
+          "h": 190,
+          "opacity": 1
+        },
+        {
+          "id": "verdict-check",
+          "x": 185,
+          "y": 292,
+          "w": 105,
+          "h": 77,
+          "opacity": 1
+        }
+      ]
+    },
+    {
+      "t": 24.9,
+      "visibleElements": 21,
+      "animatingNow": [],
+      "elements": [
+        {
+          "id": "root",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "scene-claim",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "claim-kicker",
+          "x": 96,
+          "y": 210,
+          "w": 1540,
+          "h": 22,
+          "opacity": 1
+        },
+        {
+          "id": "claim-w1",
+          "x": 96,
+          "y": 288,
+          "w": 130,
+          "h": 114,
+          "opacity": 1
+        },
+        {
+          "id": "claim-w2",
+          "x": 260,
+          "y": 288,
+          "w": 456,
+          "h": 114,
+          "opacity": 1
+        },
+        {
+          "id": "claim-w3",
+          "x": 96,
+          "y": 402,
+          "w": 1540,
+          "h": 114,
+          "opacity": 1
+        },
+        {
+          "id": "claim-sub",
+          "x": 96,
+          "y": 624,
+          "w": 1540,
+          "h": 43,
+          "opacity": 1
+        },
+        {
+          "id": "scene-route",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "route-n1",
+          "x": 96,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "route-n2",
+          "x": 538,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "route-n3",
+          "x": 980,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "route-n4",
+          "x": 1422,
+          "y": 418,
+          "w": 402,
+          "h": 314,
+          "opacity": 1
+        },
+        {
+          "id": "scene-proof",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "proof-terminal",
+          "x": 550,
+          "y": 146,
+          "w": 1306,
+          "h": 814,
+          "opacity": 1
+        },
+        {
+          "id": "proof-command",
+          "x": 618,
+          "y": 242,
+          "w": 571,
+          "h": 29,
+          "opacity": 1
+        },
+        {
+          "id": "proof-cursor",
+          "x": 1189,
+          "y": 242,
+          "w": 15,
+          "h": 29,
+          "opacity": 1
+        },
+        {
+          "id": "scene-verdict",
+          "x": 0,
+          "y": 0,
+          "w": 1920,
+          "h": 1080,
+          "opacity": 1
+        },
+        {
+          "id": "verdict-mark",
+          "x": 96,
+          "y": 190,
+          "w": 280,
+          "h": 280,
+          "opacity": 1
+        },
+        {
+          "id": "verdict-ring",
+          "x": 120,
+          "y": 214,
+          "w": 232,
+          "h": 232,
+          "opacity": 1
+        },
+        {
+          "id": "verdict-check",
+          "x": 174,
+          "y": 284,
+          "w": 128,
+          "h": 94,
+          "opacity": 1
+        },
+        {
+          "id": "verdict-flow",
+          "x": 96,
+          "y": 536,
+          "w": 1728,
+          "h": 83,
+          "opacity": 1
+        }
+      ]
+    }
+  ]
+}

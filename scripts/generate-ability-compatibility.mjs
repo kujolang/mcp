@@ -42,6 +42,7 @@ const certifiedPathspecs = [
   "scripts/package-kujo-ability.mjs",
   ":(glob)tests/ability_*",
   "tests/codex_clean_profile_test.mjs",
+  "tests/command_code_clean_profile_test.mjs",
   "tests/portable_ability_plugin_test.mjs",
   "tests/run_all_tests.sh",
   "tests/vscode_clean_profile_test.mjs",
@@ -53,8 +54,8 @@ if (sourceDiff.status !== 0) throw new Error("host certification evidence does n
 const sourceStatus = spawnSync("git", ["status", "--porcelain=v1", "--untracked-files=all", "--", ...certifiedPathspecs], { encoding: "utf8" });
 if (sourceStatus.status !== 0 || sourceStatus.stdout.trim()) throw new Error("Ability connector source is dirty; certify and publish an immutable source revision");
 
-const labels = { codex: "Codex", cursor: "Cursor", "vscode-copilot": "VS Code / Copilot package", "vscode-managed": "VS Code managed MCP", "generic-stdio": "Generic STDIO MCP", "generic-streamable-http": "Generic Streamable HTTP MCP", "agents-sdk": "Agents SDK", "kujo-pi": "Kujo Pi" };
-const order = ["codex", "cursor", "vscode-copilot", "vscode-managed", "generic-stdio", "generic-streamable-http", "agents-sdk", "kujo-pi"];
+const labels = { codex: "Codex", "command-code": "Command Code", cursor: "Cursor", "vscode-copilot": "VS Code / Copilot package", "vscode-managed": "VS Code managed MCP", "generic-stdio": "Generic STDIO MCP", "generic-streamable-http": "Generic Streamable HTTP MCP", "agents-sdk": "Agents SDK", "kujo-pi": "Kujo Pi" };
+const order = ["codex", "command-code", "cursor", "vscode-copilot", "vscode-managed", "generic-stdio", "generic-streamable-http", "agents-sdk", "kujo-pi"];
 const rows = order.map((host) => {
   const check = evidence.checks.find((item) => item.host === host);
   if (!check) throw new Error(`missing required host evidence: ${host}`);

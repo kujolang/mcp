@@ -1,0 +1,52 @@
+{
+  "schema": "kujo.ability.command-code-ollama-live/v1",
+  "captured_at": "2026-09-13T16:31:14Z",
+  "host": {
+    "name": "Command Code",
+    "version": "1.53.1",
+    "mode": "local-only-byok",
+    "command_code_account_session": false,
+    "auth_gate_workaround": "non-secret local-only sentinel"
+  },
+  "provider": {
+    "name": "Ollama",
+    "version": "0.34.0",
+    "endpoint": "http://127.0.0.1:11434/v1",
+    "model": "ollama/glm-5.3:cloud",
+    "ollama_cloud_authenticated": true
+  },
+  "mcp": {
+    "transport": "stdio",
+    "server": "kujo-ability",
+    "tool": "mcp__kujo-ability__cms__site-info",
+    "tool_call_count": 1
+  },
+  "ability": {
+    "id": "kujo.cms.site.inspect",
+    "version": "1.0.0",
+    "handler_version": "1.1.0",
+    "definition_digest": "9fe6edf4729caa22cda2192bcb0d4f12a45a961e6e9fe13c346447a3a9a0b8f6",
+    "invocation_id": "mcp-73d6d763-03f7-48ac-96c3-12b392abf92f",
+    "receipt_id": "receipt-f35ca70e8e73ef6af5b13c0f",
+    "status": "succeeded",
+    "policy_outcome": "allow",
+    "audit_written": true,
+    "result": {
+      "service": "CMS API",
+      "version": "1.1.0",
+      "content_types": 2
+    }
+  },
+  "command_code_observation": {
+    "model_request_start": "ollama/glm-5.3:cloud",
+    "run_exit_code": 0,
+    "turn_count": 2,
+    "duration_ms": 9557
+  },
+  "secrets_persisted": false,
+  "notes": [
+    "The routing identity is taken from Command Code's model_request_start event, not from the model's self-description.",
+    "Command Code 1.53.1 still checks for an auth value before its documented local-only BYOK path. CMD_LOCAL_ONLY=1 plus a non-secret sentinel passed that local gate without a Command Code account session.",
+    "A generic STDIO bridge defect found by this run was fixed: valid object schemas may omit properties when additionalProperties is false."
+  ]
+}

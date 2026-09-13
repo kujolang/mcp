@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "kujo-ability": {
+      "transport": "http",
+      "enabled": true,
+      "url": "https://ability.kujolang.ai/mcp"
+    }
+  }
+}

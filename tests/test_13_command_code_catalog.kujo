@@ -1,0 +1,24 @@
+from ability import validate_ability_definition
+
+catalog := parse_json(read_file("integrations/kujo-cmd/catalog/abilities.json"))
+assert(type(catalog) == "array" && len(catalog) == 14, "Kujo CMD must publish the reviewed 14-Ability catalog")
+seen_ids := {}
+seen_tools := {}
+for item in catalog {
+    definition := item["definition"]
+    validation := validate_ability_definition(definition)
+    assert(validation["ok"], "Kujo CMD definition must satisfy canonical Ability: " + to_json(validation))
+    assert(has_key(seen_ids, definition["id"]) == 0, "Ability IDs must be unique")
+    assert(has_key(seen_tools, item["tool"]["name"]) == 0, "MCP tool names must be unique")
+    seen_ids[definition["id"]] := true
+    seen_tools[item["tool"]["name"]] := true
+}
+
+profiles := parse_json(read_file("integrations/kujo-cmd/catalog/profiles.json"))
+assert(len(profiles) == 4, "Kujo CMD must publish four progressive profiles")
+for profile in profiles {
+    assert(profile["schema"] == "kujo.ability-profile/v1", "profiles must use the portable contract")
+    for ability_id in profile["ability_ids"] { assert(has_key(seen_ids, ability_id) == 1, "profile cannot reference an unknown Ability") }
+}
+
+print("test_13_command_code_catalog: all assertions passed")

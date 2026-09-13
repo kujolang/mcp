@@ -1,0 +1,41 @@
+<template id="verdict-template">
+  <div id="verdict" data-composition-id="verdict" data-width="1920" data-height="1080" data-duration="5" class="frame">
+    <link rel="stylesheet" href="assets/theme.css" />
+    <div class="bg-grid"></div>
+    <img class="bg-art" src=".media/images/image_001.webp" alt="" />
+    <div class="signal-edge" id="verdict-signal"></div>
+    <div class="topbar"><strong>ARCHITECTURE VERDICT</strong><span>REAL MODEL · REAL ABILITY · REAL RECEIPT</span></div>
+    <main style="position:absolute; left:96px; top:190px; right:96px;">
+      <div style="display:grid; grid-template-columns:280px 1fr; gap:64px; align-items:center;">
+        <svg id="verdict-mark" width="280" height="280" viewBox="0 0 280 280" style="opacity:0;">
+          <circle id="verdict-ring" cx="140" cy="140" r="116" fill="none" stroke="#6fdc8c" stroke-width="8" style="transform-origin:140px 140px; transform:rotate(-90deg);" />
+          <path id="verdict-check" d="M 78 144 L 122 188 L 206 94" fill="none" stroke="#6fdc8c" stroke-width="13" stroke-linecap="square" stroke-linejoin="miter" />
+        </svg>
+        <div>
+          <div class="eyebrow">PORTABLE PATH VERIFIED</div>
+          <div class="display" style="font-size:92px; margin-top:36px;">STANDARD MCP.<br /><span style="color:var(--success);">ZERO KUJO REBUILDS.</span></div>
+        </div>
+      </div>
+      <div id="verdict-flow" style="margin-top:66px; border-top:1px solid var(--border-strong); border-bottom:1px solid var(--border-strong); padding:28px 0; display:flex; justify-content:space-between; font:25px/1 var(--mono); color:var(--muted); opacity:0;">
+        <span>NEW ABILITY</span><span>→</span><span>GATEWAY DISCOVERY</span><span>→</span><span>COMMAND CODE TOOL</span><span style="color:var(--success);">NO HOST RELEASE</span>
+      </div>
+    </main>
+    <div class="bottom-rail"><span class="active">KUJO ABILITY</span><span>IS THE INTEGRATION LAYER</span><span class="ok" style="margin-left:auto;">PASS</span></div>
+    <script>
+      const verdictTl = gsap.timeline({ paused: true });
+      ["#verdict-ring", "#verdict-check"].forEach((id) => {
+        const path = document.querySelector(id);
+        const len = path.getTotalLength();
+        path.style.strokeDasharray = `${len}`;
+        path.style.strokeDashoffset = `${len}`;
+      });
+      verdictTl.fromTo("#verdict-mark", { scale: 0.82, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.46, ease: "power3.out" }, 0.22);
+      verdictTl.to("#verdict-ring", { strokeDashoffset: 0, duration: 0.72, ease: "power2.out" }, 0.38);
+      verdictTl.to("#verdict-check", { strokeDashoffset: 0, duration: 0.5, ease: "power2.out" }, 0.92);
+      verdictTl.fromTo(".display", { opacity: 0, x: 48 }, { opacity: 1, x: 0, duration: 0.62, ease: "expo.out" }, 0.48);
+      verdictTl.fromTo("#verdict-flow", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.42, ease: "power4.out" }, 1.62);
+      verdictTl.fromTo("#verdict-signal", { scaleY: 0 }, { scaleY: 1, duration: 0.1, ease: "none" }, 2.42).to("#verdict-signal", { opacity: 0, duration: 0.12, ease: "power3.in" }, 2.56);
+      window.__timelines["verdict"] = verdictTl;
+    </script>
+  </div>
+</template>

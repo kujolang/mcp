@@ -1,6 +1,6 @@
 # MCP Server Framework
 
-[![Version](https://img.shields.io/badge/version-1.1.1-black)](https://github.com/kujolang/mcp/releases/tag/v1.1.1)
+[![Version](https://img.shields.io/badge/version-1.2.0-black)](https://github.com/kujolang/mcp/releases/tag/v1.2.0)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![built with Kujo](https://img.shields.io/badge/built%20with-Kujo-white.svg)](https://github.com/kujolang/kujo)
 [![CI](https://github.com/kujolang/mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/kujolang/mcp/actions/workflows/ci.yml)
@@ -84,6 +84,14 @@ the public `mcp.kujolang.ai` catalog into a privileged execution service.
 Deployment profiles and the enterprise control checklist are documented in
 [`docs/ability-host-deployment.md`](docs/ability-host-deployment.md).
 
+[`integrations/kujo-cmd`](integrations/kujo-cmd) is the local-first Command
+Code product. Its one-command setup acquires a pinned canonical Kujo catalog,
+installs a durable cross-platform runtime and STDIO projection, projects
+profile-relevant canonical Agent Skills, and requires no Kujo-hosted execution
+service. The reusable local host preserves effects, approvals, idempotency,
+cancellation, identities, and receipts while product CLIs retain all domain
+behavior. See [`docs/command-code/COMMAND-CODE.md`](docs/command-code/COMMAND-CODE.md).
+
 The canonical definition contract is maintained in and consumed directly from
 [`kujolang/ability`](https://github.com/kujolang/ability).
 
@@ -102,7 +110,7 @@ Default endpoint: `http://127.0.0.1:8931/mcp/v1`
 Expected health response shape:
 
 ```json
-{"status":"ok","server":"mcp-demo","version":"1.1.1"}
+{"status":"ok","server":"mcp-demo","version":"1.2.0"}
 ```
 
 If you want to run the binary directly, resolve the runtime path first:

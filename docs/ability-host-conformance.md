@@ -21,12 +21,14 @@ The bridge implements MCP `initialize`, `ping`, `tools/list`, `tools/call`, and 
 
 ## Current support level
 
-The `1.1.1` package is a release-ready portable host. Its Agent Plugins 1.0 manifest, Codex companion files, Copilot custom-agent overlay, executable MCP bridge, and npm artifact shape are validated in this repository. A clean temporary Codex profile proves local marketplace discovery, install, enablement, disable/removal, and marketplace removal with `codex-cli 0.144.4`. VS Code 1.136.1 accepts the bridge in a clean temporary profile. The latest managed-host certificate records VS Code receiving the native localhost OAuth callback, performing the PKCE exchange, creating and restoring its refreshable session after restart, discovering both live tools at `ability.kujolang.ai`, and invoking `gateway_echo` through `vscode.lm.invokeTool` with a canonical receipt. A later gateway-level read-only conformance run completed the consent handoff entirely through the browser using a constrained same-origin HTTPS relay; this does not retroactively broaden the editor certificate.
+The `1.2.0` package is a release-ready portable host. Its Agent Plugins 1.0 manifest, Codex and Command Code companion configurations, Copilot custom-agent overlay, executable MCP bridge, and npm artifact shape are validated in this repository. Clean temporary profiles prove configuration lifecycle without changing normal user settings. VS Code 1.136.1 accepts the bridge. Command Code 1.53.1 accepts and resolves the generated project MCP server. The latest managed-host certificate records VS Code receiving the native localhost OAuth callback, performing the PKCE exchange, creating and restoring its refreshable session after restart, discovering both live tools at `ability.kujolang.ai`, and invoking `gateway_echo` through `vscode.lm.invokeTool` with a canonical receipt. A later gateway-level read-only conformance run completed the consent handoff entirely through the browser using a constrained same-origin HTTPS relay; this does not retroactively broaden the editor certificate.
 
 | Surface | Status on 2026-09-04 | Evidence boundary |
 | --- | --- | --- |
 | Agent Plugins 1.0 package | Locally validated preview | Manifest, MCP configuration, paths, metadata, and package contents only |
 | Codex plugin | Clean-profile install validated | `codex-cli 0.144.4` local marketplace add/list/install/remove lifecycle in an isolated `CODEX_HOME`; authenticated execution remains separately unproven |
+| Command Code | Model-driven local invocation validated | `command-code 1.53.1` with `ollama/glm-5.3:cloud` discovers the project STDIO MCP server, invokes `cms__site-info`, and receives a canonical succeeded receipt; generic bridge tests cover the wider protocol contract |
+| Kujo CMD local product | Release-candidate package and model run validated | Fresh network and offline-source setup, packed npm install, durable local runtime, 14-source catalog, profiles, skills, canonical CLI calls, approval, idempotency, concurrency, cancellation, receipts, failed verification, restart, and a real `ollama/glm-5.3:cloud` catalog call pass without a Command Code account session |
 | Cursor | Configuration lifecycle validated | Agent Plugin and manual `.cursor/mcp.json` configuration pass merge/disable/uninstall tests; no Cursor binary was available for an installed-host run |
 | VS Code / Copilot | Native managed read-only smoke certified | VS Code 1.136.0 completed its native callback and PKCE exchange, restored the session after restart, discovered two tools, and invoked `gateway_echo`; the gateway independently passes a browser-driven read-only OAuth lifecycle, while the full mutating editor suite remains separate |
 | Generic MCP bridge | Contract tested | Real STDIO process against a mock authenticated gateway, including cancellation, approval, replay denial, and idempotency conflict |
@@ -58,6 +60,7 @@ Run from the `mcp` repository root:
 node tests/portable_ability_plugin_test.mjs
 node tests/ability_host_bridge_test.mjs
 node tests/codex_clean_profile_test.mjs
+KUJO_REQUIRE_COMMAND_CODE=1 node tests/command_code_clean_profile_test.mjs
 node tests/vscode_managed_evidence_test.mjs
 node tests/ability_compatibility_matrix_test.mjs
 cd ../ability-gateway && npx vitest run test/control-plane.test.ts && cd ../mcp

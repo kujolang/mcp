@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0 - 2026-09-13
+
+- Add a zero-adapter Command Code projection through the existing MCP bridge and managed HTTP endpoint.
+- Add exact Command Code configurations, connector support, clean-profile validation, and architecture/security documentation.
+- Add a reusable, transport-neutral local Ability host runtime for profile
+  resolution, policy, approvals, idempotency, cancellation, and receipts. Kujo
+  CMD consumes it as a generated release artifact without adding product logic.
+
 - Remove in-band MCP approval issuance; approvals must now come from a trusted host or out-of-band UI.
 - Bind compatibility evidence to the certified Ability connector source and make required Codex certification fail closed.
 
@@ -7,10 +15,6 @@
 
 - Preserve executable modes for the CLI and MCP bridge launchers in npm packages.
 - Refresh release metadata and current host compatibility evidence.
-
-## Next preview
-
-- Add generated, freshness-gated host compatibility evidence and isolated lifecycle coverage for primary host configurations.
 
 ## 1.1.0 - 2026-09-02
 

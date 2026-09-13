@@ -5,7 +5,7 @@ import { constants } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const VERSION = "1.1.1";
+const VERSION = "1.2.0";
 const SERVER_NAME = "kujo-ability";
 const bridgePath = fileURLToPath(new URL("./kujo-ability-mcp.mjs", import.meta.url));
 const command = process.argv[2] || "serve";
@@ -50,14 +50,15 @@ async function commandExists(name) {
 }
 
 async function detectHost() {
+  if (await commandExists("command-code") || await commandExists("commandcode") || await commandExists("cmdc") || (process.platform !== "win32" && await commandExists("cmd"))) return "command-code";
   if (await commandExists("cursor")) return "cursor";
   if (await commandExists("code")) return "vscode";
   return "generic";
 }
 
 function validateHost(host) {
-  if (!["auto", "codex", "cursor", "vscode", "generic"].includes(host)) {
-    throw new Error(`unsupported host '${host}'; expected auto, codex, cursor, vscode, or generic`);
+  if (!["auto", "codex", "command-code", "cursor", "vscode", "generic"].includes(host)) {
+    throw new Error(`unsupported host '${host}'; expected auto, codex, command-code, cursor, vscode, or generic`);
   }
 }
 
@@ -81,6 +82,7 @@ function defaultOutput(host, scope) {
   }
   if (host === "cursor") return resolve(".cursor/mcp.json");
   if (host === "vscode") return resolve(".vscode/mcp.json");
+  if (host === "command-code") return resolve(".mcp.json");
   if (host === "codex") throw new Error("--output is required for Codex; normal Codex installation is plugin-managed");
   return resolve(".kujo/ability-mcp.json");
 }
@@ -104,6 +106,10 @@ function serverEntry(host, gateway) {
     args: [bridgePath],
     env: { KUJO_ABILITY_GATEWAY_URL: gateway },
   };
+  if (host === "command-code") {
+    base.transport = "stdio";
+    base.enabled = true;
+  }
   if (host === "vscode") {
     base.type = "stdio";
     base.env.KUJO_ABILITY_GATEWAY_TOKEN = "${input:kujoAbilityToken}";
@@ -239,7 +245,7 @@ Commands:
 
 Connector options:
   --gateway URL             Gateway origin (or KUJO_ABILITY_GATEWAY_URL)
-  --host HOST               auto, codex, cursor, vscode, or generic
+  --host HOST               auto, codex, command-code, cursor, vscode, or generic
   --scope SCOPE             project or user (default: project)
   --output FILE             Explicit host configuration file
   --dry-run                 Validate without writing files

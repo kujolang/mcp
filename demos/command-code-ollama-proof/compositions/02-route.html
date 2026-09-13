@@ -1,0 +1,55 @@
+<template id="route-template">
+  <div id="route" data-composition-id="route" data-width="1920" data-height="1080" data-duration="6" class="frame">
+    <link rel="stylesheet" href="assets/theme.css" />
+    <div class="bg-grid"></div>
+    <img class="bg-art" src=".media/images/image_001.webp" alt="" />
+    <div class="topbar"><strong>THE STANDARD ROUTE</strong><span>ONE CONNECTION · DYNAMIC DISCOVERY</span></div>
+    <div style="position:absolute; left:96px; top:166px;">
+      <div class="eyebrow">MODEL → CAPABILITY</div>
+      <div style="font:400 62px/1 var(--mono); margin-top:24px;">FOUR BOUNDARIES. ONE CONTRACT.</div>
+    </div>
+    <svg width="1660" height="210" viewBox="0 0 1660 210" style="position:absolute; left:130px; top:470px; overflow:visible;">
+      <path id="route-line-a" d="M 310 105 L 450 105" fill="none" stroke="#858585" stroke-width="3" />
+      <path id="route-line-b" d="M 760 105 L 900 105" fill="none" stroke="#858585" stroke-width="3" />
+      <path id="route-line-c" d="M 1210 105 L 1350 105" fill="none" stroke="#858585" stroke-width="3" />
+      <circle cx="450" cy="105" r="6" fill="#7dd3fc" />
+      <circle cx="900" cy="105" r="6" fill="#7dd3fc" />
+      <circle cx="1350" cy="105" r="6" fill="#6fdc8c" />
+    </svg>
+    <section style="position:absolute; left:96px; top:418px; width:1728px; display:grid; grid-template-columns:repeat(4, 1fr); gap:40px;">
+      <div class="route-node" id="route-n1" style="height:314px; border:1px solid var(--border-strong); background:var(--surface); padding:32px; opacity:0;">
+        <div class="eyebrow">HOST</div><div style="font:42px/1.05 var(--mono); margin-top:76px;">COMMAND<br />CODE</div><div style="font:19px/1.4 var(--mono); color:var(--info); margin-top:32px;">ollama/glm-5.3:cloud</div>
+      </div>
+      <div class="route-node" id="route-n2" style="height:314px; border:1px solid var(--border-strong); background:var(--surface); padding:32px; opacity:0;">
+        <div class="eyebrow">TRANSPORT</div><div style="font:64px/1 var(--mono); margin-top:76px;">MCP</div><div style="font:19px/1.4 var(--mono); color:var(--muted); margin-top:32px;">STDIO · tools/list · tools/call</div>
+      </div>
+      <div class="route-node" id="route-n3" style="height:314px; border:1px solid var(--border-strong); background:var(--surface); padding:32px; opacity:0;">
+        <div class="eyebrow">SEMANTICS</div><div style="font:42px/1.05 var(--mono); margin-top:76px;">ABILITY<br />GATEWAY</div><div style="font:19px/1.4 var(--mono); color:var(--muted); margin-top:32px;">schema · policy · receipts</div>
+      </div>
+      <div class="route-node" id="route-n4" style="height:314px; border:1px solid var(--success); background:var(--surface); padding:32px; opacity:0;">
+        <div class="eyebrow" style="color:var(--success);">OWNER</div><div style="font:42px/1.05 var(--mono); margin-top:76px;">KUJO CMS<br />ABILITY</div><div style="font:19px/1.4 var(--mono); color:var(--success); margin-top:32px;">kujo.cms.site.inspect</div>
+      </div>
+    </section>
+    <div class="bottom-rail"><span>HOST-SPECIFIC CODE</span><span class="ok">0</span><span>·</span><span>KUJO BUSINESS LOGIC DUPLICATED</span><span class="ok">0</span></div>
+    <script>
+      const routeTl = gsap.timeline({ paused: true });
+      const routeLines = [
+        document.querySelector("#route-line-a"),
+        document.querySelector("#route-line-b"),
+        document.querySelector("#route-line-c")
+      ];
+      routeLines.forEach((path) => {
+        const len = path.getTotalLength();
+        path.style.strokeDasharray = `${len}`;
+        path.style.strokeDashoffset = `${len}`;
+      });
+      ["#route-n1", "#route-n2", "#route-n3", "#route-n4"].forEach((id, i) => {
+        const start = 0.28 + i * 0.92;
+        routeTl.fromTo(id, { scale: 0.86, opacity: 0, y: 28 }, { scale: 1, opacity: 1, y: 0, duration: 0.48, ease: "power3.out" }, start);
+        if (i < 3) routeTl.to(routeLines[i], { strokeDashoffset: 0, duration: 0.55, ease: "power2.out" }, start + 0.48);
+      });
+      routeTl.to("#route-n4", { borderColor: "#ffffff", duration: 0.24, yoyo: true, repeat: 1, ease: "power1.inOut" }, 4.15);
+      window.__timelines["route"] = routeTl;
+    </script>
+  </div>
+</template>

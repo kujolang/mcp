@@ -16,6 +16,7 @@ try {
   const current = await generate(source, "current");
   assert.equal(current.result.status, 0, current.result.stderr);
   assert.match(current.text, /Codex \| install-validated/);
+  assert.match(current.text, /Command Code \| installed-configuration-validated/);
   assert.match(current.text, /Cursor \| configuration-validated/);
   assert.match(current.text, /VS Code \/ Copilot package \| installed-configuration-validated/);
   assert.match(current.text, /VS Code managed MCP \| certified-mcp-read-only/);

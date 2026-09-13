@@ -2,7 +2,7 @@
 import { createInterface } from "node:readline";
 import { randomUUID } from "node:crypto";
 
-const server = { name: "kujo-ability", version: "1.1.1" };
+const server = { name: "kujo-ability", version: "1.2.0" };
 const configuredBase = process.env.KUJO_ABILITY_GATEWAY_URL || "http://127.0.0.1:8080";
 const token = process.env.KUJO_ABILITY_GATEWAY_TOKEN || "";
 const parsed = new URL(configuredBase);
@@ -51,17 +51,17 @@ function validateTool(tool) {
   if (typeof tool.abilityVersion !== "string" || !/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/.test(tool.abilityVersion)) throw new Error(`gateway tool '${tool.name}' has an invalid Ability version`);
   if (typeof tool.abilityDigest !== "string" || !/^[0-9a-f]{64}$/.test(tool.abilityDigest)) throw new Error(`gateway tool '${tool.name}' has an invalid Ability digest`);
   if (!Array.isArray(tool.effects)) throw new Error(`gateway tool '${tool.name}' has invalid effects`);
-  if (!tool.inputSchema || tool.inputSchema.type !== "object" || typeof tool.inputSchema.properties !== "object") throw new Error(`gateway tool '${tool.name}' has an invalid input schema`);
+  if (!tool.inputSchema || tool.inputSchema.type !== "object" || (tool.inputSchema.properties !== undefined && (typeof tool.inputSchema.properties !== "object" || Array.isArray(tool.inputSchema.properties)))) throw new Error(`gateway tool '${tool.name}' has an invalid input schema`);
   if (typeof tool.execution !== "string" || !/^\/v1\/abilities\/[a-z0-9][a-z0-9-]*\/[a-z0-9][a-z0-9-]*\/run$/.test(tool.execution)) throw new Error(`gateway tool '${tool.name}' has an invalid execution path`);
   return tool;
 }
 
 function hostInputSchema(schema) {
-  if (!schema || schema.type !== "object" || typeof schema.properties !== "object") return schema;
+  if (!schema || schema.type !== "object") return schema;
   return {
     ...schema,
     properties: {
-      ...schema.properties,
+      ...(schema.properties || {}),
       _kujo: {
         type: "object",
         description: "Adapter control values; removed before canonical input validation.",
