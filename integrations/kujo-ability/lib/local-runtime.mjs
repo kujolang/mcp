@@ -1,15 +1,30 @@
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, open, readFile, rename, rm, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
+import { mkdir, open, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 
 const PROFILE_SCHEMA = "kujo.ability-profile/v1";
 const RECEIPT_SCHEMA = "kujo.ability.receipt/v1";
 const SAFE_EFFECTS = new Set(["read"]);
+const MAX_RESULT_BYTES = 256 * 1024;
+const MAX_RECEIPT_BYTES = 384 * 1024;
+const MAX_RECEIPT_LOG_BYTES = 8 * 1024 * 1024;
+const RECEIPT_ARCHIVES = 3;
+const LOCK_STALE_MS = 30_000;
+const LOCK_WAIT_MS = 10_000;
+const MAX_PENDING_APPROVALS = 1024;
+const MAX_IDEMPOTENCY_RECORDS_PER_SHARD = 32;
 
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
   if (value && typeof value === "object") return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]));
   return value;
+}
+
+function pruneApprovals(state, now = Date.now()) {
+  const approvals = Object.entries(state.approvals || {});
+  for (const [id, stored] of approvals) if (stored?.consumed || stored?.approval?.expires_at_ms <= now) delete state.approvals[id];
+  const remaining = Object.entries(state.approvals || {}).sort((left, right) => (left[1]?.approval?.issued_at_ms || 0) - (right[1]?.approval?.issued_at_ms || 0));
+  for (const [id] of remaining.slice(0, Math.max(0, remaining.length - MAX_PENDING_APPROVALS))) delete state.approvals[id];
 }
 
 export function digest(value) {
@@ -57,23 +72,126 @@ async function atomicJson(path, value) {
 
 export class FileAbilityState {
   #queue = Promise.resolve();
-  constructor({ statePath, receiptsPath }) { this.statePath = statePath; this.receiptsPath = receiptsPath; }
+  constructor({ statePath, receiptsPath }) { this.statePath = statePath; this.receiptsPath = receiptsPath; this.lockPath = `${statePath}.lock`; this.idempotencyDir = `${statePath}.d/idempotency`; }
   async transaction(operation) {
-    const run = this.#queue.then(async () => {
+    return this.#enqueue(async () => {
       const state = await readJson(this.statePath, { schema: "kujo.ability.local-state/v1", approvals: {}, idempotency: {} });
+      pruneApprovals(state);
       const result = await operation(state);
       await atomicJson(this.statePath, state);
       return result;
     });
+  }
+  async idempotencyTransaction(scope, operation) {
+    return this.#enqueue(async () => {
+      const path = this.#idempotencyPath(scope);
+      await mkdir(dirname(path), { recursive: true });
+      const record = await readJson(path, null);
+      const outcome = await operation(record);
+      if (outcome?.record === null) await rm(path, { force: true });
+      else if (outcome && Object.hasOwn(outcome, "record")) await atomicJson(path, outcome.record);
+      await this.#pruneIdempotencyShard(dirname(path), `${scope}.json`);
+      return outcome?.value;
+    });
+  }
+  async executionGate({ scope, requestDigest, approvalId, approvalRequired, validateApproval, reservation }) {
+    return this.#enqueue(async () => {
+      const recordPath = this.#idempotencyPath(scope);
+      await mkdir(dirname(recordPath), { recursive: true });
+      const previous = await readJson(recordPath, null);
+      if (previous && previous.requestDigest !== requestDigest) return { state: "conflict" };
+      if (previous?.state === "completed" && previous.receipt) return { state: "replay", receipt: previous.receipt };
+      if (previous?.state === "in_progress") return { state: "in_progress", invocationId: previous.invocationId };
+
+      if (approvalRequired) {
+        if (!approvalId) return { state: "approval_required" };
+        const state = await readJson(this.statePath, { schema: "kujo.ability.local-state/v1", approvals: {}, idempotency: {} });
+        pruneApprovals(state);
+        const stored = state.approvals[approvalId];
+        if (!stored || !validateApproval(stored)) return { state: "approval_invalid" };
+        stored.consumed = true;
+        await atomicJson(this.statePath, state);
+      }
+      await atomicJson(recordPath, { requestDigest, state: "in_progress", ...reservation });
+      return { state: "proceed" };
+    });
+  }
+  async completeIdempotency(scope, requestDigest, receipt) {
+    await this.idempotencyTransaction(scope, () => ({ value: true, record: { requestDigest, state: "completed", receipt } }));
+  }
+  async appendReceipt(receipt) {
+    const line = `${JSON.stringify(receipt)}\n`;
+    if (Buffer.byteLength(line) > MAX_RECEIPT_BYTES) throw Object.assign(new Error("Ability receipt exceeded safety limit"), { code: "ability_receipt_limit" });
+    await this.#enqueue(async () => {
+      await mkdir(dirname(this.receiptsPath), { recursive: true });
+      let currentSize = 0;
+      try { currentSize = (await stat(this.receiptsPath)).size; } catch (error) { if (error.code !== "ENOENT") throw error; }
+      if (currentSize + Buffer.byteLength(line) > MAX_RECEIPT_LOG_BYTES) await this.#rotateReceipts();
+      const file = await open(this.receiptsPath, "a", 0o600);
+      try { await file.chmod(0o600); await file.write(line); } finally { await file.close(); }
+    });
+  }
+  async reset() { await this.#enqueue(async () => { await rm(this.statePath, { force: true }); await rm(`${this.statePath}.d`, { recursive: true, force: true }); }); }
+
+  #enqueue(operation) {
+    const run = this.#queue.then(() => this.#withLock(operation));
     this.#queue = run.catch(() => {});
     return run;
   }
-  async appendReceipt(receipt) {
-    await mkdir(dirname(this.receiptsPath), { recursive: true });
-    const file = await open(this.receiptsPath, "a", 0o600);
-    try { await file.write(`${JSON.stringify(receipt)}\n`); } finally { await file.close(); }
+
+  async #withLock(operation) {
+    await mkdir(dirname(this.lockPath), { recursive: true });
+    const deadline = Date.now() + LOCK_WAIT_MS;
+    let lock;
+    const owner = randomUUID();
+    while (!lock) {
+      try {
+        lock = await open(this.lockPath, "wx", 0o600);
+        await lock.writeFile(JSON.stringify({ owner, pid: process.pid, created_at_ms: Date.now() }));
+      } catch (error) {
+        if (error.code !== "EEXIST") throw error;
+        try { if (Date.now() - (await stat(this.lockPath)).mtimeMs > LOCK_STALE_MS) await rm(this.lockPath, { force: true }); }
+        catch (statError) { if (statError.code !== "ENOENT") throw statError; }
+        if (Date.now() >= deadline) throw Object.assign(new Error("timed out waiting for Ability state lock"), { code: "ability_state_lock_timeout" });
+        await new Promise((resolveWait) => setTimeout(resolveWait, 20 + Math.floor(Math.random() * 30)));
+      }
+    }
+    try { return await operation(); }
+    finally {
+      await lock.close();
+      try {
+        const current = JSON.parse(await readFile(this.lockPath, "utf8"));
+        if (current.owner === owner) await rm(this.lockPath, { force: true });
+      } catch (error) { if (error.code !== "ENOENT" && !(error instanceof SyntaxError)) throw error; }
+    }
   }
-  async reset() { await rm(this.statePath, { force: true }); }
+
+  async #rotateReceipts() {
+    await rm(`${this.receiptsPath}.${RECEIPT_ARCHIVES}`, { force: true });
+    for (let index = RECEIPT_ARCHIVES - 1; index >= 1; index -= 1) {
+      try { await rename(`${this.receiptsPath}.${index}`, `${this.receiptsPath}.${index + 1}`); }
+      catch (error) { if (error.code !== "ENOENT") throw error; }
+    }
+    try { await rename(this.receiptsPath, `${this.receiptsPath}.1`); }
+    catch (error) { if (error.code !== "ENOENT") throw error; }
+  }
+
+  #idempotencyPath(scope) {
+    return join(this.idempotencyDir, scope.slice(0, 2), `${scope}.json`);
+  }
+
+  async #pruneIdempotencyShard(shard, preserveName) {
+    const names = (await readdir(shard)).filter((name) => /^[a-f0-9]{64}\.json$/.test(name));
+    if (names.length <= MAX_IDEMPOTENCY_RECORDS_PER_SHARD) return;
+    const records = (await Promise.all(names.map(async (name) => {
+      const path = join(shard, name);
+      const record = await readJson(path, null);
+      return record?.state === "completed" ? { name, mtimeMs: (await stat(path)).mtimeMs } : null;
+    }))).filter(Boolean);
+    if (records.length <= MAX_IDEMPOTENCY_RECORDS_PER_SHARD) return;
+    records.sort((left, right) => left.name === preserveName ? -1 : right.name === preserveName ? 1 : right.mtimeMs - left.mtimeMs);
+    await Promise.all(records.slice(MAX_IDEMPOTENCY_RECORDS_PER_SHARD).map(({ name }) => rm(join(shard, name), { force: true })));
+  }
 }
 
 function principal(input = {}) {
@@ -115,6 +233,14 @@ function schemaErrors(value, schema, path = "$") {
     for (const [key, child] of Object.entries(schema.properties || {})) if (key in value) errors.push(...schemaErrors(value[key], child, `${path}.${key}`));
   }
   return errors;
+}
+
+function jsonBytes(value) {
+  try { return Buffer.byteLength(JSON.stringify(value)); } catch { return Number.POSITIVE_INFINITY; }
+}
+
+function boundedDetails(value) {
+  return jsonBytes(value) <= 64 * 1024 ? value : { omitted: true, reason: "error details exceeded safety limit" };
 }
 
 export class LocalAbilityRuntime {
@@ -167,7 +293,6 @@ export class LocalAbilityRuntime {
     const item = this.abilities.get(abilityId);
     if (!item || !this.visible().includes(item)) return this.#failureWithoutReceipt("ability_not_exposed", "Ability is not exposed by the active profile");
     const definition = item.definition;
-    const definitionDigest = item.digest;
     const started = this.clock();
     const invocationId = controls.invocationId || `invocation-${randomUUID()}`;
     const principalValue = principal(controls.principal);
@@ -178,30 +303,35 @@ export class LocalAbilityRuntime {
     const requestDigest = digest({ ability_id: abilityId, input, principal: principalValue });
     let approvalId = "";
     if (definition.idempotency.mode === "keyed" && !idempotencyKey) return this.#receipt({ item, invocationId, principalValue, decision, started, status: "rejected", input, error: { code: "ability_idempotency_key_required", message: "This Ability requires an idempotency key", details: {} }, idempotency: { mode: "keyed", state: "not_started" }, controls });
+    const approvalRequired = decision.outcome === "approval_required";
+    const suppliedApproval = controls.approvalId || "";
+    if (approvalRequired && definition.idempotency.mode !== "keyed" && !suppliedApproval) return this.#receipt({ item, invocationId, principalValue, decision, started, status: "approval_required", input, error: { code: "ability_approval_required", message: decision.reason, details: { approval_cli: "kujo-cmd approve", ability_id: abilityId, invocation_id: invocationId, input } }, idempotency: { mode: definition.idempotency.mode, state: "not_started" }, controls });
+
+    const scope = definition.idempotency.mode === "keyed" ? digest({ principal: principalValue, ability_id: abilityId, idempotency_key: idempotencyKey }) : "";
+    const validApproval = (stored) => !stored.consumed && stored.approval.expires_at_ms > this.clock() && stored.approval.binding_digest === approvalBinding({ definition, input, invocationId, principalValue });
     if (definition.idempotency.mode === "keyed") {
-      const scope = digest({ principal: principalValue, ability_id: abilityId, idempotency_key: idempotencyKey });
-      const replay = await this.state.transaction((stateValue) => {
-        const previous = stateValue.idempotency[scope];
-        if (previous && previous.requestDigest !== requestDigest) return { conflict: true };
-        return previous || null;
-      });
-      if (replay?.conflict) return this.#receipt({ item, invocationId, principalValue, decision, started, status: "rejected", input, error: { code: "ability_idempotency_conflict", message: "Idempotency key was used for different input", details: {} }, idempotency: { mode: "keyed", state: "conflict" }, controls });
-      if (replay?.receipt) return { ok: replay.receipt.status === "succeeded", receipt: replay.receipt, replayed: true };
-    }
-    if (decision.outcome === "approval_required") {
-      const supplied = controls.approvalId || "";
-      if (!supplied) return this.#receipt({ item, invocationId, principalValue, decision, started, status: "approval_required", input, error: { code: "ability_approval_required", message: decision.reason, details: { approval_cli: "kujo-cmd approve", ability_id: abilityId, invocation_id: invocationId, input } }, idempotency: { mode: definition.idempotency.mode, state: "not_started" }, controls });
+      const gate = await this.state.executionGate({ scope, requestDigest, approvalId: suppliedApproval, approvalRequired, validateApproval: validApproval, reservation: { invocationId, startedAtMs: started } });
+      if (gate.state === "conflict") return this.#receipt({ item, invocationId, principalValue, decision, started, status: "rejected", input, error: { code: "ability_idempotency_conflict", message: "Idempotency key was used for different input", details: {} }, idempotency: { mode: "keyed", state: "conflict" }, controls });
+      if (gate.state === "replay") return { ok: gate.receipt.status === "succeeded", receipt: gate.receipt, replayed: true };
+      if (gate.state === "in_progress") return this.#receipt({ item, invocationId, principalValue, decision, started, status: "rejected", input, error: { code: "ability_idempotency_in_progress", message: "An invocation with this idempotency key is already running or has an unresolved outcome", details: { invocation_id: gate.invocationId } }, idempotency: { mode: "keyed", state: "in_progress" }, controls });
+      if (gate.state === "approval_required") return this.#receipt({ item, invocationId, principalValue, decision, started, status: "approval_required", input, error: { code: "ability_approval_required", message: decision.reason, details: { approval_cli: "kujo-cmd approve", ability_id: abilityId, invocation_id: invocationId, input } }, idempotency: { mode: "keyed", state: "not_started" }, controls });
+      if (gate.state === "approval_invalid") return this.#receipt({ item, invocationId, principalValue, decision, started, status: "rejected", input, error: { code: "ability_approval_invalid", message: "Approval is missing, expired, replayed, or bound to another request", details: {} }, idempotency: { mode: "keyed", state: "not_started" }, controls });
+      approvalId = approvalRequired ? suppliedApproval : "";
+    } else if (approvalRequired) {
       const consumed = await this.state.transaction((stateValue) => {
-        const stored = stateValue.approvals[supplied];
-        if (!stored || stored.consumed || stored.approval.expires_at_ms <= this.clock()) return false;
-        if (stored.approval.binding_digest !== approvalBinding({ definition, input, invocationId, principalValue })) return false;
+        const stored = stateValue.approvals[suppliedApproval];
+        if (!stored || !validApproval(stored)) return false;
         stored.consumed = true;
         return true;
       });
       if (!consumed) return this.#receipt({ item, invocationId, principalValue, decision, started, status: "rejected", input, error: { code: "ability_approval_invalid", message: "Approval is missing, expired, replayed, or bound to another request", details: {} }, idempotency: { mode: definition.idempotency.mode, state: "not_started" }, controls });
-      approvalId = supplied;
+      approvalId = suppliedApproval;
     }
-    if (signal?.aborted) return this.#receipt({ item, invocationId, principalValue, decision, started, status: "cancelled", input, error: { code: "ability_cancelled", message: "Invocation was cancelled before execution", details: {} }, idempotency: { mode: definition.idempotency.mode, state: "not_started" }, controls, approvalId });
+    if (signal?.aborted) {
+      const response = await this.#receipt({ item, invocationId, principalValue, decision, started, status: "cancelled", input, error: { code: "ability_cancelled", message: "Invocation was cancelled before execution", details: {} }, idempotency: { mode: definition.idempotency.mode, state: definition.idempotency.mode === "keyed" ? "completed" : "not_started" }, controls, approvalId });
+      if (definition.idempotency.mode === "keyed") await this.state.completeIdempotency(scope, requestDigest, response.receipt);
+      return response;
+    }
     let status = "succeeded";
     let result = null;
     let error = null;
@@ -213,16 +343,18 @@ export class LocalAbilityRuntime {
         result = null;
         error = { code: "ability_output_invalid", message: "Ability output does not satisfy its schema", details: { errors: outputErrors } };
       }
+      else if (jsonBytes(result) > MAX_RESULT_BYTES) {
+        status = "failed";
+        result = null;
+        error = { code: "ability_output_limit", message: "Ability output exceeded safety limit", details: { max_bytes: MAX_RESULT_BYTES } };
+      }
     }
     catch (cause) {
       status = cause?.name === "AbortError" ? "cancelled" : "failed";
-      error = { code: status === "cancelled" ? "ability_cancelled" : (cause.code || "ability_handler_failed"), message: String(cause.message || cause), details: cause.details || {} };
+      error = { code: status === "cancelled" ? "ability_cancelled" : (cause.code || "ability_handler_failed"), message: String(cause.message || cause), details: boundedDetails(cause.details || {}) };
     }
     const response = await this.#receipt({ item, invocationId, principalValue, decision, started, status, input, result, error, idempotency: { mode: definition.idempotency.mode, state: definition.idempotency.mode === "keyed" ? "completed" : "not_applicable" }, controls, approvalId });
-    if (definition.idempotency.mode === "keyed") {
-      const scope = digest({ principal: principalValue, ability_id: abilityId, idempotency_key: idempotencyKey });
-      await this.state.transaction((stateValue) => { stateValue.idempotency[scope] = { requestDigest, receipt: response.receipt }; });
-    }
+    if (definition.idempotency.mode === "keyed") await this.state.completeIdempotency(scope, requestDigest, response.receipt);
     return response;
   }
 

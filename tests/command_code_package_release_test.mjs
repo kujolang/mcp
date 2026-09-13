@@ -11,4 +11,12 @@ for (const required of ["bin/kujo-cmd.mjs", "bin/kujo-cmd-mcp.mjs", ".generated/
 assert.ok(![...files].some((path) => path.includes("node_modules") || path.endsWith(".tgz")));
 assert.equal(report.name, "@kujolang/kujo-cmd"); assert.equal(report.version, "0.1.0");
 const packageJson = JSON.parse(await readFile(`${root}/package.json`, "utf8")); assert.equal(packageJson.dependencies["@kujolang/kujo-runtime"], "1.4.0");
+for (const workflowPath of [".github/workflows/kujo-cmd.yml", ".github/workflows/kujo-cmd-release.yml"]) {
+  const workflow = await readFile(workflowPath, "utf8");
+  assert.ok(!/uses:\s+[^\s]+@(v\d+|main|master)\b/.test(workflow), `${workflowPath} contains a mutable action ref`);
+}
+const releaseWorkflow = await readFile(".github/workflows/kujo-cmd-release.yml", "utf8");
+assert.ok(!/ubuntu-latest/.test(releaseWorkflow), "release workflow contains a mutable runner");
+assert.match(releaseWorkflow, /npm@11\.19\.0/);
+assert.match(releaseWorkflow, /merge-base --is-ancestor/);
 console.log("Command Code package release artifact passed");

@@ -24,14 +24,17 @@ local OS user is outside the isolation promise.
 | Capability spoofing | Exact Ability ID/version/digest in discovery and receipt; source commits pinned and recorded | Git commit trust follows reviewed upstream refs |
 | Prompt injection from repository | JSON schema, profile exposure, separate policy, no shell interpolation | Read tools can still return malicious text to the model |
 | Approval bypass/confused deputy | Non-read effects fail closed; approval is human CLI-only and bound to principal/digest/input/invocation/expiry | Command Code permission is not itself Kujo approval |
-| Approval replay | Atomic serialized state and one-time consumption | Local state deletion invalidates history, not completed effects |
-| Duplicate effects | Required idempotency key and persisted receipt replay | Non-idempotent upstream tools must not be marked keyed without proof |
-| Path traversal/symlink escape | Workspace/file paths remain under project; symlink workspace roots rejected | Product-specific internal path handling remains its owner's boundary |
+| Approval replay | Cross-process locked state and one-time atomic consumption | Local state deletion invalidates history, not completed effects |
+| Duplicate effects | Cross-process keyed reservation, bounded sharded replay records, and fail-closed in-progress state | Evicted old keys are no longer replayable; a process killed after an external effect may leave an in-doubt reservation that requires receipt/artifact inspection and a deliberate new key |
+| Path traversal/symlink escape | Every existing path component is checked beneath the real project root; output parents cannot traverse symlinks | Product-specific internal path handling remains its owner's boundary |
 | Shell execution/injection | Child processes receive argument arrays; no shell; output/time bounded | Eval intentionally runs configured commands and therefore requires approval |
 | Network escalation | Default catalog is local; Watchdog accepts loopback HTTP only; RAG is local | Dispatch/RAG product configuration may itself name providers when expanded |
 | Forged host/model identity | Metadata is labeled caller-asserted | A future host-attestation contract is needed for trusted identity |
-| Receipt tampering | Mode-0600 local files, definition digest, append-only JSONL | Receipts are not signed against a malicious local user |
-| Restart/races | State survives process restart; in-process state transactions are serialized | Multiple simultaneous MCP server processes do not yet share an OS file lock |
+| Receipt tampering/exhaustion | Mode-0600 files, definition digest, append-only JSONL, per-record bounds, 8 MiB rotation with three archives | Receipts are not signed against a malicious local user |
+| Restart/races | State survives restart; approval, idempotency, and receipt mutations share an OS-visible lock | Network-filesystem locking semantics are not guaranteed; Kujo CMD is a local-host integration |
+| Project configuration spoofing | Project config is declarative and allowlisted; executable/source paths come from validated user-owned installation metadata | A malicious process running as the same OS user remains outside the isolation promise |
+| Destructive cleanup | Skill names are catalog allowlisted/direct children; purge verifies installation ownership and rejects broad roots | A malicious same-user process can still alter local files |
+| Watchdog PID reuse | Stored script identity is matched against the live command before stop signals | Process inspection depends on platform command-line reporting |
 | Cancellation ambiguity | Abort terminates child and emits cancelled receipt | External effects may race termination; inspect before retry |
 | Source/update compromise | Exact public commits, detached checkout, no lifecycle scripts from source repos | Commit allowlist updates require maintainer review |
 | Host/mod impersonation | No mod is installed; exact local MCP command path is generated | Untrusted projects can contain competing MCP configuration |

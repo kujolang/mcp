@@ -66,9 +66,13 @@ message = await rpc.request("tools/call", { name: "kujo_scout_inspect", argument
 assert.equal(message.result.structuredContent.replayed, true); assert.equal(message.result.structuredContent.receipt.receipt_id, receiptId);
 message = await rpc.request("tools/call", { name: "kujo_changebucket_measure", arguments: { path: ".", base: "HEAD" } }); assert.equal(message.result.structuredContent.ok, true);
 message = await rpc.request("tools/call", { name: "kujo_spec_validate", arguments: { path: ".", file: "bad.spec.yml", strict: true } }); assert.equal(message.result.structuredContent.ok, false); assert.equal(message.result.structuredContent.receipt.error.code, "kujo_command_failed");
-message = await rpc.request("tools/call", { name: "kujo_ability_receipts", arguments: { limit: 100 } });
+message = await rpc.request("tools/call", { name: "kujo_ability_receipts", arguments: { limit: 50 } });
+assert.equal(message.result.structuredContent.ok, true, JSON.stringify(message.result.structuredContent));
 assert.ok(message.result.structuredContent.receipt.result.receipts.some((receipt) => receipt.receipt_id === receiptId));
 rpc.close();
 
-const config = JSON.parse(await readFile(join(project, ".kujo", "cmd.json"), "utf8")); assert.equal(Object.keys(config.sources).length, 14);
+const config = JSON.parse(await readFile(join(project, ".kujo", "cmd.json"), "utf8"));
+const installation = JSON.parse(await readFile(join(home, "installation.json"), "utf8"));
+assert.equal(config.sources, undefined);
+assert.equal(Object.keys(installation.sources).length, 14);
 console.log("Command Code local package compatibility: setup, discovery, schema metadata, canonical invocation, approvals, receipts, concurrency, and restart passed");
