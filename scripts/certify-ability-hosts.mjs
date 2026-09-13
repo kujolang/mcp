@@ -33,7 +33,7 @@ function record(id, host, tier, displayCommand, result, limitations = [], artifa
   return { id, host, tier, command: displayCommand, ...result, limitations, artifact };
 }
 
-const kujoBin = join(workspace, "kujo/target/debug/kujo");
+const kujoBin = join(workspace, "kujo/target/release/kujo");
 const checks = [];
 checks.push(record("portable-package", "portable", "package-validated", "node tests/portable_ability_plugin_test.mjs", command("node", ["tests/portable_ability_plugin_test.mjs"], root)));
 checks.push(record("generic-stdio", "generic-stdio", "protocol-certified", "node tests/ability_host_bridge_test.mjs", command("node", ["tests/ability_host_bridge_test.mjs"], root)));
