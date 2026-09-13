@@ -1,0 +1,35 @@
+#!/usr/bin/expect -f
+
+set timeout 90
+stty rows 35 columns 122
+
+spawn -noecho $env(COMMAND_CODE_BIN) $env(COMMAND_CODE_DEMO_PROMPT) \
+  --model $env(COMMAND_CODE_OLLAMA_MODEL) \
+  --no-session \
+  --trust \
+  --yolo \
+  --skip-onboarding \
+  --no-auto-update \
+  --theme dark
+
+expect {
+  -re {Worked for [0-9]+s} {
+    after 5000
+    send -- "\004"
+    set timeout 10
+    expect {
+      eof {}
+      timeout {
+        send -- "\003"
+        expect eof
+      }
+    }
+  }
+  eof {}
+  timeout {
+    send -- "\003"
+    after 1000
+    send -- "/exit\r"
+    expect eof
+  }
+}

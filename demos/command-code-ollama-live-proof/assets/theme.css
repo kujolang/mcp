@@ -1,0 +1,10 @@
+@font-face {
+  font-family: "Departure Mono";
+  src: url("DepartureMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #060706; }
