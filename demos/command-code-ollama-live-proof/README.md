@@ -14,6 +14,10 @@ The surrounding proof frame uses Command Code's `#E4CCFF` accent. The narration
 script is locked in `narration.txt` and voiced with ElevenLabs Brian, whose
 provider metadata identifies it as American English.
 
+The end card pairs Command Code's official light wordmark with Kujo's canonical
+SVG logomark and Departure Mono wordmark. Their frozen source assets and
+provenance are recorded in `.media/`.
+
 ```bash
 python3 scripts/generate-narration.py
 npm run check
