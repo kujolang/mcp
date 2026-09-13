@@ -119,16 +119,19 @@
       }
       .brand-lockup {
         display: grid;
-        grid-template-columns: 700px 130px 700px;
+        grid-template-columns: minmax(0, 1fr) 130px minmax(0, 1fr);
         align-items: center;
-        justify-items: center;
         width: 1640px;
       }
       .command-code-wordmark {
         width: 680px;
         height: auto;
+        justify-self: start;
       }
       .crossover-x {
+        width: 100%;
+        text-align: center;
+        justify-self: stretch;
         color: #e4ccff;
         font: 78px/1 "Departure Mono", monospace;
       }
@@ -136,10 +139,18 @@
         display: flex;
         align-items: center;
         gap: 38px;
+        justify-self: end;
       }
       .kujo-mark {
+        position: relative;
         width: 190px;
         height: 190px;
+        background: #ffffff;
+      }
+      .kujo-mark::after {
+        content: "";
+        position: absolute;
+        inset: 0;
         background: #e4ccff;
         -webkit-mask: url(".media/images/logo_002.svg") center / contain no-repeat;
         mask: url(".media/images/logo_002.svg") center / contain no-repeat;
@@ -162,7 +173,7 @@
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="command-code-live" data-width="1920" data-height="1080" data-duration="28.5">
+    <div id="root" data-composition-id="command-code-live" data-width="1920" data-height="1080" data-duration="26">
       <div id="live-intro" class="clip intro" data-start="0" data-duration="1.75" data-track-index="1">
         <div class="intro-kicker">Actual host session · recorded live</div>
         <div class="intro-title">COMMAND CODE × KUJO</div>
@@ -182,12 +193,12 @@
         ></video>
       </div>
 
-      <div id="final-shell" class="clip screen-shell" data-start="20.22" data-duration="3.78" data-track-index="3">
+      <div id="final-shell" class="clip screen-shell" data-start="20.22" data-duration="1.28" data-track-index="3">
         <img src="assets/command-code-live-final.png" alt="Final Command Code response showing a verified Kujo receipt" />
       </div>
 
       <div id="live-badge" class="clip live-badge" data-start="1.75" data-duration="18.47" data-track-index="4">Live Command Code</div>
-      <div id="proof-badge" class="clip proof-badge" data-start="20.22" data-duration="3.78" data-track-index="5">npm 0.1.0 · receipt verified</div>
+      <div id="proof-badge" class="clip proof-badge" data-start="20.22" data-duration="1.28" data-track-index="5">npm 0.1.0 · receipt verified</div>
       <audio
         id="command-code-narration"
         src="assets/narration-brian-normalized.wav"
@@ -196,16 +207,16 @@
         data-track-index="6"
         data-volume="0.74"
       ></audio>
-      <div id="proof-rail" class="clip rail top" data-start="0" data-duration="24" data-track-index="7"><span>@kujolang/kujo-cmd · public package proof</span><span class="signal">0.1.0 / Live</span></div>
+      <div id="proof-rail" class="clip rail top" data-start="0" data-duration="21.5" data-track-index="7"><span>@kujolang/kujo-cmd · public package proof</span><span class="signal">0.1.0 / Live</span></div>
 
-      <section id="end-card" class="clip end-card" data-start="24" data-duration="4.5" data-track-index="8">
+      <section id="end-card" class="clip end-card" data-start="21.5" data-duration="4.5" data-track-index="8">
         <div class="brand-lockup">
-          <img id="command-code-wordmark" class="command-code-wordmark" src=".media/images/logo_001.svg" alt="Command Code" />
-          <div id="crossover-x" class="crossover-x">×</div>
           <div id="kujo-brand" class="kujo-brand">
             <div class="kujo-mark" role="img" aria-label="Kujo logomark"></div>
             <div class="kujo-wordmark">Kujo</div>
           </div>
+          <div id="crossover-x" class="crossover-x">×</div>
+          <img id="command-code-wordmark" class="command-code-wordmark" src=".media/images/logo_001.svg" alt="Command Code" />
         </div>
         <div id="end-link" class="end-link">kujolang.ai</div>
       </section>
@@ -215,11 +226,11 @@
         .fromTo("#live-shell", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, 1.75)
         .fromTo("#live-badge", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 1.95)
         .fromTo("#proof-badge", { opacity: 0, x: 18 }, { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, 20.22)
-        .fromTo("#end-card", { opacity: 0 }, { opacity: 1, duration: 0.34, ease: "power2.out" }, 24)
-        .fromTo("#command-code-wordmark", { opacity: 0, x: -28 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 24.14)
-        .fromTo("#crossover-x", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.42, ease: "back.out(1.6)" }, 24.36)
-        .fromTo("#kujo-brand", { opacity: 0, x: 28 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 24.28)
-        .fromTo("#end-link", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 24.72);
+        .fromTo("#end-card", { opacity: 0 }, { opacity: 1, duration: 0.34, ease: "power2.out" }, 21.5)
+        .fromTo("#kujo-brand", { opacity: 0, x: -28 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 21.64)
+        .fromTo("#crossover-x", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.42, ease: "back.out(1.6)" }, 21.86)
+        .fromTo("#command-code-wordmark", { opacity: 0, x: 28 }, { opacity: 1, x: 0, duration: 0.5, ease: "power2.out" }, 21.78)
+        .fromTo("#end-link", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 22.22);
     </script>
   </body>
 </html>
