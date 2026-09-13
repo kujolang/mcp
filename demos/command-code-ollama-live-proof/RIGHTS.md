@@ -10,5 +10,10 @@
 - The narration text is original to this repository and is stored in
   `narration.txt`. Generation details and content hashes are stored beside the
   audio in `assets/narration-brian.json`.
+- `.media/images/logo_001.svg` is Command Code's unmodified light wordmark from
+  its official public brand kit at `commandcode.ai/brand`.
+- `.media/images/logo_002.svg` is Kujo's canonical SVG logomark sourced from the
+  sibling `bb-kujo` repository. The rendered purple color is applied by the
+  composition without changing the source asset.
 
 This record documents provenance; it does not replace the provider's terms.
