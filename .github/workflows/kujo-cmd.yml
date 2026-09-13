@@ -1,0 +1,38 @@
+name: Kujo CMD
+
+on:
+  pull_request:
+    paths:
+      - "integrations/kujo-cmd/**"
+      - "integrations/kujo-ability/lib/**"
+      - ".github/workflows/kujo-cmd.yml"
+  push:
+    paths:
+      - "integrations/kujo-cmd/**"
+      - "integrations/kujo-ability/lib/**"
+      - ".github/workflows/kujo-cmd.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [20, 22]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: integrations/kujo-cmd
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: integrations/kujo-cmd/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm pack --dry-run
