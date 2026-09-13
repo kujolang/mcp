@@ -40,7 +40,22 @@ jobs:
         run: npm install --global npm@11.19.0
       - run: npm ci
       - run: npm test
+      - name: Check for an identical existing publication
+        id: registry
+        shell: bash
+        run: |
+          package_name="$(node -p "require('./package.json').name")"
+          package_version="$(node -p "require('./package.json').version")"
+          published_integrity="$(npm view "${package_name}@${package_version}" dist.integrity --json 2>/dev/null | tr -d '"' || true)"
+          if [[ -n "${published_integrity}" && "${published_integrity}" != "null" ]]; then
+            local_integrity="$(npm pack --dry-run --json | node -e "let value=''; process.stdin.on('data', chunk => value += chunk); process.stdin.on('end', () => process.stdout.write(JSON.parse(value)[0].integrity))")"
+            test "${published_integrity}" = "${local_integrity}"
+            echo "published=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "published=false" >> "${GITHUB_OUTPUT}"
+          fi
       - name: Publish public package with provenance
+        if: steps.registry.outputs.published != 'true'
         run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
