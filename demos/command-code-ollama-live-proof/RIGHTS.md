@@ -12,8 +12,8 @@
   audio in `assets/narration-brian.json`.
 - `.media/images/logo_001.svg` is Command Code's unmodified light wordmark from
   its official public brand kit at `commandcode.ai/brand`.
-- `.media/images/logo_002.svg` is Kujo's canonical SVG logomark sourced from the
-  sibling `bb-kujo` repository. The rendered purple color is applied by the
-  composition without changing the source asset.
+- `.media/images/logo_002.svg` is the unmodified Kujo SVG logomark served at
+  `https://kujolang.ai/assets/images/kujo-logomark.svg`. Its black field is
+  inverted to white by the composition while the K remains transparent.
 
 This record documents provenance; it does not replace the provider's terms.

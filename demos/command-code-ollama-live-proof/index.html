@@ -142,18 +142,10 @@
         justify-self: end;
       }
       .kujo-mark {
-        position: relative;
         width: 190px;
         height: 190px;
-        background: #ffffff;
-      }
-      .kujo-mark::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: #e4ccff;
-        -webkit-mask: url(".media/images/logo_002.svg") center / contain no-repeat;
-        mask: url(".media/images/logo_002.svg") center / contain no-repeat;
+        object-fit: contain;
+        filter: invert(1);
       }
       .kujo-wordmark {
         color: #f2f2ed;
@@ -212,7 +204,7 @@
       <section id="end-card" class="clip end-card" data-start="21.5" data-duration="4.5" data-track-index="8">
         <div class="brand-lockup">
           <div id="kujo-brand" class="kujo-brand">
-            <div class="kujo-mark" role="img" aria-label="Kujo logomark"></div>
+            <img class="kujo-mark" src=".media/images/logo_002.svg" alt="Kujo logomark" />
             <div class="kujo-wordmark">Kujo</div>
           </div>
           <div id="crossover-x" class="crossover-x">×</div>
