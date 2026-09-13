@@ -27,7 +27,7 @@ The `1.2.0` package is a release-ready portable host. Its Agent Plugins 1.0 mani
 | --- | --- | --- |
 | Agent Plugins 1.0 package | Locally validated preview | Manifest, MCP configuration, paths, metadata, and package contents only |
 | Codex plugin | Clean-profile install validated | `codex-cli 0.144.4` local marketplace add/list/install/remove lifecycle in an isolated `CODEX_HOME`; authenticated execution remains separately unproven |
-| Command Code | Installed configuration validated | `command-code 1.53.1` accepts and resolves the project STDIO MCP server; authenticated model-driven invocation remains separately unproven and protocol behavior is covered by the generic bridge suite |
+| Command Code | Model-driven local invocation validated | `command-code 1.53.1` with `ollama/glm-5.3:cloud` discovers the project STDIO MCP server, invokes `cms__site-info`, and receives a canonical succeeded receipt; generic bridge tests cover the wider protocol contract |
 | Cursor | Configuration lifecycle validated | Agent Plugin and manual `.cursor/mcp.json` configuration pass merge/disable/uninstall tests; no Cursor binary was available for an installed-host run |
 | VS Code / Copilot | Native managed read-only smoke certified | VS Code 1.136.0 completed its native callback and PKCE exchange, restored the session after restart, discovered two tools, and invoked `gateway_echo`; the gateway independently passes a browser-driven read-only OAuth lifecycle, while the full mutating editor suite remains separate |
 | Generic MCP bridge | Contract tested | Real STDIO process against a mock authenticated gateway, including cancellation, approval, replay denial, and idempotency conflict |

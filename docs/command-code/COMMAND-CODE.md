@@ -101,3 +101,9 @@ for `kujo.cms.site.inspect@1.0.0`. Server policy returned `allow`, the audit was
 written, and the process exited successfully. See the sanitized
 [`live evidence`](../../certification/evidence/command-code-ollama-live-2026-09-13.json)
 and [proof video](../../demos/command-code-ollama-proof/command-code-ollama-kujo-proof.mp4).
+
+For the real host view, use the
+[actual Command Code demo](../../demos/command-code-ollama-live-proof/command-code-ollama-kujo-live.mp4).
+It records the live TUI run, including the model route, MCP invocation, server
+policy decision, and canonical receipt. Re-record it with
+`bash scripts/record-command-code-ollama-live-demo.sh`.

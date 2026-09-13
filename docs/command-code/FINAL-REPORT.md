@@ -11,6 +11,10 @@ bridge, and received a canonical succeeded receipt. No Command Code account
 session was used. See the
 [`live evidence`](../../certification/evidence/command-code-ollama-live-2026-09-13.json)
 and [BB Kujo-themed proof video](../../demos/command-code-ollama-proof/command-code-ollama-kujo-proof.mp4).
+The companion
+[actual Command Code demo](../../demos/command-code-ollama-live-proof/command-code-ollama-kujo-live.mp4)
+shows the real TUI, model route, MCP tool call, policy decision, invocation ID,
+receipt ID, and successful result.
 
 ## Changed surface
 
@@ -20,6 +24,7 @@ and [BB Kujo-themed proof video](../../demos/command-code-ollama-proof/command-c
 - Model-driven Command Code + Ollama Cloud evidence and validator.
 - Reproducible ephemeral CMS demonstration script.
 - A 25-second proof video and editable HyperFrames source.
+- An 18-second real Command Code TUI recording, reproducible capture script, and BB Kujo-framed HyperFrames render.
 - Research, gap analysis, ADR, security model, user guide, and real workflow example.
 
 Exact files changed from the research baseline:
@@ -29,6 +34,7 @@ README.md
 certification/evidence/ability-hosts-local.json
 certification/evidence/command-code-ollama-live-2026-09-13.json
 demos/command-code-ollama-proof/*
+demos/command-code-ollama-live-proof/*
 docs/ability-host-conformance.md
 docs/ability-host-deployment.md
 docs/command-code/ADR.md
@@ -53,6 +59,8 @@ kujo.toml
 mcp-server.json
 scripts/certify-ability-hosts.mjs
 scripts/run-command-code-ollama-demo.sh
+scripts/record-command-code-ollama-live-demo.exp
+scripts/record-command-code-ollama-live-demo.sh
 scripts/generate-ability-compatibility.mjs
 tests/ability_compatibility_matrix_test.mjs
 tests/ability_connector_cli_test.mjs
@@ -76,6 +84,7 @@ Executed verification:
 - `node tests/command_code_ollama_live_evidence_test.mjs` — passed against sanitized live evidence.
 - `npm run check -- --snapshots` in `demos/command-code-ollama-proof` — passed with 101/101 contrast checks.
 - HyperFrames high-quality render plus `ffprobe` — passed at 1920×1080, 30 fps, 25.0 seconds.
+- Live Command Code capture and HyperFrames check/render — passed at 1920×1080, 30 fps, 18.0 seconds with 100% source-frame coverage.
 - `node scripts/certify-ability-hosts.mjs` — passed and produced immutable host evidence.
 - `node scripts/generate-ability-compatibility.mjs` and `node tests/ability_compatibility_matrix_test.mjs` — passed.
 - `git diff --check` and reproducible package/SBOM/provenance validation — passed.

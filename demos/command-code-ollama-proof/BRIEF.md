@@ -27,6 +27,7 @@ monochrome hierarchy, Departure Mono labels, thin rails, and a brief signal edge
 
 - Show the exact verified model route, tool name, Ability identity, policy outcome, invocation ID, and receipt ID from the live run.
 - End on the architectural verdict: standard MCP projection, zero bespoke Command Code adapter.
+- Include a companion composition built from a real Command Code TUI capture in which GLM 5.3 invokes the Ability and explains the integration.
 
 ## Notes
 
