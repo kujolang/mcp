@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { execFile } from "node:child_process";
+import { existsSync } from "node:fs";
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -31,7 +32,10 @@ await writeFile(join(project, "README.md"), "# Fixture\n"); await writeFile(join
 await exec("git", ["init", "-q"], { cwd: project }); await exec("git", ["add", "."], { cwd: project }); await exec("git", ["-c", "user.name=Kujo", "-c", "user.email=kujo@example.invalid", "commit", "-qm", "fixture"], { cwd: project }); await writeFile(join(project, "README.md"), "# Fixture\n\nChanged.\n");
 await exec(process.execPath, [join(packageRoot, "scripts", "build-release.mjs")]);
 const env = { KUJO_CMD_HOME: home, KUJO_CMD_PROJECT: project, KUJO_BIN: kujo };
-const setup = JSON.parse((await exec(process.execPath, [cli, "setup", "--project", project, "--source-root", sourceRoot, "--json"], { env: { ...process.env, ...env } })).stdout);
+const localCatalogAvailable = ["ability", "scout", "scent", "patchbrief", "changebucket", "shipcheck", "dispatch", "runledger", "watchdog", "rag", "fence", "spec", "eval", "kujo-skills"]
+  .every((source) => existsSync(join(sourceRoot, source)));
+const setupArgs = [cli, "setup", "--project", project, ...(localCatalogAvailable ? ["--source-root", sourceRoot] : []), "--json"];
+const setup = JSON.parse((await exec(process.execPath, setupArgs, { env: { ...process.env, ...env }, timeout: 180_000 })).stdout);
 assert.equal(setup.ok, true); assert.equal(setup.hosted_service_required, false); assert.equal(setup.abilities, 5);
 
 let rpc = rpcProcess(env);
