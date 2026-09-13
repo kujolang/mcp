@@ -1,39 +1,50 @@
 # Command Code gap analysis
 
-## Works without bespoke code
+## Works now
 
-- Dynamic Ability discovery and schema projection over STDIO MCP.
-- Direct Streamable HTTP MCP and OAuth/PKCE against the managed gateway.
-- Structured calls, outputs, errors, effects metadata, receipts, cancellation, keyed idempotency, and externally issued approvals.
-- Automatic availability of newly exposed Abilities after the next `tools/list`.
-- Canonical Kujo Agent Skills through `.agents/skills` or `--skill`.
-- Host restart: configuration is project-persistent; the bridge is stateless and rediscovers tools.
-- Gateway restart: each bridge operation uses a fresh HTTP request; failures are explicit MCP errors and later calls can recover.
+| Capability | Status |
+| --- | --- |
+| One-command project setup | `npx @kujolang/kujo-cmd setup` release candidate; installs sources, runtime, MCP, skills, and smoke-checks discovery. |
+| Local execution | STDIO MCP and canonical Kujo CLIs; no Kujo-hosted service. |
+| Dynamic discovery | Profile-filtered catalog with exact schemas, effects, versions, and digests. |
+| Profiles | Portable `kujo.ability-profile/v1`; all sources remain installed while exposure changes. |
+| Skills | Generated/symlinked from one pinned `kujo-skills` source into `.agents/skills`. |
+| Policy and approval | Read allowed; write/delete/external require input-bound, expiring, one-time approval. |
+| Receipts | Local append-only JSONL with policy, approval, idempotency, timing, and host/run/session/agent/model correlation. |
+| Restart and retry | Persistent approvals/idempotency/receipts survive MCP and host restarts; keyed retries replay receipts. |
+| Cancellation/concurrency | MCP cancellation terminates child work; calls run concurrently; state mutation is serialized. |
+| Optional Watchdog | Explicit local loopback service start/stop/status and health Ability. |
 
-## Partial support
+## Partial or explicit degradation
 
-- Cancellation aborts the bridge request, but Ability v1 cannot guarantee hard interruption or resumability inside every handler.
-- Host/session/agent/model identity can be carried as invocation metadata by native projections, but Command Code does not export a trustworthy generic MCP context envelope.
-- Effects are preserved as metadata and receipts; Command Code does not natively render or authorize from Kujo's effect vocabulary.
-- Command Code session persistence and Kujo application persistence coexist, but are not one transaction.
-- Agent delegation can call MCP tools, but Command Code only supports one subagent level and does not implement Kujo's Chain of Command semantics.
+- Command Code supplies no trustworthy standard MCP session/model/agent
+  envelope. `_kujo` correlation fields are preserved but caller-asserted.
+- Process termination is best-effort. A killed tool may have completed an
+  external effect before cancellation; inspect receipts/artifacts before retry.
+- Command Code tool permissions do not mint Kujo approvals. Approval remains a
+  separate CLI action so a model cannot approve itself.
+- Profiles select tools and corresponding skills, but Command Code currently
+  needs a restart/tool refresh after profile changes.
+- Watchdog health is integrated; native turn/tool telemetry needs a lifecycle
+  API and is therefore not silently claimed.
+- Dispatch validation is exposed. Dispatch execution remains authoritative in
+  Dispatch and should be added only with its provider and worker dependencies
+  expressed as a canonical Ability pack.
+- RAG query expects a local index. No remote index is substituted.
 
-## Missing portable host concepts
+## Deliberately not implemented
 
-Ability v1 is intentionally an operation contract. It does not model host lifecycle, bidirectional capability negotiation, candidate completion, host event streams, host-native agent spawning, or verified model/session identity. These belong in a separate generic Host Capability contract, not in Command Code-named fields and not in MCP transport semantics.
+- Host-named copies of Kujo primitives or skills.
+- A managed/hybrid Kujo execution service.
+- In-band self-approval.
+- Experimental mod hooks as an authorization boundary.
+- Command Code agents masquerading as Kujo Chain-of-Command workers.
+- Jidoka completion gating without a negotiated fail-closed host lifecycle.
 
-The most valuable candidate is a fail-closed `HostCompletionGate`: a host declares support; sends candidate completion plus stable run identity and evidence; Kujo returns pass, revise, or deny; the host resumes work with bounded, observable attempts. It must define failure policy and recovery. Command Code mods are experimental, fail-open on hook errors, execute unsandboxed, and cap continuation, so they are not yet a dependable implementation.
+## Remaining worthwhile generic work
 
-## Unnecessary host-specific features
-
-- A `kujo-commandcode` implementation of Kujo primitives.
-- Per-Ability Command Code tool registration.
-- Command Code-specific copies of Spec, Eval, Dispatch, RunLedger, Watchdog, Shipcheck, Fence, Muzzle, Leash, or Jidoka.
-- Hand-copied Command Code skills.
-- A mod used merely to wrap existing MCP tools.
-- Mapping Command Code permission prompts to Kujo approvals.
-
-## Worthwhile host-specific value
-
-Today: only exact configuration generation and documentation. Later, if a stable API exists: a disposable projection of a generic Host Capability contract for lifecycle telemetry, verified context exchange, native workers, and completion gating. Such a projection must contain no Kujo business logic, negotiate every optional capability, fail explicitly, and be safe to remove.
-
+A separately versioned Host Capability contract could cover verified host
+identity, lifecycle events, native agent workers, telemetry, and candidate
+completion gates. It should be implemented only when at least two hosts expose
+stable equivalents. Command Code's current mod hooks are useful experimental
+input, not yet a safe cross-host contract.

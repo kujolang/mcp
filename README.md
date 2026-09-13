@@ -84,6 +84,14 @@ the public `mcp.kujolang.ai` catalog into a privileged execution service.
 Deployment profiles and the enterprise control checklist are documented in
 [`docs/ability-host-deployment.md`](docs/ability-host-deployment.md).
 
+[`integrations/kujo-cmd`](integrations/kujo-cmd) is the local-first Command
+Code product. Its one-command setup acquires a pinned canonical Kujo catalog,
+installs a durable cross-platform runtime and STDIO projection, projects
+profile-relevant canonical Agent Skills, and requires no Kujo-hosted execution
+service. The reusable local host preserves effects, approvals, idempotency,
+cancellation, identities, and receipts while product CLIs retain all domain
+behavior. See [`docs/command-code/COMMAND-CODE.md`](docs/command-code/COMMAND-CODE.md).
+
 The canonical definition contract is maintained in and consumed directly from
 [`kujolang/ability`](https://github.com/kujolang/ability).
 

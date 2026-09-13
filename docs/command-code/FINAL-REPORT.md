@@ -1,109 +1,80 @@
-# Command Code integration final report
+# Command Code local integration final report
 
 ## Outcome
 
-Kujo can project portable capabilities into Command Code without rebuilding Kujo. The chosen production shape is Command Code → standard MCP → Ability Gateway → Ability runtime. The only Command Code-specific implementation is configuration recognition/templates; there is no adapter, mod, or duplicated primitive.
+Kujo's Ability architecture can support a substantially different agent host
+without rebuilding Kujo. The zero-extension hypothesis was correct for host
+transport and wrong for complete product delivery: standard MCP was enough for
+Command Code, but a reusable local Ability host and portable profile contract
+were needed to deliver local tools from npm without an application gateway.
 
-This is now proven with an actual model, not only configuration and protocol
-fixtures: Command Code 1.53.1 routed a request to
-`ollama/glm-5.3:cloud`, called a real CMS Ability through the generic STDIO
-bridge, and received a canonical succeeded receipt. No Command Code account
-session was used. See the
-[`live evidence`](../../certification/evidence/command-code-ollama-live-2026-09-13.json)
-and [BB Kujo-themed proof video](../../demos/command-code-ollama-proof/command-code-ollama-kujo-proof.mp4).
-The companion
-[actual Command Code demo](../../demos/command-code-ollama-live-proof/command-code-ollama-kujo-live.mp4)
-shows the real TUI, model route, MCP tool call, policy decision, invocation ID,
-receipt ID, and successful result.
-
-## Changed surface
-
-- Command Code host detection, `.mcp.json` generation, and STDIO/HTTP templates.
-- Package release version 1.2.0 and host certification/matrix coverage.
-- Clean-profile installed Command Code 1.53.1 configuration test.
-- Model-driven Command Code + Ollama Cloud evidence and validator.
-- Reproducible ephemeral CMS demonstration script.
-- A 25-second proof video and editable HyperFrames source.
-- An 18-second real Command Code TUI recording, reproducible capture script, and BB Kujo-framed HyperFrames render.
-- Research, gap analysis, ADR, security model, user guide, and real workflow example.
-
-Exact files changed from the research baseline:
+The result is `@kujolang/kujo-cmd` 0.1.0, a release candidate for:
 
 ```text
-README.md
-certification/evidence/ability-hosts-local.json
-certification/evidence/command-code-ollama-live-2026-09-13.json
-demos/command-code-ollama-proof/*
-demos/command-code-ollama-live-proof/*
-docs/ability-host-conformance.md
-docs/ability-host-deployment.md
-docs/command-code/ADR.md
-docs/command-code/COMMAND-CODE.md
-docs/command-code/FINAL-REPORT.md
-docs/command-code/GAP-ANALYSIS.md
-docs/command-code/RESEARCH.md
-docs/command-code/THREAT-MODEL.md
-docs/generated/ability-host-compatibility.md
-integrations/kujo-ability/.codex-plugin/plugin.json
-integrations/kujo-ability/CHANGELOG.md
-integrations/kujo-ability/README.md
-integrations/kujo-ability/bin/kujo-ability-mcp.mjs
-integrations/kujo-ability/bin/kujo-ability.mjs
-integrations/kujo-ability/examples/command-code-repository-inspection.md
-integrations/kujo-ability/host-configs/command-code-http.json
-integrations/kujo-ability/host-configs/command-code-stdio.json
-integrations/kujo-ability/package.json
-integrations/kujo-ability/plugin.json
-kennel.toml
-kujo.toml
-mcp-server.json
-scripts/certify-ability-hosts.mjs
-scripts/run-command-code-ollama-demo.sh
-scripts/record-command-code-ollama-live-demo.exp
-scripts/record-command-code-ollama-live-demo.sh
-scripts/generate-ability-compatibility.mjs
-tests/ability_compatibility_matrix_test.mjs
-tests/ability_connector_cli_test.mjs
-tests/ability_host_bridge_test.mjs
-tests/ability_package_release_test.mjs
-tests/codex_clean_profile_test.mjs
-tests/command_code_clean_profile_test.mjs
-tests/command_code_ollama_live_evidence_test.mjs
-tests/run_all_tests.sh
-tests/test_03_endpoint_integration.sh
+npx @kujolang/kujo-cmd setup
 ```
 
-## Validation and limitations
+It acquires every supported canonical source at a reviewed commit, installs a
+durable copy of the official platform runtime and projection, configures one
+STDIO MCP server, projects canonical skills for the selected profile, and runs
+a real local Ability smoke test. No Kujo-hosted service is required.
 
-The generic bridge suite proves dynamic discovery, schema/effect fidelity, structured invocation/results, receipts, cancellation, approval enforcement, replay resistance, and idempotency conflict. Connector tests prove safe configuration lifecycle. Command Code 1.53.1 accepts and resolves the generated project server. A live Ollama Cloud run proves model-driven host discovery and invocation. Managed gateway tests cover HTTP MCP independently.
+## Implemented capability
 
-Executed verification:
+- Four portable profiles and per-Ability enable/disable without reinstalling.
+- Fourteen local Abilities spanning catalog/receipts, Scout, Scent,
+  PatchBrief, ChangeBucket, ShipCheck, Fence, Spec, Eval, RunLedger, Dispatch,
+  RAG, and Watchdog health.
+- Dynamic schema/effect/digest discovery, structured results/errors,
+  cancellation, concurrent calls, request-bound approval, keyed idempotency,
+  persistent receipts, and restart recovery.
+- Commands: `setup`, `doctor`, `status`, `profiles`, `profile`, `abilities`,
+  `enable`, `disable`, `approve`, `services`, `update`, `repair`, and
+  `uninstall`.
+- Canonical Agent Skills projection and optional loopback Watchdog lifecycle.
+- Exact protocol-version rejection and explicit feature degradation.
 
-- `bash tests/run_all_tests.sh` — passed.
-- `KUJO_REQUIRE_COMMAND_CODE=1 node tests/command_code_clean_profile_test.mjs` — passed with Command Code 1.53.1.
-- `node tests/command_code_ollama_live_evidence_test.mjs` — passed against sanitized live evidence.
-- `npm run check -- --snapshots` in `demos/command-code-ollama-proof` — passed with 101/101 contrast checks.
-- HyperFrames high-quality render plus `ffprobe` — passed at 1920×1080, 30 fps, 25.0 seconds.
-- Live Command Code capture and HyperFrames check/render — passed at 1920×1080, 30 fps, 18.0 seconds with 100% source-frame coverage.
-- `node scripts/certify-ability-hosts.mjs` — passed and produced immutable host evidence.
-- `node scripts/generate-ability-compatibility.mjs` and `node tests/ability_compatibility_matrix_test.mjs` — passed.
-- `git diff --check` and reproducible package/SBOM/provenance validation — passed.
+## Verification
 
-Command Code 1.53.1 still performs an auth-value presence check before its
-documented local-only BYOK path. The verified launcher pairs
-`CMD_LOCAL_ONLY=1` with a non-secret sentinel; this is an upstream workaround,
-not a Command Code credential. Managed Ability Gateway arbitrary customer
-backend registration is also not generally available. Handler-level resumable
-cancellation, verified host/session/model/agent context, native worker
-negotiation, and Jidoka completion gating are outside Ability v1.
+Automated tests cover profile inheritance/overrides, schema metadata,
+configuration merging/removal, skills projection, fail-closed approvals,
+approval replay, idempotency conflict/replay across restart, cancellation,
+concurrency, protocol mismatch, canonical PatchBrief and Scout invocation,
+receipt correlation, offline local-source setup, and packed-artifact setup.
 
-## Upstream assumptions and follow-up
+A fresh network acquisition of all 14 pinned repositories completed in under
+30 seconds on the verification host. The generated npm tarball installed via
+`npx --package=<tarball> kujo-cmd setup`; the resulting installation required
+no hosted endpoint.
 
-Assumptions are Command Code's documented `.mcp.json`, STDIO/HTTP MCP,
-local-only BYOK routing, OAuth/PKCE, Agent Skills, and current permission
-behavior. Experimental mods are explicitly not assumed. Recommended follow-up
-is to repeat the Ollama read and one approved mutation on every supported
-Command Code release, remove the sentinel workaround when upstream fixes the
-local-only gate, then design a generic fail-closed Host Capability/Completion
-Gate contract with at least one other host before building any lifecycle
-projection.
+The model-driven replay passed with Command Code 1.53.1 and
+`ollama/glm-5.3:cloud`: the model called
+`mcp__kujo__kujo_ability_catalog` exactly once, received the Essentials catalog
+and a succeeded local receipt, and accurately reported the returned capability
+IDs. Command Code's local-only auth-value inconsistency was handled with the
+existing non-secret sentinel under `CMD_LOCAL_ONLY=1`; no Command Code account
+session or Kujo-hosted service was used. Evidence is in
+`certification/evidence/command-code-kujo-cmd-live-2026-09-13.json`.
+
+## Release assumptions and limitations
+
+- Publish only after explicit release authorization; neither package nor
+  source pins were published by this work.
+- Runtime support follows `@kujolang/kujo-runtime@1.4.0`: macOS x64/arm64,
+  Linux x64/arm64, and Windows x64. Only macOS x64 was executed here.
+- Initial setup/update requires npm, Git, and GitHub; execution is offline.
+- Command Code needs restart/tool refresh after profile changes.
+- Host/session/model/agent metadata is caller-asserted until MCP or a stable
+  Command Code API provides attestation.
+- Native lifecycle telemetry, host-agent delegation, and Jidoka completion
+  gating remain future generic Host Capability work.
+- Multi-process receipt state needs an OS-level lock before high-concurrency
+  multi-host use; one Command Code MCP server serializes mutations correctly.
+
+## Recommended follow-up
+
+Record the verified live GLM 5.3 scenario as an updated real-TUI video. Then
+validate the packed artifact on macOS arm64, Linux x64/arm64, and Windows x64
+before npm publication. Promote each catalog entry into its product repository
+as a signed domain-owned Ability pack as those packages adopt the stable
+profile/local-host contract.

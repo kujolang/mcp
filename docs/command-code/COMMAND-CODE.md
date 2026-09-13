@@ -1,109 +1,108 @@
 # Using Kujo from Command Code
 
-Command Code 1.53.1 or newer can consume Kujo through MCP. No mod is required.
-
-## Local Ollama setup
-
-The verified local path uses Command Code 1.53.1, Ollama 0.34.0, and
-`ollama/glm-5.3:cloud`. An Ollama Cloud login is sufficient for the model
-provider; a paid Command Code account is not required for this path.
+## Install
 
 ```bash
-ollama pull glm-5.3:cloud
-
-# ~/.commandcode/config.json
-{ "localOnly": true }
+cd /path/to/your/project
+npx @kujolang/kujo-cmd setup
+command-code
 ```
 
-Add Ollama to `~/.commandcode/providers.json` with base URL
-`http://127.0.0.1:11434/v1`, `apiKey: false`, and model key
-`glm-5.3:cloud`. The configured workstation launcher is
-`~/.local/bin/cmd-ollama`; it selects `ollama/glm-5.3:cloud` and forces
-`CMD_LOCAL_ONLY=1`.
+That installs the full supported Kujo source catalog and official Kujo runtime
+under the user's local data directory, adds one project STDIO MCP server, links
+the relevant canonical Agent Skills, and performs a real discovery call. No
+Kujo account, public server, managed gateway, manual repository clone, or
+per-tool wiring is required. GitHub/npm are needed for initial acquisition and
+updates; normal execution is local and works offline.
 
-Command Code 1.53.1 has one upstream local-only inconsistency: it checks that an
-auth value exists before entering its documented BYOK path, even when
-`localOnly` is true. The launcher supplies the non-secret value
-`local-only-placeholder` only to satisfy that local gate. Never use this
-sentinel without `CMD_LOCAL_ONLY=1`. It is not a Command Code credential.
-
-From this repository, reproduce the complete model-driven CMS demonstration:
+The npm package is currently a release candidate. Before registry publication,
+test the packed artifact with:
 
 ```bash
-bash scripts/run-command-code-ollama-demo.sh
+npx --package=/path/to/kujolang-kujo-cmd-0.1.0.tgz kujo-cmd setup
 ```
 
-The script creates an ephemeral CMS database and token, generates an ephemeral
-Command Code MCP project, invokes one real Ability, and removes the temporary
-state. It never writes the gateway token into project configuration.
+## What appears in Command Code
 
-## Managed Ability Gateway
-
-Add a project server:
+The default Essentials profile exposes catalog and receipt inspection plus
+Scout, PatchBrief, and ShipCheck. Review adds ChangeBucket, Fence, Spec, and
+Scent. Ship adds Eval and RunLedger. Full adds Dispatch validation, local RAG
+query, and optional Watchdog health. Every source is already local, so changing
+profiles is instant:
 
 ```bash
-cmd mcp add --transport http --scope project kujo-ability https://ability.kujolang.ai/mcp
-cmd mcp auth kujo-ability
-cmd mcp list
+kujo-cmd profiles
+kujo-cmd profile kujo.profile.review
+kujo-cmd abilities
+kujo-cmd enable kujo.rag.knowledge.query
 ```
 
-The checked-in equivalent is `integrations/kujo-ability/host-configs/command-code-http.json`. The managed service is a controlled beta and currently exposes its registered gateway catalog, not arbitrary local application handlers.
+Restart Command Code after changing profile exposure. New catalog entries are
+projected dynamically; no per-tool host registration code is needed.
 
-## Application-owned gateway
+## Approvals and receipts
 
-From `integrations/kujo-ability`, set the gateway URL and optional least-privilege bearer token in the environment that launches Command Code, then generate the project configuration:
+Read-only calls execute under local policy. Write/delete/external calls return
+`ability_approval_required` with the exact Ability ID, invocation ID, and input.
+Copy those values into:
 
 ```bash
-export KUJO_ABILITY_GATEWAY_URL=http://127.0.0.1:8080
-export KUJO_ABILITY_GATEWAY_TOKEN='from-your-secret-manager'
-node bin/kujo-ability.mjs connect --host command-code
-cmd mcp get kujo-ability
+kujo-cmd approve \
+  --ability kujo.scout.repository.inspect \
+  --invocation scout-1 \
+  --input '{"path":".","quick":true,"output_dir":".kujo/scout"}'
 ```
 
-The connector merges `.mcp.json`, preserves unrelated servers, and never writes the token. Non-loopback gateways must use HTTPS. Restart Command Code after changing inherited environment variables.
+Retry the identical call with the returned value in `_kujo.approvalId`, the
+same `_kujo.invocationId`, and an `_kujo.idempotencyKey`. The approval expires,
+is input/principal/digest-bound, and can be consumed once. Command Code's own
+tool prompt remains an independent outer permission boundary.
 
-Ask Command Code to use the relevant `mcp__kujo-ability__...` tool. Discovery is dynamic: exposing a new Ability at the gateway makes it available on the next MCP tool refresh without updating Command Code integration code. MCP tools are unavailable in Command Code plan mode.
+Receipts live at `~/.local/share/kujo/cmd/receipts.jsonl` by default and are
+also returned as MCP structured content. Use `kujo_ability_receipts` or
+`kujo-cmd status` to locate them. `_kujo.sessionId`, `runId`, `agentId`, and
+`modelId` are retained for correlation but are caller-asserted because MCP does
+not provide verified Command Code host identity.
 
-## Approvals, receipts, and traces
+## Local models
 
-Read-only calls normally execute under gateway policy. Mutating calls may return `approval_required`. A Command Code permission prompt is not a Kujo approval. Collect approval in the trusted application/UI, then provide the resulting server-bound ID through `_kujo.approvalId`. Never give the agent approval-issuance credentials.
+Kujo CMD does not choose or proxy the model. Command Code can use its supported
+Ollama provider, including `ollama/glm-5.3:cloud`, independently of Kujo.
+Command Code 1.53.1 still checks that an auth value exists before entering its
+documented local-only/BYOK path. The verified local launcher sets
+`CMD_LOCAL_ONLY=1` and the non-secret sentinel
+`COMMAND_CODE_API_KEY=local-only-placeholder`; it is not a Command Code
+credential and must never be used without local-only mode. With that host
+workaround, `ollama/glm-5.3:cloud` completed a real model-driven Kujo CMD tool
+call without a Command Code account session.
 
-Use `_kujo.invocationId` to correlate a host run and `_kujo.idempotencyKey` for safe keyed retries. Both are adapter controls and are removed before domain schema validation. Successful structured results include the canonical Ability receipt; preserve it in RunLedger or the calling workflow. Effects and Ability identity are available in tool `_meta`.
-
-## Skills and agents
-
-Point Command Code at canonical Kujo skills rather than copying them:
+## Operations and troubleshooting
 
 ```bash
-cmd --skill /absolute/path/to/kujo-skills/skills/loop-engineering
+kujo-cmd doctor --json
+kujo-cmd status
+kujo-cmd repair
+kujo-cmd update
+kujo-cmd services start watchdog   # optional, loopback only
+kujo-cmd services status watchdog
+kujo-cmd uninstall                 # keep shared sources and receipts
+kujo-cmd uninstall --purge         # remove shared local data too
 ```
 
-Command Code also reads `.agents/skills`. A generated or linked projection should have one canonical source. Command Code custom agents may act as local workers, but Kujo Dispatch remains authoritative for Kujo orchestration. Command Code subagents are limited to one nesting level.
+If tools do not appear, run `kujo-cmd doctor`, inspect `.mcp.json`, and restart
+Command Code. Plan mode hides MCP tools. If a command fails, inspect the
+structured error and receipt rather than retrying a mutating call blindly.
+`KUJO_CMD_HOME` relocates shared state and `KUJO_BIN` selects an explicitly
+installed compatible runtime.
 
-## Troubleshooting
+## Example workflow
 
-- `cmd mcp get kujo-ability`: confirm scope, transport, enabled status, command, and URL.
-- `Not authenticated` in local-only mode: launch with `cmd-ollama` or set both `CMD_LOCAL_ONLY=1` and the documented non-secret local sentinel workaround above.
-- `approval_required`: use a trusted external approval flow; do not add an approval tool to the same agent.
-- `unknown tool`: refresh discovery and confirm the principal is allowed to see the Ability surface.
-- connection error: verify the application gateway is running and the inherited URL/token are present.
-- plan mode: switch to an execution mode because Command Code hides MCP tools in plan mode.
-- inspect the returned `receipt.invocation_id`, request/trace identifiers, status, policy decision, and audit metadata for correlation.
+Ask Command Code:
 
-No lifecycle mod is shipped. Command Code's mod API is experimental and is not a security or completion-gating boundary.
+> Use the Kujo Ability catalog. Summarize my current changes with PatchBrief,
+> measure their footprint with ChangeBucket, validate the task Spec, and run a
+> ShipCheck scan. Cite the receipt IDs and do not claim success for any failed
+> check.
 
-## Verified live evidence
-
-On 2026-09-13, Command Code 1.53.1 selected
-`ollama/glm-5.3:cloud`, discovered `kujo-ability` over STDIO MCP, invoked
-`mcp__kujo-ability__cms__site-info`, and received a succeeded canonical receipt
-for `kujo.cms.site.inspect@1.0.0`. Server policy returned `allow`, the audit was
-written, and the process exited successfully. See the sanitized
-[`live evidence`](../../certification/evidence/command-code-ollama-live-2026-09-13.json)
-and [proof video](../../demos/command-code-ollama-proof/command-code-ollama-kujo-proof.mp4).
-
-For the real host view, use the
-[actual Command Code demo](../../demos/command-code-ollama-live-proof/command-code-ollama-kujo-live.mp4).
-It records the live TUI run, including the model route, MCP invocation, server
-policy decision, and canonical receipt. Re-record it with
-`bash scripts/record-command-code-ollama-live-demo.sh`.
+The host discovers these through one MCP connection. Each call runs the
+canonical product locally and returns a correlated Ability receipt.

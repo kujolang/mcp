@@ -1,29 +1,62 @@
-# ADR: Integrate Command Code through Ability Gateway MCP
+# ADR: local Ability host plus thin Command Code projection
 
-Status: accepted, 2026-09-13.
+Status: accepted, supersedes the configuration-only decision, 2026-09-13.
 
 ## Decision
 
-Choose Option A with a configuration-only host projection. Command Code consumes Kujo through its standard MCP client: direct HTTP MCP for the managed Ability Gateway, or the existing generic STDIO bridge for an application-owned REST gateway. Add Command Code recognition and exact configuration templates to the portable package. Do not create a Command Code adapter or mod.
+Choose Option C: extend the generic Ability host boundary, then ship Command
+Code as a thin local projection in `@kujolang/kujo-cmd`.
 
-Kujo remains authoritative for definitions, policy, approvals, execution, effects, receipts, and artifacts. Command Code owns its models, UI, sessions, permissions, and agents. Standard Agent Skills are shared from canonical Kujo sources.
+```text
+Command Code
+  ├─ canonical Agent Skills projection
+  └─ STDIO MCP
+       ↓
+generic local Ability host
+       ↓
+canonical Kujo product CLIs and artifacts
+```
 
-## Rationale
+The npm package installs all supported, version-pinned Kujo sources and the
+official cross-platform runtime locally. Portable Ability profiles control
+what MCP exposes; they do not control installation or authorization. The
+generic host owns schema validation, policy, one-time approval, idempotency,
+cancellation, audit, and receipts. Product repositories remain authoritative
+for Scout, Scent, PatchBrief, ChangeBucket, ShipCheck, Fence, Spec, Eval,
+RunLedger, Dispatch, RAG, and Watchdog behavior.
 
-The existing bridge and gateway already project dynamic Ability discovery and invocation without per-host business logic. Command Code 1.53.1 recognizes both required MCP transports and the generated project configuration. A bespoke wrapper would duplicate a working standard boundary while depending on an experimental mod API.
+No managed or hybrid execution mode is part of this product. Optional
+Watchdog is a loopback local service. The earlier remote/application-gateway
+bridge remains available separately for applications that already own such a
+gateway.
 
-Ability passes the portability test for operation semantics. It does not—and should not pretend to—cover bidirectional host lifecycle. That is a real generic abstraction gap. It should be addressed as a separately versioned Host Capability contract only after at least two hosts can implement it and fail-closed completion semantics are specified.
+## Why
 
-## Alternatives
+The original zero-adapter experiment proved Command Code's MCP compatibility,
+but did not deliver a self-contained user product: it still required a running
+gateway and an already registered Ability catalog. Kujo Pi showed that profiles,
+skills, diagnostics, and local tools matter to adoption, while also showing why
+host-specific primitive implementations should not be copied.
 
-- Command Code mod wrapping MCP: rejected; no additional semantic value, experimental API, unsandboxed project code, fail-open hook errors.
-- Command Code-native Kujo tools: rejected; duplicates Kujo behavior and requires releases for each Ability.
-- Extend Ability v1 with Command Code hooks: rejected; conflates operation semantics and host lifecycle.
-- Implement generic Host Bridge now: deferred; the cross-host contract and stable Command Code implementation surface are not yet proven.
+This design keeps the standard MCP seam and dynamic discovery while adding the
+missing reusable local Ability host. Adding a catalog Ability changes data and
+its canonical handler source; it does not require a Command Code tool release.
 
-## Consequences and risks
+## Rejected alternatives
 
-New exposed Abilities appear dynamically. Host-specific code is limited to reversible configuration. Receipts and effects survive the boundary, but Command Code does not present them as first-class UI. Server approvals remain independent of host prompts. Native session/model/agent identity and Jidoka completion gating are not integrated. Direct HTTP uses managed OAuth; STDIO inherits a least-privilege gateway token and must not receive approval-issuance credentials.
+- Managed Ability service: rejected by the local ownership requirement.
+- Command Code mod: unnecessary for tools/skills and too experimental for
+  authorization or completion gating.
+- Per-tool native Command Code code: duplicates Kujo and creates release lockstep.
+- Copy Kujo Pi: retains historical direct adapters and host-specific state.
+- Map Command Code permission prompts to Kujo approvals: unsafe; host consent is
+  defense in depth, not request-bound Kujo authorization evidence.
 
-If Command Code changes its configuration schema, only the connector template/test changes. If MCP support is removed, the integration fails explicitly rather than silently executing an alternative Kujo implementation.
+## Consequences
 
+The projection can be removed if Command Code later consumes local Ability
+packs directly. The local source acquisition step needs GitHub only during
+installation/update; execution is offline afterward. Native host lifecycle,
+verified Command Code session/model identity, agent delegation, and Jidoka
+completion gating remain outside Ability v1 until a stable, multi-host contract
+exists.
