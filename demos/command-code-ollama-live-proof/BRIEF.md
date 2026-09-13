@@ -7,15 +7,15 @@ destination: product-demo
 aspect: 1920x1080
 language: en
 audience: Kujo developers and early adopters
-length: 19s
+length: 24s
 angle: live host proof
 ---
 
 ## Intent
 
 Show the actual Command Code TUI using `ollama/glm-5.3:cloud`, invoking the
-Kujo CMS site-info Ability through standard MCP, and describing the portable
-architecture from inside the host itself.
+published Kujo CMD Ability catalog through standard MCP, and describing the
+portable architecture from inside the host itself.
 
 ## Assets
 
