@@ -46,10 +46,10 @@ jobs:
         run: |
           package_name="$(node -p "require('./package.json').name")"
           package_version="$(node -p "require('./package.json').version")"
-          published_integrity="$(npm view "${package_name}@${package_version}" dist.integrity --json 2>/dev/null | tr -d '"' || true)"
-          if [[ -n "${published_integrity}" && "${published_integrity}" != "null" ]]; then
-            local_integrity="$(npm pack --dry-run --json | node -e "let value=''; process.stdin.on('data', chunk => value += chunk); process.stdin.on('end', () => process.stdout.write(JSON.parse(value)[0].integrity))")"
-            test "${published_integrity}" = "${local_integrity}"
+          published_version="$(npm view "${package_name}@${package_version}" version --json 2>/dev/null | tr -d '"' || true)"
+          if [[ "${published_version}" = "${package_version}" ]]; then
+            package_diff="$(npm diff --diff="${package_name}@${package_version}" --diff=. --diff-name-only)"
+            test -z "${package_diff}"
             echo "published=true" >> "${GITHUB_OUTPUT}"
           else
             echo "published=false" >> "${GITHUB_OUTPUT}"
