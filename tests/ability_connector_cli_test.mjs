@@ -46,7 +46,7 @@ try {
   assert.equal(document.mcpServers["kujo-ability"], undefined);
   await assert.rejects(readFile(`${output}.kujo-ability-state.json`, "utf8"), { code: "ENOENT" });
 
-  for (const host of ["cursor", "vscode"]) {
+  for (const host of ["command-code", "cursor", "vscode"]) {
     const hostOutput = join(directory, `${host}.json`);
     await writeFile(hostOutput, `${JSON.stringify({ preserved: host })}\n`);
     run("connect", "--host", host, "--gateway", "https://gateway.example.test", "--output", hostOutput, "--skip-health");
@@ -55,7 +55,11 @@ try {
     assert.equal(hostDocument.preserved, host);
     assert.equal(root["kujo-ability"].env.KUJO_ABILITY_GATEWAY_URL, "https://gateway.example.test");
     assert.doesNotMatch(JSON.stringify(hostDocument), /test-secret|Bearer /);
-    if (host === "vscode") {
+    if (host === "command-code") {
+      assert.equal(root["kujo-ability"].transport, "stdio");
+      assert.equal(root["kujo-ability"].enabled, true);
+      assert.equal(root["kujo-ability"].env.KUJO_ABILITY_GATEWAY_TOKEN, undefined);
+    } else if (host === "vscode") {
       assert.equal(root["kujo-ability"].type, "stdio");
       assert.equal(hostDocument.inputs[0].password, true);
     } else {

@@ -38,6 +38,7 @@ const checks = [];
 checks.push(record("portable-package", "portable", "package-validated", "node tests/portable_ability_plugin_test.mjs", command("node", ["tests/portable_ability_plugin_test.mjs"], root)));
 checks.push(record("generic-stdio", "generic-stdio", "protocol-certified", "node tests/ability_host_bridge_test.mjs", command("node", ["tests/ability_host_bridge_test.mjs"], root)));
 checks.push(record("codex-clean-profile", "codex", "install-validated", "KUJO_REQUIRE_CODEX=1 node tests/codex_clean_profile_test.mjs", command("node", ["tests/codex_clean_profile_test.mjs"], root, { KUJO_REQUIRE_CODEX: "1" }), ["Authenticated execution was not driven by the Codex host."]));
+checks.push(record("command-code-clean-profile", "command-code", "installed-configuration-validated", "KUJO_REQUIRE_COMMAND_CODE=1 node tests/command_code_clean_profile_test.mjs", command("node", ["tests/command_code_clean_profile_test.mjs"], root, { KUJO_REQUIRE_COMMAND_CODE: "1" }), ["Command Code accepted and resolved the project MCP configuration. Its authentication gate prevented an automated model-driven tool call; protocol behavior is covered by generic-stdio."]));
 const connector = command("node", ["tests/ability_connector_cli_test.mjs"], root);
 checks.push(record("cursor-config", "cursor", "configuration-validated", "node tests/ability_connector_cli_test.mjs", connector, ["Cursor binary was unavailable; no installed-host run."]));
 const vscode = command("node", ["tests/vscode_clean_profile_test.mjs"], root, { KUJO_REQUIRE_VSCODE: "1" });
@@ -52,7 +53,7 @@ const artifact = {
   schema: "kujo.ability.host-certification/v1",
   generated_at: new Date().toISOString(),
   source_revisions: { mcp: revision(root), "ability-gateway": revision(abilityGateway), "agents-sdk": revision(join(workspace, "agents-sdk")), "kujo-pi": revision(join(workspace, "kujo-pi")) },
-  versions: { package: "1.1.1", gateway_contract: "1.0.0", mcp_protocol: "2025-11-25", codex: codexVersion.status === "passed" ? codexVersion.summary : "unavailable", cursor: "unavailable", vscode: vscode.status === "passed" ? vscode.summary.match(/\((\d+\.\d+\.\d+),/)?.[1] || "installed" : "unavailable" },
+  versions: { package: "1.2.0", gateway_contract: "1.0.0", mcp_protocol: "2025-11-25", "command-code": "1.53.1", codex: codexVersion.status === "passed" ? codexVersion.summary : "unavailable", cursor: "unavailable", vscode: vscode.status === "passed" ? vscode.summary.match(/\((\d+\.\d+\.\d+),/)?.[1] || "installed" : "unavailable" },
   checks,
 };
 

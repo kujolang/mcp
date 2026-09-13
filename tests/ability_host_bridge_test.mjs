@@ -18,7 +18,7 @@ const server = createServer(async (request, response) => {
     { name: "cms__slow", title: "Slow", description: "Exercise cancellation", inputSchema: { type: "object", properties: {}, additionalProperties: false }, outputSchema: { type: "object" }, annotations: { readOnlyHint: true }, abilityId: "kujo.cms.site.slow", abilityVersion: "1.0.0", abilityDigest: "b".repeat(64), effects: [{ kind: "read", resource: "kujo.cms.site" }], execution: "/v1/abilities/cms/slow/run" },
     { name: "cms__publish", title: "Publish", description: "Exercise approval and idempotency", inputSchema: { type: "object", properties: { title: { type: "string" } }, required: ["title"], additionalProperties: false }, outputSchema: { type: "object" }, annotations: { destructiveHint: true }, abilityId: "kujo.cms.site.publish", abilityVersion: "1.0.0", abilityDigest: "c".repeat(64), effects: [{ kind: "write", resource: "kujo.cms.site" }], execution: "/v1/abilities/cms/publish/run" },
   ] } }));
-  if (request.url === "/v1/abilities/cms/inspect/run") return response.end(JSON.stringify({ ok: true, data: { result: { healthy: true }, receipt: { schema: "kujo.ability.receipt/v1", status: "succeeded" } } }));
+  if (request.url === "/v1/abilities/cms/inspect/run") return response.end(JSON.stringify({ ok: true, data: { result: { healthy: true }, receipt: { schema: "kujo.ability.receipt/v1", status: "succeeded", invocation_id: requests.at(-1).body.invocation_id } } }));
   if (request.url === "/v1/abilities/cms/slow/run") {
     await new Promise((resolve) => setTimeout(resolve, 500));
     if (!response.destroyed) response.end(JSON.stringify({ ok: true, data: { receipt: { schema: "kujo.ability.receipt/v1", status: "succeeded" } } }));
@@ -68,16 +68,19 @@ const waitFor = async (id) => {
 send({ jsonrpc: "2.0", id: 1, method: "initialize", params: {} });
 const initialized = await waitFor(1);
 assert.equal(initialized.result.serverInfo.name, "kujo-ability");
-assert.equal(initialized.result.serverInfo.version, "1.1.1");
+assert.equal(initialized.result.serverInfo.version, "1.2.0");
 send({ jsonrpc: "2.0", id: 2, method: "tools/list", params: {} });
 const listed = await waitFor(2);
 assert.equal(listed.result.tools[0].name, "cms__inspect");
 assert.equal(listed.result.tools[0]._meta["kujo/abilityId"], "kujo.cms.site.inspect");
+assert.deepEqual(listed.result.tools[0]._meta["kujo/effects"], [{ kind: "read", resource: "kujo.cms.site" }]);
+assert.deepEqual(listed.result.tools[0].outputSchema, { type: "object" });
 assert.equal(listed.result.tools[0].inputSchema.properties._kujo.additionalProperties, false);
 assert.equal(listed.result.tools.some((tool) => tool.name === "kujo_ability_issue_approval"), false);
 send({ jsonrpc: "2.0", id: 3, method: "tools/call", params: { name: "cms__inspect", arguments: { _kujo: { invocationId: "invoke-1", idempotencyKey: "same-input-only" } } } });
 const called = await waitFor(3);
 assert.equal(called.result.structuredContent.receipt.status, "succeeded");
+assert.equal(called.result.structuredContent.receipt.invocation_id, "invoke-1");
 assert.equal(requests[0].headers.authorization, "Bearer test-secret");
 assert.equal(requests[1].headers["idempotency-key"], "same-input-only");
 assert.equal(requests[1].body.invocation_id, "invoke-1");
@@ -115,5 +118,41 @@ const conflicted = await waitFor(10);
 assert.equal(conflicted.result.isError, true);
 assert.equal(conflicted.result.structuredContent.details.code, "idempotency_conflict");
 
-child.kill(); server.close();
+send({ jsonrpc: "2.0", id: 11, method: "tools/call", params: { name: "cms__inspect", arguments: { _kujo: { invocationId: "concurrent-1" } } } });
+send({ jsonrpc: "2.0", id: 12, method: "tools/call", params: { name: "cms__inspect", arguments: { _kujo: { invocationId: "concurrent-2" } } } });
+const [concurrentOne, concurrentTwo] = await Promise.all([waitFor(11), waitFor(12)]);
+assert.equal(concurrentOne.result.structuredContent.receipt.invocation_id, "concurrent-1");
+assert.equal(concurrentTwo.result.structuredContent.receipt.invocation_id, "concurrent-2");
+
+const port = server.address().port;
+await new Promise((resolve) => server.close(resolve));
+send({ jsonrpc: "2.0", id: 13, method: "tools/call", params: { name: "cms__inspect", arguments: {} } });
+const unavailable = await waitFor(13);
+assert.equal(unavailable.result.isError, true);
+server.listen(port, "127.0.0.1");
+await once(server, "listening");
+send({ jsonrpc: "2.0", id: 14, method: "tools/call", params: { name: "cms__inspect", arguments: { _kujo: { invocationId: "after-gateway-restart" } } } });
+const recovered = await waitFor(14);
+assert.equal(recovered.result.structuredContent.receipt.invocation_id, "after-gateway-restart");
+
+child.kill();
+await once(child, "close");
+const restarted = spawn(process.execPath, ["integrations/kujo-ability/bin/kujo-ability-mcp.mjs"], { env: { ...process.env, KUJO_ABILITY_GATEWAY_URL: `http://127.0.0.1:${port}`, KUJO_ABILITY_GATEWAY_TOKEN: "test-secret", KUJO_ABILITY_ALLOW_APPROVALS: "1" }, stdio: ["pipe", "pipe", "pipe"] });
+const restartedMessages = [];
+createInterface({ input: restarted.stdout }).on("line", (line) => restartedMessages.push(JSON.parse(line)));
+const waitForRestarted = async (id) => {
+  for (let count = 0; count < 100; count += 1) {
+    const found = restartedMessages.find((message) => message.id === id);
+    if (found) return found;
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+  throw new Error(`timed out waiting for restarted bridge ${id}`);
+};
+restarted.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", id: 15, method: "initialize", params: {} })}\n`);
+await waitForRestarted(15);
+restarted.stdin.write(`${JSON.stringify({ jsonrpc: "2.0", id: 16, method: "tools/list", params: {} })}\n`);
+assert.equal((await waitForRestarted(16)).result.tools.length, 3);
+restarted.kill();
+await once(restarted, "close");
+server.close();
 console.log("ability host bridge contract passed");
