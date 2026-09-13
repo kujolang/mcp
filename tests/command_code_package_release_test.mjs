@@ -19,4 +19,7 @@ const releaseWorkflow = await readFile(".github/workflows/kujo-cmd-release.yml",
 assert.ok(!/ubuntu-latest/.test(releaseWorkflow), "release workflow contains a mutable runner");
 assert.match(releaseWorkflow, /npm@11\.19\.0/);
 assert.match(releaseWorkflow, /merge-base --is-ancestor/);
+assert.match(releaseWorkflow, /Check for an identical existing publication/);
+assert.match(releaseWorkflow, /published_integrity/);
+assert.match(releaseWorkflow, /if: steps\.registry\.outputs\.published != 'true'/);
 console.log("Command Code package release artifact passed");
