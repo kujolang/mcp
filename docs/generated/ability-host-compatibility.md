@@ -1,14 +1,15 @@
 # Generated Ability host compatibility
 
-Evidence date: 2026-09-05
+Evidence date: 2026-09-13
 
-Package: `1.1.1`  
+Package: `1.2.0`  
 Gateway contract: `1.0.0`  
 MCP protocol: `2025-11-25`
 
 | Host | Proven tier | Automated evidence | Limitation |
 | --- | --- | --- | --- |
 | Codex | install-validated | [`codex-clean-profile`](../../certification/evidence/ability-hosts-local.json) | Authenticated execution was not driven by the Codex host. |
+| Command Code | installed-configuration-validated | [`command-code-clean-profile`](../../certification/evidence/ability-hosts-local.json) | Command Code accepted and resolved the project MCP configuration. Its authentication gate prevented an automated model-driven tool call; protocol behavior is covered by generic-stdio. |
 | Cursor | configuration-validated | [`cursor-config`](../../certification/evidence/ability-hosts-local.json) | Cursor binary was unavailable; no installed-host run. |
 | VS Code / Copilot package | installed-configuration-validated | [`vscode-clean-profile`](../../certification/evidence/ability-hosts-local.json) | The installed VS Code CLI accepted a clean-profile MCP registration; an interactive Copilot tool invocation was not driven. |
 | VS Code managed MCP | certified-mcp-read-only | [`vscode-managed-read`](../../certification/evidence/vscode-managed-2026-09-03.json) | The certificate covers managed OAuth, discovery, session restoration, and a read-only invocation. Mutating editor conformance remains a separate gate. |
