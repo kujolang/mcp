@@ -62,7 +62,12 @@ Receipts live at `~/.local/share/kujo/cmd/receipts.jsonl` by default and are
 also returned as MCP structured content. Use `kujo_ability_receipts` or
 `kujo-cmd status` to locate them. `_kujo.sessionId`, `runId`, `agentId`, and
 `modelId` are retained for correlation but are caller-asserted because MCP does
-not provide verified Command Code host identity.
+not provide verified Command Code host identity. Receipt listings omit prior
+result bodies by default to save context; set `include_result: true` when a full
+result is specifically needed. The active log rotates at 8 MiB and retains
+three archives. Keyed replay storage is bounded to the newest 32 completed
+records per digest shard (256 shards), so idempotency keys are retry controls,
+not permanent records.
 
 ## Local models
 
@@ -92,8 +97,9 @@ kujo-cmd uninstall --purge         # remove shared local data too
 If tools do not appear, run `kujo-cmd doctor`, inspect `.mcp.json`, and restart
 Command Code. Plan mode hides MCP tools. If a command fails, inspect the
 structured error and receipt rather than retrying a mutating call blindly.
-`KUJO_CMD_HOME` relocates shared state and `KUJO_BIN` selects an explicitly
-installed compatible runtime.
+`KUJO_CMD_HOME` relocates shared state. `KUJO_BIN` selects a compatible runtime
+only during an explicit setup/update; project files cannot redirect execution
+to another binary or source tree.
 
 ## Example workflow
 

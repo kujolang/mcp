@@ -68,8 +68,22 @@ session or Kujo-hosted service was used. Evidence is in
   Command Code API provides attestation.
 - Native lifecycle telemetry, host-agent delegation, and Jidoka completion
   gating remain future generic Host Capability work.
-- Multi-process receipt state needs an OS-level lock before high-concurrency
-  multi-host use; one Command Code MCP server serializes mutations correctly.
+- Local state now uses cross-process locking and per-key idempotency records;
+  network-filesystem locking is intentionally outside the local-host contract.
+- Large command/MCP output and receipt retention are bounded. Receipt listings
+  are summary-first so routine inspection does not replay old payloads into the
+  model context.
+
+## Production-readiness hardening
+
+The pre-publication review fixed intermediate symlink project escapes, forged
+skill-manifest deletion paths, project-controlled executable/source paths,
+approval/idempotency races, unbounded hot-state/output/receipt growth, unsafe
+purge targets, and stale Watchdog PID signaling. Release actions, runner images,
+and npm tooling are pinned. The initial npm publication still uses the scoped
+bootstrap token because npm trusted publishing cannot be configured for a
+package before that package exists; the workflow is already OIDC-capable and
+the token should be removed immediately after trusted publishing is enabled.
 
 ## Recommended follow-up
 
@@ -121,6 +135,7 @@ MCP repository:
 - `integrations/kujo-cmd/lib/catalog.mjs`
 - `integrations/kujo-cmd/lib/executor.mjs`
 - `integrations/kujo-cmd/lib/install.mjs`
+- `integrations/kujo-cmd/lib/installation.mjs`
 - `integrations/kujo-cmd/lib/io.mjs`
 - `integrations/kujo-cmd/lib/paths.mjs`
 - `integrations/kujo-cmd/lib/process.mjs`
@@ -129,6 +144,7 @@ MCP repository:
 - `integrations/kujo-cmd/scripts/build-release.mjs`
 - `integrations/kujo-cmd/tests/catalog.test.mjs`
 - `integrations/kujo-cmd/tests/runtime.test.mjs`
+- `integrations/kujo-cmd/tests/security.test.mjs`
 - `integrations/kujo-cmd/tests/setup.test.mjs`
 - `scripts/run-command-code-kujo-cmd-demo.sh`
 - `tests/command_code_kujo_cmd_live_evidence_test.mjs`
