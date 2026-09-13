@@ -1,1 +1,1 @@
-You're watching Command Code use Ollama's GLM 5.3 to discover Kujo through standard MCP. It invokes a real CMS Ability, passes Kujo policy, and receives an auditable receipt. No bespoke Command Code adapter—just portable Kujo capabilities, connected once.
+You're watching the public Kujo CMD package connect Command Code to portable Kujo Abilities through standard MCP. Ollama's GLM 5.3 discovers the catalog, invokes it once, passes Kujo policy, and returns an auditable receipt. Install once. Choose a profile. Gain the Kujo capabilities you need.

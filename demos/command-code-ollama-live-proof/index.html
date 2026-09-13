@@ -111,7 +111,7 @@
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="command-code-live" data-width="1920" data-height="1080" data-duration="19">
+    <div id="root" data-composition-id="command-code-live" data-width="1920" data-height="1080" data-duration="24">
       <div id="live-intro" class="clip intro" data-start="0" data-duration="1.75" data-track-index="1">
         <div class="intro-kicker">Actual host session · recorded live</div>
         <div class="intro-title">COMMAND CODE × KUJO</div>
@@ -124,35 +124,35 @@
           class="clip"
           src="assets/command-code-live.mp4"
           data-start="1.75"
-          data-duration="12.47"
+          data-duration="18.47"
           data-track-index="2"
           muted
           playsinline
         ></video>
       </div>
 
-      <div id="final-shell" class="clip screen-shell" data-start="14.22" data-duration="4.78" data-track-index="3">
+      <div id="final-shell" class="clip screen-shell" data-start="20.22" data-duration="3.78" data-track-index="3">
         <img src="assets/command-code-live-final.png" alt="Final Command Code response showing a verified Kujo receipt" />
       </div>
 
-      <div id="live-badge" class="clip live-badge" data-start="1.75" data-duration="12.47" data-track-index="4">Live Command Code</div>
-      <div id="proof-badge" class="clip proof-badge" data-start="14.22" data-duration="4.78" data-track-index="5">Standard MCP · receipt verified</div>
+      <div id="live-badge" class="clip live-badge" data-start="1.75" data-duration="18.47" data-track-index="4">Live Command Code</div>
+      <div id="proof-badge" class="clip proof-badge" data-start="20.22" data-duration="3.78" data-track-index="5">npm 0.1.0 · receipt verified</div>
       <audio
         id="command-code-narration"
         src="assets/narration-brian-normalized.wav"
         data-start="0.25"
-        data-duration="18.204444"
+        data-duration="21.083729"
         data-track-index="6"
         data-volume="0.74"
       ></audio>
-      <div class="rail top"><span>Kujo Ability portability proof</span><span class="signal">01 / Live</span></div>
+      <div class="rail top"><span>@kujolang/kujo-cmd · public package proof</span><span class="signal">0.1.0 / Live</span></div>
       <div class="rail bottom"><span>Command Code 1.53.1</span><span>Ollama / glm-5.3:cloud</span></div>
     </div>
     <script>
       window.__timelines["command-code-live"] = gsap.timeline({ paused: true })
         .fromTo("#live-shell", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, 1.75)
         .fromTo("#live-badge", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 1.95)
-        .fromTo("#proof-badge", { opacity: 0, x: 18 }, { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, 14.22);
+        .fromTo("#proof-badge", { opacity: 0, x: 18 }, { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" }, 20.22);
     </script>
   </body>
 </html>
