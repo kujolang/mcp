@@ -7,6 +7,11 @@ This package connects Agent Plugins 1.0 clients, Codex, Command Code, Cursor, VS
 - `plugin.json`, `mcp.json`, and `skills/` are the portable [Agent Plugins 1.0](https://agent-plugins.org/specification) package.
 - `.codex-plugin/plugin.json` and `.mcp.json` are the Codex-native compatibility package.
 - `host-configs/` contains equivalent host configuration examples.
+- `lib/local-runtime.mjs` is the reusable local Ability host used to build the
+  Kujo CMD release projection. It validates definitions and inputs, resolves
+  portable profiles, enforces read-only/default policy, binds and consumes
+  one-time approvals, persists keyed idempotency, handles cancellation, and
+  emits correlated receipts. It contains no product handler logic.
 
 Portable clients expand `${PLUGIN_ROOT}` in `mcp.json`; the package never embeds a developer-machine path. Agent Plugins 1.0 intentionally defines no portable credential field, so credentials must come from the host environment or its approved secret store.
 

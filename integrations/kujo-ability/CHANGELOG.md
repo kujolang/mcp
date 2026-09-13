@@ -4,6 +4,9 @@
 
 - Add a zero-adapter Command Code projection through the existing MCP bridge and managed HTTP endpoint.
 - Add exact Command Code configurations, connector support, clean-profile validation, and architecture/security documentation.
+- Add a reusable, transport-neutral local Ability host runtime for profile
+  resolution, policy, approvals, idempotency, cancellation, and receipts. Kujo
+  CMD consumes it as a generated release artifact without adding product logic.
 
 - Remove in-band MCP approval issuance; approvals must now come from a trusted host or out-of-band UI.
 - Bind compatibility evidence to the certified Ability connector source and make required Codex certification fail closed.

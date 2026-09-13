@@ -10,6 +10,7 @@
     ".codex-plugin/",
     ".mcp.json",
     "bin/",
+    "lib/",
     "com.github.copilot/",
     "host-configs/",
     "skills/",
