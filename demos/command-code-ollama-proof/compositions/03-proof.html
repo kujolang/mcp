@@ -1,0 +1,41 @@
+<template id="proof-template">
+  <div id="proof" data-composition-id="proof" data-width="1920" data-height="1080" data-duration="10" class="frame">
+    <link rel="stylesheet" href="assets/theme.css" />
+    <div class="bg-grid"></div>
+    <div class="topbar"><strong>ACTUAL MODEL RUN</strong><span>COMMAND CODE 1.53.1 · LOCAL-ONLY BYOK</span></div>
+    <aside style="position:absolute; left:64px; top:146px; width:430px; bottom:120px; border-right:1px solid var(--border); padding:36px 44px 0 0;">
+      <div class="eyebrow">ROUTING EVIDENCE</div>
+      <div class="proof-fact" style="margin-top:54px; opacity:0;"><div style="font:18px/1 var(--mono); color:var(--faint);">PROVIDER</div><div style="font:30px/1.2 var(--mono); margin-top:14px;">OLLAMA CLOUD</div></div>
+      <div class="proof-fact" style="margin-top:44px; opacity:0;"><div style="font:18px/1 var(--mono); color:var(--faint);">MODEL REQUEST</div><div style="font:30px/1.2 var(--mono); color:var(--info); margin-top:14px;">GLM 5.3</div></div>
+      <div class="proof-fact" style="margin-top:44px; opacity:0;"><div style="font:18px/1 var(--mono); color:var(--faint);">MCP SERVER</div><div style="font:30px/1.2 var(--mono); margin-top:14px;">KUJO-ABILITY</div></div>
+      <div class="proof-fact" style="margin-top:44px; opacity:0;"><div style="font:18px/1 var(--mono); color:var(--faint);">NETWORK MODE</div><div style="font:30px/1.2 var(--mono); color:var(--success); margin-top:14px;">LOCAL ONLY</div></div>
+    </aside>
+    <section id="proof-terminal" style="position:absolute; left:550px; right:64px; top:146px; bottom:120px; border:1px solid var(--border-strong); background:var(--surface);">
+      <div style="height:58px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 24px; font:18px/1 var(--mono); color:var(--muted);"><span>command-code / mcp</span><span>verified run · 11.0s</span></div>
+      <div style="padding:34px 38px; font:23px/1.58 var(--mono);">
+        <div style="color:var(--muted);"><span style="color:var(--success);">$</span> <span id="proof-command"></span><span id="proof-cursor" style="color:var(--text);">█</span></div>
+        <div class="proof-row" style="margin-top:36px; opacity:0;"><span style="color:var(--info);">model_request_start</span> <span style="color:var(--muted);">ollama/glm-5.3:cloud</span></div>
+        <div class="proof-row" style="margin-top:18px; opacity:0;"><span style="color:var(--info);">tool_running</span> <span style="color:var(--text);">mcp__kujo-ability__cms__site-info</span></div>
+        <div class="proof-row" style="margin-top:30px; opacity:0; border-left:4px solid var(--success); padding:18px 22px; background:var(--surface-alt);">
+          <div><span style="color:var(--faint);">ability</span> <span style="color:var(--text);">kujo.cms.site.inspect@1.0.0</span></div>
+          <div><span style="color:var(--faint);">result</span> <span style="color:var(--text);">CMS API v1.1.0 · 2 content types</span></div>
+          <div><span style="color:var(--faint);">policy</span> <span style="color:var(--success);">allow</span> <span style="color:var(--faint);">· audit written · status</span> <span style="color:var(--success);">succeeded</span></div>
+        </div>
+        <div class="proof-row" style="margin-top:28px; opacity:0;"><span style="color:var(--faint);">invocation</span> <span style="color:var(--muted);">mcp-73d6d763-03f7-48ac-96c3-12b392abf92f</span></div>
+        <div class="proof-row" style="margin-top:14px; opacity:0;"><span style="color:var(--faint);">receipt</span> <span style="color:var(--success);">receipt-f35ca70e8e73ef6af5b13c0f</span></div>
+      </div>
+    </section>
+    <div class="bottom-rail"><span class="status-dot"></span><span class="ok">CANONICAL RECEIPT RETURNED</span><span>·</span><span>NO TOKEN STORED IN PROJECT CONFIG</span></div>
+    <script>
+      const proofTl = gsap.timeline({ paused: true });
+      const proofText = "cmd-ollama --model ollama/glm-5.3:cloud";
+      const proofProxy = { chars: 0 };
+      proofTl.to(proofProxy, { chars: proofText.length, duration: 1.25, ease: "none", snap: { chars: 1 }, onUpdate: () => { document.querySelector("#proof-command").textContent = proofText.slice(0, proofProxy.chars); } }, 0.24);
+      proofTl.to("#proof-cursor", { opacity: 0, duration: 0.18, yoyo: true, repeat: 7, ease: "none" }, 1.5);
+      document.querySelectorAll(".proof-fact").forEach((el, i) => proofTl.fromTo(el, { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.36, ease: i % 2 ? "expo.out" : "power3.out" }, 0.62 + i * 0.48));
+      document.querySelectorAll(".proof-row").forEach((el, i) => proofTl.fromTo(el, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: i === 2 ? 0.58 : 0.34, ease: i === 2 ? "power3.out" : "power4.out" }, 2.15 + i * 0.82));
+      proofTl.to("#proof-terminal", { borderColor: "#6fdc8c", duration: 0.28, yoyo: true, repeat: 1, ease: "power1.inOut" }, 7.25);
+      window.__timelines["proof"] = proofTl;
+    </script>
+  </div>
+</template>
