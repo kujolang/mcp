@@ -1,0 +1,38 @@
+name: Publish Kujo CMD
+
+on:
+  push:
+    tags:
+      - "v0.1.0"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    if: github.repository == 'kujolang/mcp'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: integrations/kujo-cmd
+    steps:
+      - uses: actions/checkout@v6
+      - name: Verify release tag matches package version
+        shell: bash
+        run: |
+          package_version="$(node -p "require('./package.json').version")"
+          test "${GITHUB_REF_NAME}" = "v${package_version}"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          package-manager-cache: false
+      - name: Use an npm CLI with trusted-publishing support
+        run: npm install --global npm@latest
+      - run: npm ci
+      - run: npm test
+      - name: Publish public package with provenance
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
