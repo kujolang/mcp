@@ -92,5 +92,25 @@ Pi is therefore option C: useful current Ability projection plus compatibility-e
 
 Command Code 1.53.1 was run in a clean temporary project. Its CLI accepted the generated `.mcp.json`, reported `kujo-ability` as an enabled project-scoped STDIO server, and resolved the exact executable/arguments. The shared bridge contract test then proved dynamic discovery, schema/effect metadata, structured read invocation, receipt correlation, cancellation, approval denial, absence of self-approval, externally approved mutation, replay denial, and idempotency conflict. The managed HTTP gateway suite separately covers Streamable HTTP behavior.
 
-An authenticated, model-driven Command Code tool call could not be automated in this environment: the official binary exits before MCP session startup with `Not authenticated. Please run "cmd login" first.` This limitation is recorded rather than bypassed with a fake host. The remaining boundary is standard MCP, and the installed host's configuration parsing plus protocol-level bridge conformance establish the integration without inventing a Command Code API.
+A model-driven run was completed on 2026-09-13 with Command Code 1.53.1,
+Ollama 0.34.0, and `ollama/glm-5.3:cloud`. Command Code discovered the generic
+STDIO projection and invoked the real CMS `kujo.cms.site.inspect` Ability. The
+result preserved the Ability/version, server policy outcome, audit state,
+invocation ID, definition digest, and canonical receipt ID. Sanitized evidence
+is checked in at
+[`certification/evidence/command-code-ollama-live-2026-09-13.json`](../../certification/evidence/command-code-ollama-live-2026-09-13.json).
 
+The experiment also found two implementation facts absent from the optimistic
+documentation reading. First, Command Code 1.53.1 still requires an auth value
+before entering local-only BYOK execution. `CMD_LOCAL_ONLY=1` plus a non-secret
+sentinel satisfies the gate without a Command Code account session; this is a
+workaround, not a credential. Second, the host's model route appears in event
+telemetry but is not injected as trustworthy model self-knowledge: GLM 5.3
+incorrectly described itself as Claude when asked. Therefore evidence takes
+model identity from `model_request_start`, and Kujo still does not receive a
+trustworthy host/model identity envelope through generic MCP.
+
+The first live discovery attempt also exposed a generic bridge defect: valid
+object schemas may omit `properties` while setting `additionalProperties`.
+The bridge previously rejected that shape. Its validation and projection now
+accept it, with a regression fixture in `ability_host_bridge_test.mjs`.

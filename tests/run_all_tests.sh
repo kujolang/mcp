@@ -38,6 +38,7 @@ node tests/ability_connector_cli_test.mjs
 node tests/ability_host_bridge_test.mjs
 node tests/codex_clean_profile_test.mjs
 node tests/command_code_clean_profile_test.mjs
+node tests/command_code_ollama_live_evidence_test.mjs
 node tests/codex_clean_profile_required_test.mjs
 node tests/vscode_clean_profile_test.mjs
 node tests/vscode_managed_evidence_test.mjs
