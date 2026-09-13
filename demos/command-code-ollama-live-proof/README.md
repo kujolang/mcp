@@ -28,3 +28,15 @@ Re-record the session (requires Command Code, Ollama, `glm-5.3:cloud`,
 ```bash
 ../../scripts/record-command-code-ollama-live-demo.sh
 ```
+
+After `@kujolang/kujo-cmd@0.1.0` is public, replace the assets with a clean
+registry-install proof using:
+
+```bash
+../../scripts/record-command-code-kujo-cmd-published-demo.sh
+```
+
+That command installs the published package into an isolated temporary home,
+runs `setup` and `doctor`, then records the same real Command Code interface
+calling the local Kujo Ability catalog with GLM 5.3. The captured run is also
+the post-publication smoke test; it is not a staged or locally packed build.
