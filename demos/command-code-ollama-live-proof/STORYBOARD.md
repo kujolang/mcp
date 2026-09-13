@@ -20,6 +20,6 @@
 
 - status: built
 - src: `assets/command-code-live-final.png`
-- duration: 3.78s
+- duration: 4.78s
 - motion: held evidence with status callout
 - beat: Leave the exact policy, invocation, receipt, and success result readable.

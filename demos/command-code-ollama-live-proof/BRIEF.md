@@ -7,7 +7,7 @@ destination: product-demo
 aspect: 1920x1080
 language: en
 audience: Kujo developers and early adopters
-length: 18s
+length: 19s
 angle: live host proof
 ---
 
@@ -28,5 +28,6 @@ architecture from inside the host itself.
 
 - Keep the real Command Code interface dominant and readable.
 - Preserve the host-reported model route, MCP tool result, policy decision, invocation ID, and receipt ID.
-- Use restrained BB Kujo rails and signal green around the real capture.
+- Use restrained BB Kujo rails and Command Code's `#E4CCFF` purple accent around the real capture.
+- Narrate with ElevenLabs Brian, a premade American English voice, without altering the verified host capture.
 - Do not expose credentials or recreate the host UI.
