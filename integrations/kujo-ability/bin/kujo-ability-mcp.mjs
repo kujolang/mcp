@@ -127,6 +127,7 @@ async function handle(request) {
   if (method === "initialize") return reply(id, { protocolVersion: "2025-11-25", capabilities: { tools: { listChanged: false } }, serverInfo: server });
   if (method === "ping") return reply(id, {});
   if (method === "tools/list" || method === "tools/call") {
+    if (control && (inflight.has(id) || inflight.size >= 8)) return reply(id, mcpResult({ok:false,outcome:"not_admitted",code:"mcp_request_in_progress"}, true));
     const controller = new AbortController();
     inflight.set(id, controller);
     try {
@@ -147,8 +148,7 @@ async function handle(request) {
   fail(id, -32601, control ? "method not found" : `method not found: ${method}`);
 }
 
-const lines = createInterface({ input: process.stdin, crlfDelay: Infinity, terminal: false });
-lines.on("line", (line) => {
+function acceptLine(line) {
   if (!line.trim()) return;
   if (control && Buffer.byteLength(line) > 8192) return fail(null, -32600, "controlled request exceeds limit");
   let request;
@@ -159,8 +159,28 @@ lines.on("line", (line) => {
     const details = error?.body?.error?.code ? { code: error.body.error.code, status: error.status } : undefined;
     if (request.id !== undefined) reply(request.id, mcpResult({ ok: false, error: String(error.message || error), ...(details ? { details } : {}) }, true));
   });
+}
+if (!control) {
+  const lines = createInterface({ input: process.stdin, crlfDelay: Infinity, terminal: false });
+  lines.on("line", acceptLine);
+  return {close: () => lines.close()};
+}
+// Bound the incomplete line too; checking only readline's completed line is late.
+let pendingBytes = Buffer.alloc(0), stopped = false;
+process.stdin.on("data", chunk => {
+  if (stopped) return;
+  let rest = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+  while (rest.length) {
+    const newline = rest.indexOf(10), count = newline < 0 ? rest.length : newline;
+    if (pendingBytes.length + count > 8192) { stopped = true; pendingBytes = Buffer.alloc(0); fail(null,-32600,"controlled request exceeds limit"); process.stdin.destroy(); return; }
+    pendingBytes = Buffer.concat([pendingBytes,rest.subarray(0,count)]);
+    if (newline < 0) return;
+    try { acceptLine(new TextDecoder("utf-8",{fatal:true}).decode(pendingBytes)); }
+    catch { fail(null,-32700,"invalid UTF-8 request"); }
+    pendingBytes = Buffer.alloc(0); rest = rest.subarray(count+1);
+  }
 });
-
-return {close: () => lines.close()};
+process.stdin.on("end", () => { if (pendingBytes.length) fail(null,-32700,"incomplete request"); });
+return {close: () => {stopped=true;process.stdin.destroy();}};
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) startAbilityMcp();
