@@ -71,3 +71,10 @@ All notable changes to this project are documented in this file.
 ### Fixed
 
 - Fixed the README version badge to match `kennel.toml` package metadata.
+
+## Unreleased — controlled STDIO Ability interoperability
+
+- Add host-installed admission/evidence callbacks to the existing local STDIO
+  bridge, with a bounded MCP-owned reference contract and redacted uncertainty.
+- Keep standalone projection, idempotency controls and authentication unchanged.
+  Dispatch remains replay authority; no remote MCP authentication is added.

@@ -262,3 +262,7 @@ bash tests/run_all_tests.sh
 ## Readiness
 
 This repository is launch-honest as a local protocol-compatible MCP server foundation, repo-specific scaffold generator, and remote-deployment baseline. Production use still requires environment-specific validation, especially for auth, ingress, rate-limit, monitoring, backup, and incident-response settings described in `docs/production-deployment.md`, `docs/security-model.md`, and `docs/MCP_REVIEW_BACKLOG_2026_06_19.md`.
+
+An experimental [controlled local STDIO Ability mode](docs/controlled-ability-stdio.md)
+lets an operator transport bounded evidence into Dispatch review/replay. Standalone
+behavior is unchanged; MCP does not become a verifier or replay controller.

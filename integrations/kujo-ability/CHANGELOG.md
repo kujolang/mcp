@@ -27,3 +27,9 @@
 ## 1.0.0
 
 - Initial Codex plugin, host configurations, skill, and STDIO bridge.
+
+## Unreleased
+
+- Experimental imported `startAbilityMcp` host callback mode for controlled local
+  Ability execution. Default CLI/standalone behavior is unchanged. Controlled
+  mode returns bounded evidence references and never authorizes replay.

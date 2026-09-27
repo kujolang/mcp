@@ -1,0 +1,3 @@
+from src.telemetry.watchdog import watchdog_mcp_tool_lifecycle
+arguments := args(); input := parse_json(arguments[0])
+print(to_json(watchdog_mcp_tool_lifecycle(input)))
