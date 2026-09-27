@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 import { createInterface } from "node:readline";
 import { randomUUID } from "node:crypto";
+import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
+import { controlledCall, validateControl, controlledResultSchema, idValid } from "./controlled-ability.mjs";
+
+export function startAbilityMcp({ control = null, gatewayTransport = null } = {}) {
+if (control) validateControl(control);
 
 const server = { name: "kujo-ability", version: "1.1.1" };
 const configuredBase = process.env.KUJO_ABILITY_GATEWAY_URL || "http://127.0.0.1:8080";
@@ -17,6 +23,7 @@ const reply = (id, result) => write({ jsonrpc: "2.0", id, result });
 const fail = (id, code, message, data) => write({ jsonrpc: "2.0", id, error: { code, message, ...(data === undefined ? {} : { data }) } });
 
 async function gateway(path, options = {}) {
+  if (gatewayTransport) return gatewayTransport(path, options);
   const controller = new AbortController();
   const cancel = () => controller.abort();
   if (options.signal?.aborted) controller.abort();
@@ -83,7 +90,7 @@ async function listTools(signal) {
   if (new Set(tools.map((tool) => tool.name)).size !== tools.length) throw new Error("gateway returned duplicate tool names");
   toolCache = new Map(tools.map((tool) => [tool.name, tool]));
   const projected = tools.map(({ name, title, description, inputSchema, outputSchema, annotations, abilityId, abilityVersion, abilityDigest, effects }) => ({
-    name, title, description, inputSchema: hostInputSchema(inputSchema), outputSchema, annotations,
+    name, title, description, inputSchema: control ? inputSchema : hostInputSchema(inputSchema), outputSchema: control ? controlledResultSchema : outputSchema, annotations,
     _meta: { "kujo/abilityId": abilityId, "kujo/abilityVersion": abilityVersion, "kujo/abilityDigest": abilityDigest, "kujo/effects": effects },
   }));
   return projected;
@@ -91,7 +98,7 @@ async function listTools(signal) {
 
 const mcpResult = (data, isError = false) => ({ content: [{ type: "text", text: JSON.stringify(data) }], structuredContent: data, ...(isError ? { isError: true } : {}) });
 
-async function callTool(name, args, signal) {
+async function callTool(name, args, signal, requestId = null) {
   if (!toolCache.has(name)) await listTools(signal);
   const tool = toolCache.get(name);
   if (!tool) throw new Error(`unknown tool: ${name}`);
@@ -101,7 +108,7 @@ async function callTool(name, args, signal) {
   const input = { ...(args || {}) }; delete input._kujo;
   const data = await gateway(tool.execution, {
     method: "POST",
-    headers: { ...(idempotencyKey ? { "idempotency-key": idempotencyKey } : {}), ...(approvalId ? { "x-ability-approval": approvalId } : {}) },
+    headers: { ...(requestId ? { "x-request-id": requestId } : {}), ...(idempotencyKey ? { "idempotency-key": idempotencyKey } : {}), ...(approvalId ? { "x-ability-approval": approvalId } : {}) },
     body: JSON.stringify({ input, invocation_id: invocationId, ...(approvalId ? { approval_id: approvalId } : {}) }),
     signal,
   });
@@ -123,24 +130,37 @@ async function handle(request) {
     const controller = new AbortController();
     inflight.set(id, controller);
     try {
+      const callContext = control ? {mcp_server_id: control.server_id, mcp_session_id: control.session_id,
+        rpc_request_id: id, mcp_request_id: randomUUID(), mcp_invocation_id: randomUUID(), tool_name: params.name} : null;
       const result = method === "tools/list"
         ? { tools: await listTools(controller.signal) }
-        : await callTool(params.name, params.arguments || {}, controller.signal);
+        : control ? mcpResult(await controlledCall(control, callContext, params.arguments || {}, async admission => {
+          const answer = await callTool(params.name, {...params.arguments, _kujo: {invocationId: admission.ability_invocation_id, idempotencyKey: admission.idempotency_key}}, controller.signal, callContext.mcp_request_id);
+          return answer.structuredContent;
+        })) : await callTool(params.name, params.arguments || {}, controller.signal);
+      if (control && method === "tools/call" && !result.structuredContent.ok) result.isError = true;
       return reply(id, result);
     } finally {
       inflight.delete(id);
     }
   }
-  fail(id, -32601, `method not found: ${method}`);
+  fail(id, -32601, control ? "method not found" : `method not found: ${method}`);
 }
 
 const lines = createInterface({ input: process.stdin, crlfDelay: Infinity, terminal: false });
 lines.on("line", (line) => {
   if (!line.trim()) return;
+  if (control && Buffer.byteLength(line) > 8192) return fail(null, -32600, "controlled request exceeds limit");
   let request;
   try { request = JSON.parse(line); } catch { return fail(null, -32700, "parse error"); }
+  if (control && (!request || typeof request !== "object" || Array.isArray(request) || request.jsonrpc !== "2.0" || typeof request.method !== "string" || (!request.method.startsWith("notifications/") && !idValid(request.id)))) return fail(null, -32600, "invalid controlled request");
   Promise.resolve(handle(request)).catch((error) => {
+    if (control) { if (request.id !== undefined) reply(request.id, mcpResult({ok:false,outcome:"completion_uncertain",code:"mcp_transport_failed"}, true)); return; }
     const details = error?.body?.error?.code ? { code: error.body.error.code, status: error.status } : undefined;
     if (request.id !== undefined) reply(request.id, mcpResult({ ok: false, error: String(error.message || error), ...(details ? { details } : {}) }, true));
   });
 });
+
+return {close: () => lines.close()};
+}
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) startAbilityMcp();
