@@ -15,7 +15,7 @@ assert.equal(projectVersion, packageVersion);
 assert.ok(abilityCommit);
 assert.match(lock, new RegExp(`requested = "${abilityCommit}"`));
 assert.match(lock, new RegExp(`resolved_commit = "${abilityCommit}"`));
-assert.match(lock, /\nversion = "1\.0\.1"/);
+assert.match(lock, /\nversion = "1\.2\.0"/);
 
 const portable = await json("integrations/kujo-ability/plugin.json");
 const codex = await json("integrations/kujo-ability/.codex-plugin/plugin.json");

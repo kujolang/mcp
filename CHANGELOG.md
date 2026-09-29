@@ -2,7 +2,19 @@
 
 All notable changes to this project are documented in this file.
 
-## [Unreleased]
+## [1.2.0] - 2026-09-29
+
+### Added
+
+- Experimental Dispatch-controlled local STDIO Ability execution, host-owned one-use admission, bounded content references and explicit completion uncertainty.
+- Request/tool/Ability/Dispatch correlation with duplicate, framing, substitution and privacy checks. Dispatch alone decides replay.
+
+### Changed
+
+- Pin the released Ability 1.2.0 source and regenerate its immutable Kennel lock; canonical v1 projection/receipt contracts remain unchanged.
+- Reconcile the release runtime to published Kujo 1.6.0 and refresh package version metadata. Stable Ability contracts remain unchanged; controlled handoffs remain alpha and opt-in.
+- Preserve historical host certificates as exact-version evidence. This release does not promote remote trust or publish separate participant SDKs.
+
 
 ## [1.1.1] - 2026-09-04
 

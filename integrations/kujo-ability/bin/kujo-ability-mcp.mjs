@@ -8,7 +8,7 @@ import { controlledCall, validateControl, controlledResultSchema, idValid } from
 export function startAbilityMcp({ control = null, gatewayTransport = null } = {}) {
 if (control) validateControl(control);
 
-const server = { name: "kujo-ability", version: "1.1.1" };
+const server = { name: "kujo-ability", version: "1.2.0" };
 const configuredBase = process.env.KUJO_ABILITY_GATEWAY_URL || "http://127.0.0.1:8080";
 const token = process.env.KUJO_ABILITY_GATEWAY_TOKEN || "";
 const parsed = new URL(configuredBase);
