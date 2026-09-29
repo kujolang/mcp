@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0 - 2026-09-29
+
+- Add experimental local controlled STDIO participation with host-only admission and content-light evidence references. Dispatch retains replay authority.
+- Require Kujo 1.6 for the framework and retain application-owned authorization for the host bridge.
+
+
 - Remove in-band MCP approval issuance; approvals must now come from a trusted host or out-of-band UI.
 - Bind compatibility evidence to the certified Ability connector source and make required Codex certification fail closed.
 

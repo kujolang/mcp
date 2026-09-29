@@ -1,6 +1,6 @@
 # MCP Server Framework
 
-[![Version](https://img.shields.io/badge/version-1.1.1-black)](https://github.com/kujolang/mcp/releases/tag/v1.1.1)
+[![Version](https://img.shields.io/badge/version-1.2.0-black)](https://github.com/kujolang/mcp/releases/tag/v1.2.0)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![built with Kujo](https://img.shields.io/badge/built%20with-Kujo-white.svg)](https://github.com/kujolang/kujo)
 [![CI](https://github.com/kujolang/mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/kujolang/mcp/actions/workflows/ci.yml)
@@ -102,7 +102,7 @@ Default endpoint: `http://127.0.0.1:8931/mcp/v1`
 Expected health response shape:
 
 ```json
-{"status":"ok","server":"mcp-demo","version":"1.1.1"}
+{"status":"ok","server":"mcp-demo","version":"1.2.0"}
 ```
 
 If you want to run the binary directly, resolve the runtime path first:
@@ -266,3 +266,7 @@ This repository is launch-honest as a local protocol-compatible MCP server found
 An experimental [controlled local STDIO Ability mode](docs/controlled-ability-stdio.md)
 lets an operator transport bounded evidence into Dispatch review/replay. Standalone
 behavior is unchanged; MCP does not become a verifier or replay controller.
+
+## MCP 1.2.0 release scope
+
+Use Kujo 1.6.0 or newer. This release adds the experimental controlled local STDIO Ability path: host-installed one-use admission, bounded evidence references and completion uncertainty. Dispatch remains the sole replay/admission authority. Standalone tools keep their normal behavior. Controlled handoffs remain alpha; Wave C beta assurance remains opt-in in its bounded single-effect required/deny domain. No remote participant trust is introduced. Historical editor/managed-gateway certificates retain their exact package versions and do not certify new remote controls.

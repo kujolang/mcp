@@ -33,7 +33,7 @@ function record(id, host, tier, displayCommand, result, limitations = [], artifa
   return { id, host, tier, command: displayCommand, ...result, limitations, artifact };
 }
 
-const kujoBin = join(workspace, "kujo/target/debug/kujo");
+const kujoBin = process.env.KUJO_BIN || "kujo";
 const checks = [];
 checks.push(record("portable-package", "portable", "package-validated", "node tests/portable_ability_plugin_test.mjs", command("node", ["tests/portable_ability_plugin_test.mjs"], root)));
 checks.push(record("generic-stdio", "generic-stdio", "protocol-certified", "node tests/ability_host_bridge_test.mjs", command("node", ["tests/ability_host_bridge_test.mjs"], root)));
@@ -52,7 +52,7 @@ const artifact = {
   schema: "kujo.ability.host-certification/v1",
   generated_at: new Date().toISOString(),
   source_revisions: { mcp: revision(root), "ability-gateway": revision(abilityGateway), "agents-sdk": revision(join(workspace, "agents-sdk")), "kujo-pi": revision(join(workspace, "kujo-pi")) },
-  versions: { package: "1.1.1", gateway_contract: "1.0.0", mcp_protocol: "2025-11-25", codex: codexVersion.status === "passed" ? codexVersion.summary : "unavailable", cursor: "unavailable", vscode: vscode.status === "passed" ? vscode.summary.match(/\((\d+\.\d+\.\d+),/)?.[1] || "installed" : "unavailable" },
+  versions: { package: "1.2.0", gateway_contract: "1.0.0", mcp_protocol: "2025-11-25", codex: codexVersion.status === "passed" ? codexVersion.summary : "unavailable", cursor: "unavailable", vscode: vscode.status === "passed" ? vscode.summary.match(/\((\d+\.\d+\.\d+),/)?.[1] || "installed" : "unavailable" },
   checks,
 };
 
