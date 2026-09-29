@@ -67,3 +67,5 @@ bash tests/run_all_tests.sh
 ```
 
 These commands establish package, clean-profile Codex installation, installed VS Code configuration, native managed VS Code read-only smoke evidence, STDIO bridge behavior, and controlled Streamable HTTP protocol evidence. Separate production evidence now establishes a browser-driven read-only consent handoff. They intentionally make no claim about public marketplace review, authenticated Codex execution, Cursor installation, mutating editor certification, or enterprise deployment.
+
+For a release refresh, run `KUJO_BIN=/path/to/reviewed/kujo node scripts/certify-ability-hosts.mjs` from an immutable source commit, with the documented sibling repositories and installed host CLIs. This reruns local checks; the separately dated managed VS Code certificate remains historical read-only evidence and is not recertified by this command. Then regenerate the matrix with `node scripts/generate-ability-compatibility.mjs`.
