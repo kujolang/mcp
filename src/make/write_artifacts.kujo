@@ -145,19 +145,10 @@ func build_kujo_mcp_findings(profile) {
     findings := []
 
     findings := push(findings, {
-        "title": "Kujo runtime does not expose a native `kujo mcp` subcommand",
-        "severity": "medium",
-        "evidence": "Current runtime help output lacks an `mcp` command.",
-        "workaround": "Use `kujo run mcp.kujo --interpreter make <repo>`.",
-        "recommended_refactor": "Add a first-party `mcp` subcommand in the Kujo runtime command table.",
-        "test_to_add": "CLI integration test for `kujo mcp make` dispatch"
-    })
-
-    findings := push(findings, {
-        "title": "AI enrichment is optional and currently unavailable in primitive-only flow",
+        "title": "AI enrichment is optional and requires an explicit provider path",
         "severity": "low",
-        "evidence": "Generated profile marks AI enrichment as not applied.",
-        "workaround": "Use deterministic profile output and manual review.",
+        "evidence": "Generated profile marks AI enrichment as not applied without a resolvable AI SDK path or configured provider credentials.",
+        "workaround": "Use deterministic profile output and manual review, or pass `--ai-sdk-path` with configured credentials.",
         "recommended_refactor": "Introduce bounded AI enrichment provider interface with explicit inference labels.",
         "test_to_add": "Contract test ensuring inferred fields are tagged with provenance"
     })
