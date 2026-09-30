@@ -2,6 +2,34 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- `kujo mcp make` is now a first-class Kujo CLI command for the repo-specific
+  generator. It accepts no argument (current directory), `.` and `./repo`
+  relative paths, and absolute paths, forwards all generator options
+  (`--out`, `--artifacts`, `--ai-sdk-path`, `--profile-only`,
+  `--artifacts-only`, `--no-ai`, `--validate`, `--dry-run`), and runs the
+  canonical package VM-first without `--interpreter`. Package resolution
+  order: `KUJO_MCP_PATH`, walk-up `kennel.toml` identity, the analyzed
+  repository's Kennel lockfile, and the ecosystem install root
+  (`$KUJO_INSTALL_ROOT/sources/mcp`, default `~/.kujo/sources/mcp`).
+  Repository tests cover the first-class help surfaces, cwd/relative/absolute
+  repository targeting, option forwarding, deterministic generation,
+  preserved safety classifications, dry-run no-write behavior, and
+  missing-repository failures.
+
+### Changed
+
+- README, command reference, examples, and the Kennel make alias now present
+  `cd my-project && kujo mcp make` as the primary workflow; `kujo run
+  mcp.kujo --interpreter make ...` remains available as a
+  development/diagnostic primitive.
+- Generated `mcp-findings` artifacts no longer report a missing native CLI
+  dispatch now that the runtime exposes `kujo mcp`, and the enrichment
+  finding reflects the first-class command surface.
+
 ## [1.2.0] - 2026-09-29
 
 ### Added
@@ -15,38 +43,6 @@ All notable changes to this project are documented in this file.
 - Reconcile the release runtime to published Kujo 1.6.0 and refresh package version metadata. Stable Ability contracts remain unchanged; controlled handoffs remain alpha and opt-in.
 - Preserve historical host certificates as exact-version evidence. This release does not promote remote trust or publish separate participant SDKs.
 
-
-### Added
-
-- `kujo mcp make` is now a first-class Kujo CLI command for the repo-specific
-  generator. It accepts no argument (current directory), `.` and `./repo`
-  relative paths, and absolute paths, forwards all generator options
-  (`--out`, `--artifacts`, `--ai-sdk-path`, `--profile-only`,
-  `--artifacts-only`, `--no-ai`, `--validate`, `--dry-run`), and runs the
-  canonical package VM-first without `--interpreter`. Package resolution
-  order: `KUJO_MCP_PATH`, walk-up `kennel.toml` identity, the analyzed
-  repository's Kennel lockfile, and the ecosystem install root
-  (`$KUJO_INSTALL_ROOT/sources/mcp`, default `~/.kujo/sources/mcp`).
-
-### Changed
-
-- README, command reference, and examples now document `cd my-project &&
-  kujo mcp make` as the primary workflow; `kujo run mcp.kujo
-  --interpreter make ...` remains available as a development/diagnostic
-  primitive.
-- Generated `mcp-findings` artifacts no longer report a missing native CLI
-  dispatch (the runtime now exposes `kujo mcp`), and the enrichment finding
-  reflects the first-class command surface.
-
-### Tests
-
-- `tests/feat_08_first_class_cli.sh` covers first-class help surfaces,
-  cwd/relative/absolute repository targeting, generator option forwarding,
-  deterministic two-run generation, preserved safety classifications, dry-run
-  no-write behavior, and clear failures for missing repositories. It runs
-  against a Kujo runtime that contains the first-class command (dogfooding
-  via the checkout, `KUJO_MCP_PATH`, or an installed ecosystem root) and is
-  wired into the suite once a runtime release ships the command.
 
 ## [1.1.1] - 2026-09-04
 
