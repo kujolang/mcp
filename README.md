@@ -127,34 +127,43 @@ bash scripts/find_kujo_runtime.sh
 
 The binary configured in `command` must be the Kujo language runtime binary that supports the `run` subcommand.
 
-Wrapper note: the current top-level `mcp.kujo` surface is intentionally thin. `help` / `--help` work, `version` / `--version` are sparse/noisy, and `mcp make --help` / `mcp make --version` are unsupported.
+Wrapper note: the Kujo runtime exposes `mcp` as a first-party command group (`kujo mcp`), so `kujo mcp make --help` documents the generation flow directly. The legacy top-level `mcp.kujo` entrypoint remains available for development and diagnostics.
 
 ## Generate Repo-Specific MCP Server
 
-`mcp make` analyzes a local repository and generates a safe, repo-specific MCP server plus review artifacts.
-
-Current invocation in this primitive:
+`mcp make` analyzes a local repository and generates a safe, repo-specific MCP server plus review artifacts. The Kujo runtime provides this as a first-class command that resolves the canonical MCP package automatically:
 
 ```bash
-kujo run mcp.kujo --interpreter make ./repo-folder
+cd my-project
+kujo mcp make
 ```
 
-Equivalent target command shape (runtime command-table gap tracked in findings):
+To analyze a different repository without changing directories:
 
 ```bash
-kujo mcp make ./repo-folder
+kujo mcp make ./my-project
+# or
+kujo mcp make /absolute/path/to/my-project
 ```
+
+Run `kujo mcp make --help` for the full command surface.
 
 Supported options:
 
 ```bash
-kujo run mcp.kujo --interpreter make ./repo-folder --out ./repo-folder/.mcp/generated-server
-kujo run mcp.kujo --interpreter make ./repo-folder --artifacts ./repo-folder/.mcp/artifacts
-kujo run mcp.kujo --interpreter make ./repo-folder --profile-only
-kujo run mcp.kujo --interpreter make ./repo-folder --artifacts-only
-kujo run mcp.kujo --interpreter make ./repo-folder --no-ai
-kujo run mcp.kujo --interpreter make ./repo-folder --validate
-kujo run mcp.kujo --interpreter make ./repo-folder --dry-run
+kujo mcp make ./repo-folder --out ./repo-folder/.mcp/generated-server
+kujo mcp make ./repo-folder --artifacts ./repo-folder/.mcp/artifacts
+kujo mcp make ./repo-folder --profile-only
+kujo mcp make ./repo-folder --artifacts-only
+kujo mcp make ./repo-folder --no-ai
+kujo mcp make ./repo-folder --validate
+kujo mcp make ./repo-folder --dry-run
+```
+
+Development/diagnostic primitive (not the normal user experience):
+
+```bash
+kujo run mcp.kujo --interpreter make ./repo-folder
 ```
 
 `--artifacts-only` skips the server scaffold and produces only the profile and review artifacts.

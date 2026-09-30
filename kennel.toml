@@ -52,7 +52,7 @@ publish = ""
 
 [scripts]
 demo = "kujo run server.kujo"
-make = "kujo run mcp.kujo --interpreter make"
+make = "kujo mcp make"
 server = "kujo run server.kujo"
 
 [trust]

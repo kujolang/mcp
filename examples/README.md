@@ -4,5 +4,5 @@ Copyable MCP usage examples live in the main repository README and `demo/README.
 
 ```bash
 bash scripts/run_server.sh
-kujo run mcp.kujo --interpreter make ./demo --validate --no-ai
+kujo mcp make ./demo --validate --no-ai
 ```
