@@ -237,9 +237,15 @@ func run_ai_enrichment_child(ai_sdk_dir, prompt_text, api_key) {
     }
 
     kujo_bin := trim(to_string(env_or("KUJO_BIN", "kujo")))
-    run_cmd := "cd \"" + ai_sdk_dir + "\" && KUJO_MCP_ENRICH_API_KEY=\"" + api_key + "\" \"" + kujo_bin + "\" run \"" + helper_path + "\" --interpreter"
-
-    result := execute_status(run_cmd, {"timeout_ms": 60000})
+    result := spawn_process(
+        [kujo_bin, "run", helper_path, "--interpreter"],
+        {
+            "cwd": ai_sdk_dir,
+            "timeout_ms": 60000,
+            "env": {"KUJO_MCP_ENRICH_API_KEY": api_key},
+            "redact_values": [api_key]
+        }
+    )
 
     try {
         delete_file(helper_path)
@@ -247,11 +253,11 @@ func run_ai_enrichment_child(ai_sdk_dir, prompt_text, api_key) {
     } except err {
     }
 
-    stdout_text := ""
-    if dict_has_key(result, "stdout") {
-        stdout_text := trim(to_string(result["stdout"]))
+    if result.success == false || result.timed_out || result.cancelled || result.stdout_truncated {
+        return {"ok": false, "content": "", "tokens": 0}
     }
 
+    stdout_text := trim(to_string(result.stdout))
     if stdout_text == "" {
         return {"ok": false, "content": "", "tokens": 0}
     }

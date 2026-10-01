@@ -144,14 +144,28 @@ func render_fix_backlog_md(items) {
 func build_kujo_mcp_findings(profile) {
     findings := []
 
-    findings := push(findings, {
-        "title": "AI enrichment is optional and requires an explicit provider path",
-        "severity": "low",
-        "evidence": "Generated profile marks AI enrichment as not applied without a resolvable AI SDK path or configured provider credentials.",
-        "workaround": "Use deterministic profile output and manual review, or pass `--ai-sdk-path` with configured credentials.",
-        "recommended_refactor": "Introduce bounded AI enrichment provider interface with explicit inference labels.",
-        "test_to_add": "Contract test ensuring inferred fields are tagged with provenance"
-    })
+    if dict_has_key(profile, "inference") && type(profile["inference"]) == "dict" {
+        inference := profile["inference"]
+        ai_applied := false
+        if dict_has_key(inference, "ai_applied") {
+            ai_applied := inference["ai_applied"] == true
+        }
+        reason := "unknown"
+        if dict_has_key(inference, "enrichment_reason") {
+            reason := to_string(inference["enrichment_reason"])
+        }
+
+        if ai_applied == false && reason != "disabled_by_flag" {
+            findings := push(findings, {
+                "title": "Optional AI enrichment was not applied",
+                "severity": "low",
+                "evidence": "Enrichment outcome: " + reason + ". Deterministic repository analysis remains available.",
+                "workaround": "Use deterministic output, or provide a valid `--ai-sdk-path` and provider credentials when model suggestions are desired.",
+                "recommended_refactor": "No framework refactor is required; resolve the reported provider configuration or child-process failure.",
+                "test_to_add": "Add a provider-specific integration test only when enabling that provider in automation."
+            })
+        }
+    }
 
     return findings
 }

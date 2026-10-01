@@ -13,6 +13,14 @@ func dict_has_key(dict_value, key_name) {
 
 dummy_profile := {
     "repo_name": "test-repo",
+    "detected_languages": ["Kujo"],
+    "detected_frameworks": [],
+    "likely_source_directories": ["src"],
+    "likely_test_directories": ["tests"],
+    "important_config_files": ["kennel.toml"],
+    "entrypoints": ["mcp.kujo"],
+    "sample_files": ["src/make/enrich.kujo"],
+    "docs_and_readmes": ["README.md"],
     "mcp_relevant_domain_concepts": ["api", "test"],
     "risky_operations": [
         {"name": "deploy", "command": "npm run deploy", "tier": "blocked", "reason": "Command contains blocked term: deploy"}
@@ -40,5 +48,12 @@ assert(dict_has_key(default_ep, "inference"), "default path should have inferenc
 
 inference := default_ep["inference"]
 assert(type(inference) == "dict", "inference block should be dict")
+
+if to_string(env_or("MCP_TEST_EXPECT_AI", "")) == "1" {
+    assert(enriched_default["enriched"] == true, "configured fake provider should enrich")
+    assert(inference["ai_applied"] == true, "inference report should record applied enrichment")
+    assert(inference["enrichment_reason"] == "api_key_configured", "inference report should record provider success")
+    assert(len(enriched_default["ai_tools"]) == 1, "fake provider should return one proposed tool")
+}
 
 print("test_06_make_enrich: all assertions passed")

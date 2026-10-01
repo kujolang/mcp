@@ -663,12 +663,7 @@ export func analyze_repository(target_repo_path, no_ai) {
     confidence_notes := push(confidence_notes, "Script safety tiers are inferred from command names and blocked-term policy")
 
     unresolved_assumptions := []
-    unresolved_assumptions := push(unresolved_assumptions, "No dynamic command execution was used during profiling")
-    if no_ai == false {
-        unresolved_assumptions := push(unresolved_assumptions, "AI enrichment is not configured in this primitive; profile includes deterministic inference only")
-    } else {
-        unresolved_assumptions := push(unresolved_assumptions, "AI enrichment disabled by --no-ai")
-    }
+    unresolved_assumptions := push(unresolved_assumptions, "Deterministic repository analysis did not execute discovered repository commands")
 
     profile := {
         "repo_name": repo_name,
@@ -716,7 +711,7 @@ export func analyze_repository(target_repo_path, no_ai) {
         "inference": {
             "ai_enrichment_requested": no_ai == false,
             "ai_enrichment_applied": false,
-            "ai_enrichment_reason": "No AI provider is configured in the current MCP primitive"
+            "ai_enrichment_reason": "Enrichment outcome is resolved after deterministic analysis"
         }
     }
 
