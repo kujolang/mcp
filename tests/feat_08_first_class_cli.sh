@@ -19,22 +19,22 @@ trap cleanup EXIT
 
 # --- Parser surface ------------------------------------------------------ #
 
-"$KUJO_BIN" mcp --help >/tmp/kujo_mcp_feat08_help.log 2>&1
-grep -q "make" /tmp/kujo_mcp_feat08_help.log
+"$KUJO_BIN" mcp --help >"$TMP_PARENT/mcp-help.log" 2>&1
+grep -q "make" "$TMP_PARENT/mcp-help.log"
 
-"$KUJO_BIN" mcp make --help >/tmp/kujo_mcp_feat08_make_help.log 2>&1
-grep -q "Generate a repo-specific MCP server" /tmp/kujo_mcp_feat08_make_help.log
-grep -q "REPO" /tmp/kujo_mcp_feat08_make_help.log
-grep -q "current directory" /tmp/kujo_mcp_feat08_make_help.log
-grep -q -- "--out" /tmp/kujo_mcp_feat08_make_help.log
-grep -q -- "--artifacts" /tmp/kujo_mcp_feat08_make_help.log
-grep -q -- "--profile-only" /tmp/kujo_mcp_feat08_make_help.log
-grep -q -- "--artifacts-only" /tmp/kujo_mcp_feat08_make_help.log
-grep -q -- "--no-ai" /tmp/kujo_mcp_feat08_make_help.log
-grep -q -- "--validate" /tmp/kujo_mcp_feat08_make_help.log
-grep -q -- "--dry-run" /tmp/kujo_mcp_feat08_make_help.log
+"$KUJO_BIN" mcp make --help >"$TMP_PARENT/make-help.log" 2>&1
+grep -q "Generate a repo-specific MCP server" "$TMP_PARENT/make-help.log"
+grep -q "REPO" "$TMP_PARENT/make-help.log"
+grep -q "current directory" "$TMP_PARENT/make-help.log"
+grep -q -- "--out" "$TMP_PARENT/make-help.log"
+grep -q -- "--artifacts" "$TMP_PARENT/make-help.log"
+grep -q -- "--profile-only" "$TMP_PARENT/make-help.log"
+grep -q -- "--artifacts-only" "$TMP_PARENT/make-help.log"
+grep -q -- "--no-ai" "$TMP_PARENT/make-help.log"
+grep -q -- "--validate" "$TMP_PARENT/make-help.log"
+grep -q -- "--dry-run" "$TMP_PARENT/make-help.log"
 
-if grep -q -- "--interpreter" /tmp/kujo_mcp_feat08_make_help.log; then
+if grep -q -- "--interpreter" "$TMP_PARENT/make-help.log"; then
 	echo "first-class mcp make help must not document --interpreter"
 	exit 1
 fi
@@ -81,7 +81,7 @@ INNER_EOF
 TARGET_REPO="$TMP_PARENT/sample-repo"
 create_sample_repo "$TARGET_REPO"
 
-(cd "$TARGET_REPO" && "$KUJO_BIN" mcp make --validate --no-ai) >/tmp/kujo_mcp_feat08_cwd.log 2>&1
+(cd "$TARGET_REPO" && "$KUJO_BIN" mcp make --validate --no-ai) >"$TMP_PARENT/cwd.log" 2>&1
 GEN_DIR="$TARGET_REPO/.mcp/generated-server"
 ART_DIR="$TARGET_REPO/.mcp/artifacts"
 
@@ -96,7 +96,7 @@ test -f "$ART_DIR/validation-report.md"
 # Relative repository path from a parent directory.
 REL_REPO="$TMP_PARENT/sample-repo-relative"
 create_sample_repo "$REL_REPO"
-(cd "$TMP_PARENT" && "$KUJO_BIN" mcp make ./sample-repo-relative --profile-only) >/tmp/kujo_mcp_feat08_relative.log 2>&1
+(cd "$TMP_PARENT" && "$KUJO_BIN" mcp make ./sample-repo-relative --profile-only) >"$TMP_PARENT/relative.log" 2>&1
 test -f "$REL_REPO/.mcp/generated-server/repo-profile.json"
 if test -d "$REL_REPO/.mcp/generated-server/src"; then
 	echo "--profile-only unexpectedly created server scaffold directories"
@@ -108,7 +108,7 @@ ABS_REPO="$TMP_PARENT/sample-repo-absolute"
 create_sample_repo "$ABS_REPO"
 CUSTOM_OUT="$TMP_PARENT/custom-server"
 CUSTOM_ART="$TMP_PARENT/custom-artifacts"
-"$KUJO_BIN" mcp make "$ABS_REPO" --out "$CUSTOM_OUT" --artifacts "$CUSTOM_ART" --no-ai >/tmp/kujo_mcp_feat08_absolute.log 2>&1
+"$KUJO_BIN" mcp make "$ABS_REPO" --out "$CUSTOM_OUT" --artifacts "$CUSTOM_ART" --no-ai >"$TMP_PARENT/absolute.log" 2>&1
 test -f "$CUSTOM_OUT/mcp.manifest.json"
 test -f "$CUSTOM_ART/fix-backlog.json"
 if test -e "$ABS_REPO/.mcp"; then
@@ -122,8 +122,8 @@ DET1_OUT="$TMP_PARENT/det1/server"
 DET1_ART="$TMP_PARENT/det1/artifacts"
 DET2_OUT="$TMP_PARENT/det2/server"
 DET2_ART="$TMP_PARENT/det2/artifacts"
-"$KUJO_BIN" mcp make "$ABS_REPO" --out "$DET1_OUT" --artifacts "$DET1_ART" --no-ai >/tmp/kujo_mcp_feat08_det1.log 2>&1
-"$KUJO_BIN" mcp make "$ABS_REPO" --out "$DET2_OUT" --artifacts "$DET2_ART" --no-ai >/tmp/kujo_mcp_feat08_det2.log 2>&1
+"$KUJO_BIN" mcp make "$ABS_REPO" --out "$DET1_OUT" --artifacts "$DET1_ART" --no-ai >"$TMP_PARENT/det1.log" 2>&1
+"$KUJO_BIN" mcp make "$ABS_REPO" --out "$DET2_OUT" --artifacts "$DET2_ART" --no-ai >"$TMP_PARENT/det2.log" 2>&1
 
 DET_FILES_A="$(find "$DET1_OUT" -type f | sed "s|$DET1_OUT/||" | sort)"
 DET_FILES_B="$(find "$DET2_OUT" -type f | sed "s|$DET2_OUT/||" | sort)"
@@ -170,8 +170,8 @@ grep -q '"ok":true' "$TMP_PARENT/self-check.log"
 
 DRY_REPO="$TMP_PARENT/dry-repo"
 create_sample_repo "$DRY_REPO"
-(cd "$DRY_REPO" && "$KUJO_BIN" mcp make --dry-run --no-ai) >/tmp/kujo_mcp_feat08_dry.log 2>&1
-grep -q "Dry run complete" /tmp/kujo_mcp_feat08_dry.log
+(cd "$DRY_REPO" && "$KUJO_BIN" mcp make --dry-run --no-ai) >"$TMP_PARENT/dry.log" 2>&1
+grep -q "Dry run complete" "$TMP_PARENT/dry.log"
 if test -e "$DRY_REPO/.mcp"; then
 	echo "--dry-run must not write any files"
 	exit 1
