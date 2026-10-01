@@ -1,22 +1,22 @@
 from src.make.analyze_repo import analyze_repository
 
-tmp_root := "/tmp/kujo_mcp_make_profile_repo"
+tmp_root := path_join(path_absolute("tests"), "kujo_mcp_make_profile_repo")
 if !path_exists(tmp_root) {
     create_dir(tmp_root)
 }
 
-if !path_exists(tmp_root + "/src") {
-    create_dir(tmp_root + "/src")
+if !path_exists(path_join(tmp_root, "src")) {
+    create_dir(path_join(tmp_root, "src"))
 }
-if !path_exists(tmp_root + "/tests") {
-    create_dir(tmp_root + "/tests")
+if !path_exists(path_join(tmp_root, "tests")) {
+    create_dir(path_join(tmp_root, "tests"))
 }
 
-write_file(tmp_root + "/README.md", "# Make Profile Test\n")
-write_file(tmp_root + "/.env", "SECRET_TOKEN=super-secret\n")
-write_file(tmp_root + "/src/main.ts", "console.log('hello')\n")
-write_file(tmp_root + "/tests/main.test.ts", "test('ok', () => {})\n")
-write_file(tmp_root + "/package.json", "{\"name\":\"make-profile\",\"scripts\":{\"test\":\"npm run unit\",\"lint\":\"eslint .\",\"deploy\":\"npm run deploy\"}}")
+write_file(path_join(tmp_root, "README.md"), "# Make Profile Test\n")
+write_file(path_join(tmp_root, ".env"), "SECRET_TOKEN=super-secret\n")
+write_file(path_join(tmp_root, "src/main.ts"), "console.log('hello')\n")
+write_file(path_join(tmp_root, "tests/main.test.ts"), "test('ok', () => {})\n")
+write_file(path_join(tmp_root, "package.json"), "{\"name\":\"make-profile\",\"scripts\":{\"test\":\"npm run unit\",\"lint\":\"eslint .\",\"deploy\":\"npm run deploy\"}}")
 
 analysis := analyze_repository(tmp_root, true)
 assert(analysis["ok"] == true, "analyze_repository should succeed")
@@ -29,13 +29,18 @@ assert(len(profile["safe_operations"]) >= 1, "safe operations should include tes
 assert(len(profile["risky_operations"]) >= 1, "risky operations should include deploy command")
 assert(len(profile["sensitive_paths_detected"]) >= 1, "sensitive file paths should be detected")
 
-delete_file(tmp_root + "/package.json")
-delete_file(tmp_root + "/tests/main.test.ts")
-delete_file(tmp_root + "/src/main.ts")
-delete_file(tmp_root + "/.env")
-delete_file(tmp_root + "/README.md")
-os_rmdir(tmp_root + "/tests")
-os_rmdir(tmp_root + "/src")
+nested_seen := false
+for name in profile["sample_files"] { if name == "src/main.ts" { nested_seen = true } }
+assert(nested_seen, "nested relative names must be portable, with slash-separated output")
+assert(profile["repo_path_relative"] == "tests/kujo_mcp_make_profile_repo", "display-relative path must remain portable")
+
+delete_file(path_join(tmp_root, "package.json"))
+delete_file(path_join(tmp_root, "tests/main.test.ts"))
+delete_file(path_join(tmp_root, "src/main.ts"))
+delete_file(path_join(tmp_root, ".env"))
+delete_file(path_join(tmp_root, "README.md"))
+os_rmdir(path_join(tmp_root, "tests"))
+os_rmdir(path_join(tmp_root, "src"))
 os_rmdir(tmp_root)
 
 print("test_04_make_profile: all assertions passed")
