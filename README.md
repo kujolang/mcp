@@ -87,7 +87,7 @@ Deployment profiles and the enterprise control checklist are documented in
 The canonical definition contract is maintained in and consumed directly from
 [`kujolang/ability`](https://github.com/kujolang/ability).
 
-The repository-local `kujo.mcp.core@1.0.0` Ability Pack under [`packs/mcp_core`](packs/mcp_core) provides two bounded read-only workflows: a redacted repository-profile summary and validation of one contained generated MCP manifest. It never executes discovered commands or returns sensitive path names. Host projection remains opt-in through the canonical Ability runtime.
+The repository-local `kujo.mcp.core@1.0.0` Ability Pack under [`packs/mcp_core`](packs/mcp_core) provides two bounded read-only workflows: a redacted repository-profile summary and validation of one contained generated MCP manifest. It never executes discovered commands or returns sensitive path names. Host projection remains opt-in through the canonical Ability runtime. Applications inspecting a separate project can call `create_mcp_core_ability_registry_for_project(source_root, project_root)`: canonical definitions come from the trusted MCP source, while reads are bound to the selected project. The existing one-root constructor remains supported. Project selection is application configuration, never model-supplied authority.
 
 ## Quick Start
 
