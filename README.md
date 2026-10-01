@@ -129,6 +129,8 @@ The binary configured in `command` must be the Kujo language runtime binary that
 
 Wrapper note: the Kujo runtime exposes `mcp` as a first-party command group (`kujo mcp`), so `kujo mcp make --help` documents the generation flow directly. The legacy top-level `mcp.kujo` entrypoint remains available for development and diagnostics.
 
+Release compatibility: the first-party command requires a Kujo build that contains the new `mcp` command group. Kujo 1.6.0 users should use the direct `mcp.kujo` invocation below until that runtime change ships in a release. The Kennel `make` alias intentionally retains the compatible direct invocation.
+
 ## Generate Repo-Specific MCP Server
 
 `mcp make` analyzes a local repository and generates a safe, repo-specific MCP server plus review artifacts. The Kujo runtime provides this as a first-class command that resolves the canonical MCP package automatically:

@@ -22,13 +22,15 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
-- README, command reference, examples, and the Kennel make alias now present
-  `cd my-project && kujo mcp make` as the primary workflow; `kujo run
-  mcp.kujo --interpreter make ...` remains available as a
-  development/diagnostic primitive.
+- README and command reference document `cd my-project && kujo mcp make` for
+  runtimes that contain the new command group. Release compatibility remains
+  explicit: the examples and Kennel make alias retain `kujo run mcp.kujo
+  --interpreter make ...` until the runtime change ships in a release.
 - Generated `mcp-findings` artifacts no longer report a missing native CLI
-  dispatch now that the runtime exposes `kujo mcp`, and the enrichment
-  finding reflects the first-class command surface.
+  dispatch now that the runtime exposes `kujo mcp`. Enrichment findings now
+  report actual provider outcomes instead of recommending an interface that
+  already exists, and enrichment launches the child runtime with structured
+  argv/environment handling so credentials never enter shell command text.
 
 ## [1.2.0] - 2026-09-29
 

@@ -20,6 +20,8 @@ kujo mcp make /absolute/path/to/my-project
 
 `kujo mcp make --help` prints the full generated command surface.
 
+This first-party surface requires a Kujo build containing the `mcp` command group. With Kujo 1.6.0, use the compatible direct invocation documented below until the runtime change ships in a release.
+
 ## Options
 
 ```bash
@@ -145,5 +147,5 @@ All outcomes are recorded in `artifacts/validation-report.md` with explicit `pas
 
 ## Known Limitations
 
-- AI enrichment is optional and currently not wired in this primitive path; inference is deterministic and labeled accordingly.
+- AI enrichment is optional. It requires a resolvable Kujo AI SDK path and provider credentials; otherwise generation falls back to deterministic, provenance-labeled inference.
 - Script safety classification is heuristic and should be reviewed for high-risk repositories.
