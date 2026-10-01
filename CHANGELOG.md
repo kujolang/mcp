@@ -31,6 +31,9 @@ All notable changes to this project are documented in this file.
   report actual provider outcomes instead of recommending an interface that
   already exists, and enrichment launches the child runtime with structured
   argv/environment handling so credentials never enter shell command text.
+- Add a non-publishing release preflight for validating the first-class CLI,
+  ecosystem-installed MCP package resolution, and the complete standalone CLI
+  regression suite against an exact candidate or published Kujo binary.
 
 ## [1.2.0] - 2026-09-29
 
