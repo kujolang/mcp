@@ -56,12 +56,16 @@ func handler_for(definition, root) {
 	return func(input, context) { return failure("mcp_pack_handler_missing", "MCP Ability handler is not implemented", {}) }
 }
 
-export create_mcp_core_ability_registry := func(root_input) {
-	root := trim(to_string(root_input))
-	if root == "" || path_is_dir(root) == false { return failure("invalid_mcp_root", "MCP root must be an existing directory", {}) }
+// Source definitions are trusted installed code; project contents never select
+// handlers or definitions. Hosts choose the project outside model tool input.
+export create_mcp_core_ability_registry_for_project := func(source_input, project_input) {
+ source := trim(to_string(source_input))
+ root := trim(to_string(project_input))
+ if source == "" || path_is_dir(source) == false { return failure("invalid_mcp_root", "MCP source must be an existing directory", {}) }
+ if root == "" || path_is_dir(root) == false || path_is_symlink(root) { return failure("invalid_project_root", "Project root must be an existing non-symlink directory", {}) }
 	registry := create_ability_registry()
 	for file in ["kujo.mcp.repository.profile.json", "kujo.mcp.manifest.validate.json"] {
-		definition := parse_json(read_file(path_join(path_join(root, "packs/mcp_core"), file)))
+		definition := parse_json(read_file(path_join(path_join(source, "packs/mcp_core"), file)))
 		step := register_ability_definition(registry, definition)
 		if step["ok"] == false { return step }
 		registry = step["registry"]
@@ -73,6 +77,11 @@ export create_mcp_core_ability_registry := func(root_input) {
 		registry = step["registry"]
 	}
 	return {"ok": true, "registry": registry}
+}
+
+// Preserve the original single-root API for existing consumers.
+export create_mcp_core_ability_registry := func(root_input) {
+ return create_mcp_core_ability_registry_for_project(root_input, root_input)
 }
 
 export make_mcp_core_invocation := func(definition, input, invocation_id) {

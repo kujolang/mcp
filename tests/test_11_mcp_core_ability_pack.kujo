@@ -1,5 +1,5 @@
 from ability import list_ability_definitions
-from packs.mcp_core.runtime import create_mcp_core_ability_registry, make_mcp_core_invocation, execute_mcp_core_ability, mcp_core_policy
+from packs.mcp_core.runtime import create_mcp_core_ability_registry, create_mcp_core_ability_registry_for_project, make_mcp_core_invocation, execute_mcp_core_ability, mcp_core_policy
 
 func fixed_clock() { return 1000 }
 func fixed_id(kind, invocation) { return kind + "-mcp-core-test" }
@@ -34,5 +34,17 @@ assert(escape_result["receipt"]["error"]["code"] == "invalid_manifest_path", "pa
 drive_result := execute_mcp_core_ability(registry, make_mcp_core_invocation(manifest_definition, {"manifest": "C:/outside.json"}, "manifest-3"), services)
 assert(drive_result["ok"] == false, "manifest validation must reject drive-qualified paths")
 assert(drive_result["receipt"]["error"]["code"] == "invalid_manifest_path", "drive-path rejection must survive in the canonical receipt")
+
+// The selected folder is deliberately not a package root and has no Ability
+// definitions. Loading definitions from it would fail, or trust project code.
+separate := create_mcp_core_ability_registry_for_project(".", "tests/fixtures")
+assert(separate["ok"], "separate project must initialize without Git or definitions")
+separate_profile := execute_mcp_core_ability(separate["registry"], make_mcp_core_invocation(profile_definition, {}, "separate-profile"), services)
+assert(separate_profile["ok"], "selected project profile must execute")
+assert(separate_profile["receipt"]["result"]["repo_name"] == "fixtures", "must inspect selected project instead of trusted source")
+separate_manifest := execute_mcp_core_ability(separate["registry"], make_mcp_core_invocation(manifest_definition, {"manifest": "mcp-core-valid-manifest.json"}, "separate-manifest"), services)
+assert(separate_manifest["ok"] && separate_manifest["receipt"]["result"]["passed"], "manifest must resolve beneath selected project")
+invalid_project := create_mcp_core_ability_registry_for_project(".", "tests/fixtures/missing-directory")
+assert(invalid_project["ok"] == false && invalid_project["code"] == "invalid_project_root", "missing project fails explicitly")
 
 print("test_11_mcp_core_ability_pack: all assertions passed")
