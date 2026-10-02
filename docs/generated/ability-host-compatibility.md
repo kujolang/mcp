@@ -1,9 +1,9 @@
 # Generated Ability host compatibility
 
-Evidence date: 2026-09-29
+Evidence date: 2026-10-02
 
-Package: `1.2.0`  
-Gateway contract: `1.0.0`  
+Package: `1.3.0`<br>
+Gateway contract: `1.0.0`<br>
 MCP protocol: `2025-11-25`
 
 | Host | Proven tier | Automated evidence | Limitation |
@@ -17,4 +17,4 @@ MCP protocol: `2025-11-25`
 | Agents SDK | native-conformant | [`agents-sdk`](../../certification/evidence/ability-hosts-local.json) | None recorded for this tier. |
 | Kujo Pi | native-conformant | [`kujo-pi`](../../certification/evidence/ability-hosts-local.json) | None recorded for this tier. |
 
-A row proves only its named tier. `configuration-validated` does not mean an installed host was exercised; `installed-configuration-validated` does not mean an interactive agent invoked a tool; `certified-mcp-read-only` does not cover mutating operations; `install-validated` does not mean authenticated host execution. The main evidence source is [the local certification artifact](../../certification/evidence/ability-hosts-local.json). Matrix generation fails when required evidence is missing, failed, future-dated, older than 30 days, lacks an artifact link, or does not cover the current immutable Ability connector source. External source revisions are also matched exactly whenever their sibling worktrees are available.
+A row proves only its named tier. `configuration-validated` does not mean an installed host was exercised; `installed-configuration-validated` does not mean an interactive agent invoked a tool; `certified-mcp-read-only` does not cover mutating operations; `install-validated` does not mean an authenticated host execution. The main evidence source is [the local certification artifact](../../certification/evidence/ability-hosts-local.json). Matrix generation fails when required evidence is missing, failed, future-dated, older than 30 days, lacks an artifact link, or does not cover the current immutable Ability connector source. External source revisions are also matched exactly whenever their sibling worktrees are available.
