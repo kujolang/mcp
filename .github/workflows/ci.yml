@@ -28,9 +28,9 @@ jobs:
 
       - name: Install Kujo runtime
         id: kujo
-        uses: kujolang/kujo/.github/actions/setup-kujo@fc53093f35e4236682bbbf5ab1ccc8d2b4df990c
+        uses: kujolang/kujo/.github/actions/setup-kujo@813072040a1ac643312f5163fcfa4f26474c9095
         with:
-          version: v1.6.0
+          version: v1.7.0
 
       - name: Export Kujo runtime path
         shell: bash

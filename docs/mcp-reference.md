@@ -11,6 +11,7 @@ For generated servers produced by `mcp make`, the default generated endpoint is 
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/health` | Health check |
+| POST | `/` | Standard JSON-RPC MCP transport (`initialize`, `ping`, tools, resources, prompts) |
 | POST | `/tools/list` | List available tools |
 | POST | `/tools/call` | Call a tool with arguments |
 | POST | `/resources/list` | List available resources |
@@ -52,6 +53,7 @@ Server identity fields returned by `/` and `/health` (`server`, `version`) are s
   - `http.max_request_body_bytes`
   - `http.rate_limit_enabled`
   - `http.rate_limit_per_minute`
+  - `http.rate_limit_strategy` (`local` or fail-closed `external` gateway attestation)
 
 ## Portable Ability Projection
 
@@ -74,6 +76,8 @@ or bypass the server's authentication and request guardrails.
 - `tools.enabled`: enable or disable tool endpoints at runtime.
 - `resources.enabled`: enable or disable resource endpoints at runtime.
 - `tools.default_timeout_ms`: default timeout budget for timeout-aware tools.
+- `tools.scan_max_entries`, `tools.scan_max_files`, `tools.scan_max_bytes`: hard recursive traversal ceilings.
+- `tools.tree_cache_enabled`: enable the process-local index cache, bounded to the current minute; `refresh_index` bypasses it.
 - `permissions.allowed_directories`: one or more allowed roots for file traversal.
 
 ## Multi-Root Write Semantics

@@ -20,7 +20,7 @@ kujo mcp make /absolute/path/to/my-project
 
 `kujo mcp make --help` prints the full generated command surface.
 
-This first-party surface requires a Kujo build containing the `mcp` command group. With Kujo 1.6.0, use the compatible direct invocation documented below until the runtime change ships in a release.
+This first-party surface requires Kujo 1.7.0 or newer. The compatible direct invocation remains documented below for development and diagnostics.
 
 ## Options
 

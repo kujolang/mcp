@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-02
+
 ### Added
 
 - `kujo mcp make` is now a first-class Kujo CLI command for the repo-specific
@@ -19,6 +21,12 @@ All notable changes to this project are documented in this file.
   repository targeting, option forwarding, deterministic generation,
   preserved safety classifications, dry-run no-write behavior, and
   missing-repository failures.
+- Add standard MCP JSON-RPC initialization, ping, tools, resources, and prompts
+  methods to the demo and generated HTTP servers.
+- Add hard recursive scan ceilings, symlink exclusion, truncation metadata, an
+  opt-in minute-bounded cache, and a fail-closed shared-gateway rate-limit hook.
+- Add the canonical demo `mcp.manifest.json`, an architecture overview, and an
+  authoritative repository roadmap.
 
 ### Changed
 
@@ -34,6 +42,12 @@ All notable changes to this project are documented in this file.
 - Add a non-publishing release preflight for validating the first-class CLI,
   ecosystem-installed MCP package resolution, and the complete standalone CLI
   regression suite against an exact candidate or published Kujo binary.
+- Generated servers now fail closed on invalid configuration and enforce host,
+  authentication, request-body, rate, tool/resource enablement, timeout, and
+  maximum-file-size settings.
+- Audit logs retain bounded operation metadata without arguments, results,
+  untrusted tool names, or raw failure text.
+- CI and package compatibility now target published Kujo 1.7.0.
 
 ## [1.2.0] - 2026-09-29
 
@@ -116,10 +130,3 @@ All notable changes to this project are documented in this file.
 ### Fixed
 
 - Fixed the README version badge to match `kennel.toml` package metadata.
-
-## Unreleased — controlled STDIO Ability interoperability
-
-- Add host-installed admission/evidence callbacks to the existing local STDIO
-  bridge, with a bounded MCP-owned reference contract and redacted uncertainty.
-- Keep standalone projection, idempotency controls and authentication unchanged.
-  Dispatch remains replay authority; no remote MCP authentication is added.
