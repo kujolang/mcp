@@ -72,4 +72,11 @@ bad_blocked_command_case["blocked_commands"] := ["deploy", ""]
 result_bad_blocked_command := validate_manifest_contract(bad_blocked_command_case)
 assert(result_bad_blocked_command["passed"] == false, "manifest with empty blocked command value should fail")
 
+canonical_manifest := parse_json(read_file("mcp.manifest.json"))
+canonical_result := validate_manifest_contract(canonical_manifest)
+assert(canonical_result["passed"] == true, "canonical demo manifest should satisfy the manifest contract: " + to_json(canonical_result["errors"]))
+assert(len(canonical_manifest["tools"]) == 8, "canonical demo manifest must enumerate all demo tools")
+assert(len(canonical_manifest["resources"]) == 5, "canonical demo manifest must enumerate all demo resources")
+assert(len(canonical_manifest["prompts"]) == 2, "canonical demo manifest must enumerate all demo prompts")
+
 print("test_05_make_schema_contract: all assertions passed")

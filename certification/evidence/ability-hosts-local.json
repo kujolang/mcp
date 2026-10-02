@@ -1,14 +1,14 @@
 {
   "schema": "kujo.ability.host-certification/v1",
-  "generated_at": "2026-09-29T12:15:32.133Z",
+  "generated_at": "2026-10-02T15:46:26.211Z",
   "source_revisions": {
-    "mcp": "bda9cffcc5ba1b9855126887573be94a2b06b8f3",
+    "mcp": "8f7a85fd3686c0421bb34c295272a6c975a577ca",
     "ability-gateway": "d7934e267826aba2525c042e56cc6e74a460e547",
-    "agents-sdk": "5a9d5525e511a293b743b1c44d9ef270fd491f9f",
+    "agents-sdk": "978354a9f0f7dfe34fce87f0bd83367cc80cb837",
     "kujo-pi": "684430cd7757c327e6f5fb46d90d88b8546ce9ff"
   },
   "versions": {
-    "package": "1.2.0",
+    "package": "1.3.0",
     "gateway_contract": "1.0.0",
     "mcp_protocol": "2025-11-25",
     "codex": "codex-cli 0.144.4",
@@ -23,7 +23,7 @@
       "command": "node tests/portable_ability_plugin_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 320,
+      "duration_ms": 341,
       "output_sha256": "df2b9a315a307dbbe140681448498cfc136500f4401d5ef925982c7338506ff9",
       "summary": "portable Ability plugin contract passed",
       "limitations": [],
@@ -36,7 +36,7 @@
       "command": "node tests/ability_host_bridge_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 1331,
+      "duration_ms": 1364,
       "output_sha256": "7de97e2fceda4e8921e0db18b20be69230cdb64546104f365c752c2c3390fa31",
       "summary": "ability host bridge contract passed",
       "limitations": [],
@@ -49,7 +49,7 @@
       "command": "KUJO_REQUIRE_CODEX=1 node tests/codex_clean_profile_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 5442,
+      "duration_ms": 7369,
       "output_sha256": "8376225e9ff1ffcfb240a13eeb0dc4322701abfaeb12b4f2a4769febe3acace6",
       "summary": "Codex clean-profile plugin lifecycle passed (codex-cli 0.144.4)",
       "limitations": [
@@ -64,7 +64,7 @@
       "command": "node tests/ability_connector_cli_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 3644,
+      "duration_ms": 3888,
       "output_sha256": "ffaeda963bebc68bb50bb8bdde87bbc247ece0e1bdf33abfd04cfc5dc07b904f",
       "summary": "ability connector CLI lifecycle passed",
       "limitations": [
@@ -79,7 +79,7 @@
       "command": "KUJO_REQUIRE_VSCODE=1 node tests/vscode_clean_profile_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 2548,
+      "duration_ms": 2690,
       "output_sha256": "43ef6150a59015a32976a93dd1c1b27647917e4ee47584a42c725e7d83ba08ca",
       "summary": "VS Code clean-profile MCP registration passed (1.137.0, 645f29cc3176500b4b5762ba887cf2a7f0ffdf2c, x64)",
       "limitations": [
@@ -94,7 +94,7 @@
       "command": "node tests/vscode_managed_evidence_test.mjs",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 264,
+      "duration_ms": 304,
       "output_sha256": "04ebd7ca45ac0f03e88a3f19868e2858af123524b8e589eb222dd571297c0f78",
       "summary": "VS Code managed gateway evidence validated",
       "limitations": [
@@ -109,9 +109,9 @@
       "command": "npx vitest run test/control-plane.test.ts",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 9626,
-      "output_sha256": "662700f1325d39a6e0400f252fa7ea1aa0c05b048ed7363aa7f429bc93d331db",
-      "summary": "   Duration  5.65s (transform 428ms, setup 0ms, import 547ms, tests 674ms, environment 1ms)",
+      "duration_ms": 10201,
+      "output_sha256": "e72cd1dc25779451d441e071605c5223422b96339194dc5e4a59ac6ea5cabec7",
+      "summary": "   Duration  5.99s (transform 515ms, setup 0ms, import 624ms, tests 852ms, environment 0ms)",
       "limitations": [
         "The generic client is a controlled Workers fixture with injected authenticated principal properties; the production OAuth transport is exercised separately by the managed VS Code certificate."
       ],
@@ -124,8 +124,8 @@
       "command": "kujo test-run tests/ability_contract_tests.kujo -v",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 1685,
-      "output_sha256": "c5eb38fef388da9e88228e0f1107b6c434d6560df777652adaf17cfd565f9de9",
+      "duration_ms": 1586,
+      "output_sha256": "f7e6d392c60c2b9d46939e3b3f0386d2b6d2d92f33d6462a9fa36ef9aeede423",
       "summary": "All tests passed! ✨",
       "limitations": [],
       "artifact": "certification/evidence/ability-hosts-local.json"
@@ -137,8 +137,8 @@
       "command": "npm test",
       "status": "passed",
       "exit_code": 0,
-      "duration_ms": 37711,
-      "output_sha256": "5df1d18c611599dcc6aa73d3b7adbe08de78ad43e0de5647239c658a00ee3722",
+      "duration_ms": 41529,
+      "output_sha256": "43c5f80dc06219143a764dd6f79da7bc03a355f6913eeacecb03ffd56e2af657",
       "summary": "kujo-pi release-readiness validation passed",
       "limitations": [],
       "artifact": "certification/evidence/ability-hosts-local.json"

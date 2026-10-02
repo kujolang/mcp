@@ -30,9 +30,17 @@ It is a deployment baseline, not a claim that hosted production deployment has b
 
 ## 5. Multi-Instance Deployments
 
-The built-in limiter is process-local.
+The default `local` limiter is process-local. For multiple instances, set
+`http.rate_limit_strategy` to `external`, configure a long random
+`http.rate_limit_gateway_token`, and let a trusted gateway enforce the shared
+quota. The gateway must strip the configured attestation header from incoming
+client requests and inject it only after admission. Missing or incorrect
+attestation is rejected with HTTP 429.
 
-For multiple service instances, enforce throttling at your gateway or load balancer so limits are shared across all instances.
+Keep traversal ceilings (`tools.scan_max_entries`, `tools.scan_max_files`, and
+`tools.scan_max_bytes`) appropriate for the mounted workspace. The optional
+tree cache is process-local, expires at the next minute boundary, and can be
+bypassed per call with `refresh_index`.
 
 ## 6. Filesystem Scope
 

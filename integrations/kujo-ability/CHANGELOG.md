@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0 - 2026-10-02
+
+- Refresh host and package certification for the MCP 1.3.0 release.
+- Preserve the application-owned Ability gateway, approval, and receipt contracts.
+
 ## 1.2.0 - 2026-09-29
 
 - Add experimental local controlled STDIO participation with host-only admission and content-light evidence references. Dispatch retains replay authority.

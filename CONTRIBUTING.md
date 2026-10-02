@@ -92,19 +92,19 @@ Follow stricter runtime notes in the local repo when they exist.
 Before opening a pull request, run the strongest local validation available for
 the repo.
 
-Prefer repo-owned commands, for example:
+Use this repository's commands:
 
 ```bash
-make test
-bash tests/run.sh
-bash scripts/release_quality_gates.sh
+bash tests/run_all_tests.sh
+bash scripts/preflight-first-class-cli-release.sh
+node scripts/package-kujo-ability.mjs --output /tmp/kujo-ability --verify-reproducible
 ```
 
 At minimum, validate touched Kujo files and run the repo test harness:
 
 ```bash
 kujo check path/to/file.kujo
-kujo test
+bash tests/run_all_tests.sh
 ```
 
 If the repo includes frontend, bridge, Rust, Python, shell, performance, or

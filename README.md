@@ -1,6 +1,6 @@
 # MCP Server Framework
 
-[![Version](https://img.shields.io/badge/version-1.2.0-black)](https://github.com/kujolang/mcp/releases/tag/v1.2.0)
+[![Version](https://img.shields.io/badge/version-1.3.0-black)](https://github.com/kujolang/mcp/releases/tag/v1.3.0)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![built with Kujo](https://img.shields.io/badge/built%20with-Kujo-white.svg)](https://github.com/kujolang/kujo)
 [![CI](https://github.com/kujolang/mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/kujolang/mcp/actions/workflows/ci.yml)
@@ -47,7 +47,9 @@ This project gives you a local MCP server foundation with configurable tools/res
 - Plugin-style tool/resource registration in dedicated modules
 - Multi-root workspace support via `permissions.allowed_directories`
 - Runtime endpoint gating via `tools.enabled` and `resources.enabled`
-- Request guardrails with body-size and per-minute rate limits
+- Request guardrails with body-size and local or trusted-gateway rate limits
+- Standard MCP initialize, ping, tools, resources, and prompts methods
+- Bounded recursive traversal with explicit truncation metadata and optional caching
 - Config-driven tool timeout controls
 - Security and integration regression test suites
 - Deployment baseline template included
@@ -102,7 +104,7 @@ Default endpoint: `http://127.0.0.1:8931/mcp/v1`
 Expected health response shape:
 
 ```json
-{"status":"ok","server":"mcp-demo","version":"1.2.0"}
+{"status":"ok","server":"mcp-demo","version":"1.3.0"}
 ```
 
 If you want to run the binary directly, resolve the runtime path first:
@@ -129,7 +131,7 @@ The binary configured in `command` must be the Kujo language runtime binary that
 
 Wrapper note: the Kujo runtime exposes `mcp` as a first-party command group (`kujo mcp`), so `kujo mcp make --help` documents the generation flow directly. The legacy top-level `mcp.kujo` entrypoint remains available for development and diagnostics.
 
-Release compatibility: the first-party command requires a Kujo build that contains the new `mcp` command group. Kujo 1.6.0 users should use the direct `mcp.kujo` invocation below until that runtime change ships in a release. The Kennel `make` alias intentionally retains the compatible direct invocation.
+Release compatibility: Kujo 1.7.0 or newer contains the first-party `mcp` command group used by this release. The direct `mcp.kujo` invocation below remains available for development and diagnostics.
 
 ## Generate Repo-Specific MCP Server
 
@@ -230,6 +232,8 @@ See full deployment guidance: `docs/production-deployment.md`.
 
 - `demo/README.md`: guided demo workspace for first-time users
 - `docs/mcp-reference.md`: endpoint, tool, resource, and validation reference
+- `docs/architecture.md`: runtime, generator, and trust-boundary overview
+- `ROADMAP.md`: authoritative current and next work
 - `docs/mcp-make.md`: repository analysis and generated-server command reference
 - `docs/security-model.md`: trust boundaries, threat model, and hardening defaults
 - `docs/ability-host-conformance.md`: Ability host support tiers and conformance evidence requirements
@@ -243,7 +247,7 @@ See full deployment guidance: `docs/production-deployment.md`.
 - `docs/production-deployment.md`: operational deployment baseline and scaling notes
 - `docs/contributing-agent-workflow.md`: contributor workflow and completion criteria
 - `docs/release-versioning-policy.md`: release and versioning conventions
-- `docs/MCP_REVIEW_BACKLOG_2026_06_19.md`: next-session production-readiness backlog
+- `docs/MCP_REVIEW_BACKLOG_2026_06_19.md`: historical production-readiness review evidence
 
 ## Project Structure
 
@@ -272,12 +276,12 @@ bash tests/run_all_tests.sh
 
 ## Readiness
 
-This repository is launch-honest as a local protocol-compatible MCP server foundation, repo-specific scaffold generator, and remote-deployment baseline. Production use still requires environment-specific validation, especially for auth, ingress, rate-limit, monitoring, backup, and incident-response settings described in `docs/production-deployment.md`, `docs/security-model.md`, and `docs/MCP_REVIEW_BACKLOG_2026_06_19.md`.
+This repository is launch-honest as a local protocol-compatible MCP server foundation, repo-specific scaffold generator, and remote-deployment baseline. Production use still requires environment-specific validation, especially for auth, ingress, rate-limit, monitoring, backup, and incident-response settings described in `docs/production-deployment.md`, `docs/security-model.md`, and `ROADMAP.md`.
 
 An experimental [controlled local STDIO Ability mode](docs/controlled-ability-stdio.md)
 lets an operator transport bounded evidence into Dispatch review/replay. Standalone
 behavior is unchanged; MCP does not become a verifier or replay controller.
 
-## MCP 1.2.0 release scope
+## MCP 1.3.0 release scope
 
-Use Kujo 1.6.0 or newer. This release adds the experimental controlled local STDIO Ability path: host-installed one-use admission, bounded evidence references and completion uncertainty. Dispatch remains the sole replay/admission authority. Standalone tools keep their normal behavior. Controlled handoffs remain alpha; Wave C beta assurance remains opt-in in its bounded single-effect required/deny domain. No remote participant trust is introduced. Historical editor/managed-gateway certificates retain their exact package versions and do not certify new remote controls.
+Use Kujo 1.7.0 or newer. This release completes the first-class `kujo mcp` handoff, standardizes the demo and generated HTTP transport, enforces generated configuration, bounds recursive scans, adds an optional short-lived index cache and trusted-gateway limiter hook, and strengthens audit-redaction and end-to-end protocol coverage. Historical editor and managed-gateway certificates retain their exact package versions and do not certify newer external hosts.

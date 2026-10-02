@@ -1,6 +1,6 @@
 {
   "name": "kujo-ability",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Portable Kujo Ability Agent Plugin and MCP bridge.",
   "type": "module",
   "bin": {

@@ -9,7 +9,8 @@
     "port": 8931,
     "max_request_body_bytes": 131072,
     "rate_limit_enabled": true,
-    "rate_limit_per_minute": 120
+    "rate_limit_per_minute": 120,
+    "rate_limit_strategy": "local"
   },
   "permissions": {
     "allowed_directories": ["/srv/mcp/workspace"],
@@ -22,7 +23,11 @@
   },
   "tools": {
     "enabled": true,
-    "default_timeout_ms": 15000
+    "default_timeout_ms": 15000,
+    "scan_max_entries": 8000,
+    "scan_max_files": 4000,
+    "scan_max_bytes": 67108864,
+    "tree_cache_enabled": true
   },
   "resources": {
     "enabled": true
