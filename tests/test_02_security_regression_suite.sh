@@ -14,5 +14,6 @@ bash tests/sec_04_request_validation.sh
 bash tests/sec_05_file_size_limits.sh
 bash tests/sec_06_network_auth.sh
 bash tests/sec_07_tool_argument_validation.sh
+bash tests/sec_08_audit_redaction.sh
 
 echo "test_02_security_regression_suite: all checks passed"

@@ -1,0 +1,33 @@
+{
+  "$schema": "./schemas/mcp-manifest.schema.json",
+  "server": {
+    "name": "mcp-demo",
+    "version": "1.3.0",
+    "generated_at": "2026-10-02",
+    "source_repo": "https://github.com/kujolang/mcp"
+  },
+  "tools": [
+    {"name": "read_project_docs", "description": "Read project documentation files.", "input_schema": {"type": "object"}, "safety_tier": "read_only", "source_evidence": ["src/tools/registry.kujo"], "validation_status": "tested"},
+    {"name": "search_files", "description": "Search bounded project paths by filename or content.", "input_schema": {"type": "object"}, "safety_tier": "read_only", "source_evidence": ["src/tools/registry.kujo", "tests/feat_02_search_semantics.sh"], "validation_status": "tested"},
+    {"name": "generate_summary", "description": "Generate a structured project documentation summary.", "input_schema": {"type": "object"}, "safety_tier": "read_only", "source_evidence": ["src/tools/registry.kujo"], "validation_status": "tested"},
+    {"name": "write_safe_patch", "description": "Write a patch artifact inside configured roots.", "input_schema": {"type": "object"}, "safety_tier": "write_scaffold", "source_evidence": ["src/tools/registry.kujo"], "validation_status": "tested"},
+    {"name": "read_text_range", "description": "Read an explicit line range from an allowed text file.", "input_schema": {"type": "object"}, "safety_tier": "read_only", "source_evidence": ["src/tools/registry.kujo"], "validation_status": "tested"},
+    {"name": "write_text_safe", "description": "Write text within configured roots and permission rules.", "input_schema": {"type": "object"}, "safety_tier": "write_scaffold", "source_evidence": ["src/tools/registry.kujo"], "validation_status": "tested"},
+    {"name": "list_tree_recursive", "description": "List a bounded recursive tree without following symlinks.", "input_schema": {"type": "object"}, "safety_tier": "read_only", "source_evidence": ["src/tools/registry.kujo", "tests/feat_02_search_semantics.sh"], "validation_status": "tested"},
+    {"name": "grep_text", "description": "Search bounded project text with literal or regex matching.", "input_schema": {"type": "object"}, "safety_tier": "read_only", "source_evidence": ["src/tools/registry.kujo", "tests/feat_02_search_semantics.sh"], "validation_status": "tested"}
+  ],
+  "resources": [
+    {"uri": "project://docs", "name": "Project Documentation", "description": "List project documentation files.", "mime_type": "application/json", "path": "src/resources/registry.kujo"},
+    {"uri": "files://tree", "name": "File Tree", "description": "File tree overview of configured roots.", "mime_type": "application/json", "path": "src/resources/registry.kujo"},
+    {"uri": "log://calls", "name": "Tool Call Log", "description": "Recent redacted tool-call metadata.", "mime_type": "application/json", "path": "mcp-calls.log"},
+    {"uri": "prompt://onboarding", "name": "Onboarding Prompt", "description": "Reusable repository onboarding prompt.", "mime_type": "text/markdown", "path": "docs/onboarding-prompt.md"},
+    {"uri": "workflow://checklist-loop", "name": "Checklist Loop Workflow", "description": "Reusable checklist workflow.", "mime_type": "text/markdown", "path": "docs/checklist-loop-workflow.md"}
+  ],
+  "prompts": [
+    {"name": "onboarding", "description": "Onboard an agent to this repository.", "path": "docs/onboarding-prompt.md"},
+    {"name": "checklist_loop", "description": "Run a bounded implementation checklist loop.", "path": "docs/checklist-loop-workflow.md"}
+  ],
+  "safe_command_map": {},
+  "blocked_commands": ["deploy", "publish", "release"],
+  "safety_tiers": ["read_only", "safe_command", "write_scaffold", "review_required", "blocked"]
+}

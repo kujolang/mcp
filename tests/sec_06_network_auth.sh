@@ -100,4 +100,25 @@ echo "$api_key_missing" | grep -q '"error"'
 echo "$api_key_wrong" | grep -q '"error"'
 echo "$api_key_ok" | grep -q '"status":"ok"'
 
+# External limiter adapter requires an attestation token injected by a trusted gateway.
+node - <<'NODE'
+const fs = require('fs');
+const path = 'mcp-server.json';
+const config = JSON.parse(fs.readFileSync(path, 'utf8'));
+config.http.rate_limit_enabled = true;
+config.http.rate_limit_strategy = 'external';
+config.http.rate_limit_gateway_header = 'X-Kujo-Rate-Limit-Token';
+config.http.rate_limit_gateway_token = 'sec06-gateway-token';
+fs.writeFileSync(path, JSON.stringify(config, null, 2) + '\n');
+NODE
+start_server
+
+gateway_missing=$(curl -s -H 'X-API-Key: sec06-api-key' http://127.0.0.1:8931/mcp/v1/health)
+gateway_wrong=$(curl -s -H 'X-API-Key: sec06-api-key' -H 'X-Kujo-Rate-Limit-Token: wrong-token' http://127.0.0.1:8931/mcp/v1/health)
+gateway_ok=$(curl -s -H 'X-API-Key: sec06-api-key' -H 'X-Kujo-Rate-Limit-Token: sec06-gateway-token' http://127.0.0.1:8931/mcp/v1/health)
+
+echo "$gateway_missing" | grep -q 'External rate-limit attestation required'
+echo "$gateway_wrong" | grep -q 'External rate-limit attestation required'
+echo "$gateway_ok" | grep -q '"status":"ok"'
+
 echo "sec_06_network_auth: all checks passed"

@@ -166,7 +166,20 @@ cat > mcp-server.json <<'EOF'
 EOF
 expect_fail_with_message 'Invalid mcp-server.json: auth.token must be a non-empty string when auth.enabled is true'
 
-# Case 8: Optional auth block omitted should still start using defaults.
+# Case 8: External rate limiting must fail closed without a gateway secret.
+cat > mcp-server.json <<'EOF'
+{
+  "server": {"name": "mcp-demo", "version": "1.0.0"},
+  "http": {"host": "127.0.0.1", "port": 8931, "rate_limit_enabled": true, "rate_limit_strategy": "external"},
+  "permissions": {"allowed_directories": ["./demo"], "max_file_size": 1048576, "read_only_patterns": ["*.md"]},
+  "logging": {"max_entries": 100, "log_file": "./mcp-calls.log"},
+  "tools": {"enabled": true, "default_timeout_ms": 30000},
+  "resources": {"enabled": true}
+}
+EOF
+expect_fail_with_message 'Invalid mcp-server.json: http.rate_limit_gateway_token must be non-empty when external rate limiting is enabled'
+
+# Case 9: Optional auth block omitted should still start using defaults.
 cat > mcp-server.json <<'EOF'
 {
   "server": {"name": "mcp-demo", "version": "1.0.0", "description": "demo"},

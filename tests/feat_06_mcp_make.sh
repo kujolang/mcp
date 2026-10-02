@@ -11,6 +11,10 @@ TMP_PARENT="$(mktemp -d)"
 TARGET_REPO="$TMP_PARENT/sample-repo"
 
 cleanup() {
+	if [[ -n "${GEN_SERVER_PID:-}" ]]; then
+		kill "$GEN_SERVER_PID" >/dev/null 2>&1 || true
+		wait "$GEN_SERVER_PID" >/dev/null 2>&1 || true
+	fi
 	rm -rf "$TMP_PARENT"
 }
 trap cleanup EXIT
@@ -91,6 +95,67 @@ fi
 
 "$KUJO_BIN" run "$GEN_DIR/src/server.kujo" --interpreter --self-check >/tmp/kujo_mcp_feat06_self_check.json 2>&1
 grep -q '"ok":true' /tmp/kujo_mcp_feat06_self_check.json
+KUJO_BIN="$KUJO_BIN" bash "$GEN_DIR/tests/smoke.sh"
+
+# Generated runtime must enforce every declared network/surface control.
+cp "$GEN_DIR/mcp-server.json" "$TMP_PARENT/generated-config-backup.json"
+node -e '
+const fs=require("fs"); const p=process.argv[1]; const c=JSON.parse(fs.readFileSync(p,"utf8"));
+c.auth={enabled:true,type:"bearer",token:"generated-secret"};
+c.tools.enabled=false; c.resources.enabled=false; c.http.max_request_body_bytes=128; c.http.rate_limit_per_minute=100;
+fs.writeFileSync(p,JSON.stringify(c));
+' "$GEN_DIR/mcp-server.json"
+"$KUJO_BIN" run "$GEN_DIR/src/server.kujo" --interpreter >"$TMP_PARENT/generated-server.log" 2>&1 &
+GEN_SERVER_PID=$!
+curl --retry 25 --retry-connrefused --retry-delay 1 -sS -H 'Authorization: Bearer generated-secret' http://127.0.0.1:8941/mcp/v1/health >/dev/null
+
+curl -sS http://127.0.0.1:8941/mcp/v1/health | grep -q 'Unauthorized request'
+curl -sS -H 'Host: evil.example' -H 'Authorization: Bearer generated-secret' http://127.0.0.1:8941/mcp/v1/health | grep -q 'Host header is not allowed'
+curl -sS -X POST -H 'Authorization: Bearer generated-secret' -H 'Content-Type: application/json' -d '{}' http://127.0.0.1:8941/mcp/v1/tools/list | grep -q 'Tools are disabled by configuration'
+curl -sS -X POST -H 'Authorization: Bearer generated-secret' -H 'Content-Type: application/json' -d '{}' http://127.0.0.1:8941/mcp/v1/resources/list | grep -q 'Resources are disabled by configuration'
+oversized_body="$(printf '%0200d' 0)"
+curl -sS -X POST -H 'Authorization: Bearer generated-secret' -H 'Content-Type: application/json' -d "$oversized_body" http://127.0.0.1:8941/mcp/v1/tools/list | grep -q 'Request body exceeds configured maximum'
+kill "$GEN_SERVER_PID" >/dev/null 2>&1 || true
+wait "$GEN_SERVER_PID" >/dev/null 2>&1 || true
+GEN_SERVER_PID=""
+
+cp "$TMP_PARENT/generated-config-backup.json" "$GEN_DIR/mcp-server.json"
+node -e '
+const fs=require("fs"); const p=process.argv[1]; const c=JSON.parse(fs.readFileSync(p,"utf8"));
+c.http.rate_limit_per_minute=2; fs.writeFileSync(p,JSON.stringify(c));
+' "$GEN_DIR/mcp-server.json"
+"$KUJO_BIN" run "$GEN_DIR/src/server.kujo" --interpreter >"$TMP_PARENT/generated-rate.log" 2>&1 &
+GEN_SERVER_PID=$!
+curl --retry 25 --retry-connrefused --retry-delay 1 -sS http://127.0.0.1:8941/mcp/v1/health >/dev/null
+curl -sS http://127.0.0.1:8941/mcp/v1/health >/dev/null
+curl -sS http://127.0.0.1:8941/mcp/v1/health | grep -q 'Rate limit exceeded'
+kill "$GEN_SERVER_PID" >/dev/null 2>&1 || true
+wait "$GEN_SERVER_PID" >/dev/null 2>&1 || true
+GEN_SERVER_PID=""
+
+cp "$TMP_PARENT/generated-config-backup.json" "$GEN_DIR/mcp-server.json"
+node -e '
+const fs=require("fs"); const p=process.argv[1]; const c=JSON.parse(fs.readFileSync(p,"utf8"));
+c.http.rate_limit_strategy="external"; c.http.rate_limit_gateway_token="generated-gateway-token"; fs.writeFileSync(p,JSON.stringify(c));
+' "$GEN_DIR/mcp-server.json"
+"$KUJO_BIN" run "$GEN_DIR/src/server.kujo" --interpreter >"$TMP_PARENT/generated-external-rate.log" 2>&1 &
+GEN_SERVER_PID=$!
+curl --retry 25 --retry-connrefused --retry-delay 1 -sS -H 'X-Kujo-Rate-Limit-Token: generated-gateway-token' http://127.0.0.1:8941/mcp/v1/health >/dev/null
+curl -sS http://127.0.0.1:8941/mcp/v1/health | grep -q 'External rate-limit attestation required'
+curl -sS -H 'X-Kujo-Rate-Limit-Token: generated-gateway-token' http://127.0.0.1:8941/mcp/v1/health | grep -q '"status":"ok"'
+kill "$GEN_SERVER_PID" >/dev/null 2>&1 || true
+wait "$GEN_SERVER_PID" >/dev/null 2>&1 || true
+GEN_SERVER_PID=""
+
+node -e '
+const fs=require("fs"); const p=process.argv[1]; const c=JSON.parse(fs.readFileSync(p,"utf8"));
+c.auth={enabled:true,type:"bearer",token:""}; fs.writeFileSync(p,JSON.stringify(c));
+' "$GEN_DIR/mcp-server.json"
+if "$KUJO_BIN" run "$GEN_DIR/src/server.kujo" --interpreter --self-check >/dev/null 2>&1; then
+	echo "generated server accepted an enabled auth policy with an empty token"
+	exit 1
+fi
+cp "$TMP_PARENT/generated-config-backup.json" "$GEN_DIR/mcp-server.json"
 
 # Verify --out and --artifacts custom paths.
 TARGET_REPO_2="$TMP_PARENT/sample-repo-custom"
