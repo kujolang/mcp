@@ -1,8 +1,8 @@
 # Generated Ability host compatibility
 
-Evidence date: 2026-10-02
+Evidence date: 2026-10-13
 
-Package: `1.3.0`<br>
+Package: `1.3.1`<br>
 Gateway contract: `1.0.0`<br>
 MCP protocol: `2025-11-25`
 
