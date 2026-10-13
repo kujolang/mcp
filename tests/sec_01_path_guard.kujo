@@ -35,4 +35,13 @@ if demo2_created {
     os_rmdir("./demo2")
 }
 
+# A POSIX filename containing a backslash is not a nested directory.
+if path_join("a", "b") == "a/b" {
+    backslash_path := "./demo\\sec_01_sibling.kujo"
+    write_file(backslash_path, "temporary")
+    backslash_read := check_path(backslash_path, allowed_dir, read_only_patterns, false)
+    delete_file(backslash_path)
+    assert(backslash_read["ok"] == false, "POSIX backslash sibling must not be admitted")
+}
+
 print("sec_01_path_guard: all assertions passed")

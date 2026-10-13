@@ -4,6 +4,10 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Admit in-root file operations on Windows by normalizing canonical path separators for permission comparisons. Preserve POSIX literal backslashes, traversal and sibling-prefix rejection, and relative read-only patterns. Native Windows regression coverage now runs in CI.
+
 ## [1.3.1] - 2026-10-12
 
 ### Fixed

@@ -25,4 +25,10 @@ combined_patterns := ["*.md", ".txt", "README.md"]
 allowed_write := check_path("./demo/patches/sec_02_patch.kujo", allowed_dir, combined_patterns, true)
 assert(allowed_write["ok"] == true, "non-matching in-scope write should remain allowed")
 
+# Relative patterns must use the same separator convention on every platform.
+relative_denied := check_path("./demo/docs/README.md", allowed_dir, ["docs/README.md"], true)
+assert(relative_denied["ok"] == false, "relative filename pattern should deny matching write")
+relative_allowed := check_path("./demo/docs/guide.md", allowed_dir, ["docs/README.md"], true)
+assert(relative_allowed["ok"] == true, "relative filename pattern should preserve other writes")
+
 print("sec_02_read_only_patterns: all assertions passed")

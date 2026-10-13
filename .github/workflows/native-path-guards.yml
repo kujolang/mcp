@@ -1,0 +1,29 @@
+name: Native path guards
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  windows-path-guards:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.11.0
+      - name: Verify native Windows read/write boundaries
+        shell: pwsh
+        run: |
+          npm install --prefix "$env:RUNNER_TEMP/mcp-runtime" --ignore-scripts @kujolang/kujo-runtime@1.8.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $runtime = node -e "console.log(require(process.argv[1]).getKujoRuntimeInfo().binaryPath)" "$env:RUNNER_TEMP/mcp-runtime/node_modules/@kujolang/kujo-runtime"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $runtime run tests/sec_01_path_guard.kujo --interpreter
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $runtime run tests/sec_02_read_only_patterns.kujo --interpreter
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
