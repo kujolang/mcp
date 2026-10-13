@@ -2,7 +2,7 @@
   "$schema": "./schemas/mcp-manifest.schema.json",
   "server": {
     "name": "mcp-demo",
-    "version": "1.3.0",
+    "version": "1.3.1",
     "generated_at": "2026-10-02",
     "source_repo": "https://github.com/kujolang/mcp"
   },

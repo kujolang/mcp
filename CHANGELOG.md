@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-10-12
+
+### Fixed
+
+- Correct the packaged Ability bridge verification commands so they run from
+  the documented MCP repository root before the first npm publication.
+
 ## [1.3.0] - 2026-10-02
 
 ### Added

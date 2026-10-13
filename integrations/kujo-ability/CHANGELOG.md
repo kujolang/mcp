@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1 - 2026-10-12
+
+- Correct the documented repository-root verification commands.
+- Publish the first public npm package with the current MCP 1.3 bridge.
+
 ## 1.3.0 - 2026-10-02
 
 - Refresh host and package certification for the MCP 1.3.0 release.

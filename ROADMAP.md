@@ -3,7 +3,7 @@
 This file is the authoritative roadmap for the repository. Historical review
 backlogs and dated verification reports remain evidence, not the current plan.
 
-## Current release: 1.3.0
+## Current release: 1.3.1
 
 - Enforce generated-server configuration for network, authentication, body,
   rate, tool, resource, timeout, and file-size controls.

@@ -36,7 +36,7 @@ notification_status=$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.
 
 echo "$health_resp" | grep -q '"status":"ok"'
 echo "$health_resp" | grep -q '"server":"mcp-demo"'
-echo "$health_resp" | grep -q '"version":"1.3.0"'
+echo "$health_resp" | grep -q '"version":"1.3.1"'
 
 echo "$tools_list_resp" | grep -q '"tools"'
 echo "$tools_list_resp" | grep -q '"search_files"'

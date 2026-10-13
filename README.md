@@ -1,6 +1,6 @@
 # MCP Server Framework
 
-[![Version](https://img.shields.io/badge/version-1.3.0-black)](https://github.com/kujolang/mcp/releases/tag/v1.3.0)
+[![Version](https://img.shields.io/badge/version-1.3.1-black)](https://github.com/kujolang/mcp/releases/tag/v1.3.1)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![built with Kujo](https://img.shields.io/badge/built%20with-Kujo-white.svg)](https://github.com/kujolang/kujo)
 [![CI](https://github.com/kujolang/mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/kujolang/mcp/actions/workflows/ci.yml)
@@ -104,7 +104,7 @@ Default endpoint: `http://127.0.0.1:8931/mcp/v1`
 Expected health response shape:
 
 ```json
-{"status":"ok","server":"mcp-demo","version":"1.3.0"}
+{"status":"ok","server":"mcp-demo","version":"1.3.1"}
 ```
 
 If you want to run the binary directly, resolve the runtime path first:
@@ -282,6 +282,6 @@ An experimental [controlled local STDIO Ability mode](docs/controlled-ability-st
 lets an operator transport bounded evidence into Dispatch review/replay. Standalone
 behavior is unchanged; MCP does not become a verifier or replay controller.
 
-## MCP 1.3.0 release scope
+## MCP 1.3.1 release scope
 
 Use Kujo 1.7.0 or newer. This release completes the first-class `kujo mcp` handoff, standardizes the demo and generated HTTP transport, enforces generated configuration, bounds recursive scans, adds an optional short-lived index cache and trusted-gateway limiter hook, and strengthens audit-redaction and end-to-end protocol coverage. Historical editor and managed-gateway certificates retain their exact package versions and do not certify newer external hosts.

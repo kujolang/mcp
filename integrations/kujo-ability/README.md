@@ -32,7 +32,7 @@ Each projected tool adds an optional `_kujo` adapter-control object for `invocat
 
 The generic MCP bridge never issues approvals because an ordinary tool argument cannot prove independent human intent. A trusted host or out-of-band application UI must collect confirmation and issue a server-bound approval, then inject only the resulting approval ID through `_kujo.approvalId`. Do not give the agent process approval-issuance credentials.
 
-This v1.3.0 bridge targets the current CMS gateway endpoints. The package is release-ready for the `kujo-ability` npm name, with executable launchers, a reproducible archive, SBOM, and provenance metadata. Until registry publication is verified, install it from the tagged repository rather than relying on `npx`. A hosted multi-tenant gateway should expose the same contract behind OAuth 2.1 and must not reuse the public read-only ecosystem catalog at `mcp.kujolang.ai`.
+This v1.3.1 bridge targets the current CMS gateway endpoints. The package is published as `kujo-ability` on npm with executable launchers, a reproducible archive, SBOM, and provenance metadata. A hosted multi-tenant gateway should expose the same contract behind OAuth 2.1 and must not reuse the public read-only ecosystem catalog at `mcp.kujolang.ai`.
 
 ## Connector lifecycle
 
@@ -55,10 +55,10 @@ VS Code's password input works in the desktop profile, but current Agent Host se
 
 ```bash
 node bin/kujo-ability.mjs version
-node ../../../tests/portable_ability_plugin_test.mjs
-node ../../../tests/ability_host_bridge_test.mjs
-node ../../../tests/codex_clean_profile_test.mjs
-node ../../../scripts/package-kujo-ability.mjs --verify-reproducible
+node tests/portable_ability_plugin_test.mjs
+node tests/ability_host_bridge_test.mjs
+node tests/codex_clean_profile_test.mjs
+node scripts/package-kujo-ability.mjs --verify-reproducible
 ```
 
 Set gateway variables only in the process that starts the bridge. Diagnostics and test output must never print the token.
