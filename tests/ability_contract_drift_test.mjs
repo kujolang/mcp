@@ -21,10 +21,13 @@ const portable = await json("integrations/kujo-ability/plugin.json");
 const codex = await json("integrations/kujo-ability/.codex-plugin/plugin.json");
 const npm = await json("integrations/kujo-ability/package.json");
 const server = await json("mcp-server.json");
-assert.equal(packageVersion, portable.version);
+// Framework fixes and the separately shipped npm bridge have independent versions.
+assert.match(portable.version, /^\d+\.\d+\.\d+$/);
 assert.equal(codex.version, portable.version);
 assert.equal(npm.version, portable.version);
-assert.equal(server.server.version, portable.version);
+assert.equal(server.server.version, packageVersion);
+const manifest = await json("mcp.manifest.json");
+assert.equal(manifest.server.version, packageVersion);
 
 const cli = await read("integrations/kujo-ability/bin/kujo-ability.mjs");
 const bridge = await read("integrations/kujo-ability/bin/kujo-ability-mcp.mjs");

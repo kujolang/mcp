@@ -4,9 +4,16 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-10-14
+
 ### Fixed
 
 - Admit in-root file operations on Windows by normalizing canonical path separators for permission comparisons. Preserve POSIX literal backslashes, traversal and sibling-prefix rejection, and relative read-only patterns. Native Windows regression coverage now runs in CI.
+
+### Compatibility
+
+- Keep the Kujo 1.7.0 minimum and existing file-tool contracts. No configuration migration is required.
+- The independently packaged `kujo-ability` npm bridge remains 1.3.1: this fix is in the Kujo framework, outside that package. Historical host certification retains its original version and scope.
 
 ## [1.3.1] - 2026-10-12
 
