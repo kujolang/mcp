@@ -211,7 +211,7 @@ func build_resources(profile, out_abs, artifacts_abs) {
         "name": "Repository Profile",
         "description": "Deterministic profile produced by kujo mcp make.",
         "mime_type": "application/json",
-        "path": out_abs + "/repo-profile.json"
+        "path": path_join(out_abs, "repo-profile.json")
     })
 
     resources := push(resources, {
@@ -219,7 +219,7 @@ func build_resources(profile, out_abs, artifacts_abs) {
         "name": "Generated MCP Manifest",
         "description": "Generated tool/resource/prompt manifest.",
         "mime_type": "application/json",
-        "path": out_abs + "/mcp.manifest.json"
+        "path": path_join(out_abs, "mcp.manifest.json")
     })
 
     resources := push(resources, {
@@ -227,7 +227,7 @@ func build_resources(profile, out_abs, artifacts_abs) {
         "name": "Repository Map",
         "description": "Human-readable repository structure map.",
         "mime_type": "text/markdown",
-        "path": artifacts_abs + "/repo-map.md"
+        "path": path_join(artifacts_abs, "repo-map.md")
     })
 
     resources := push(resources, {
@@ -235,7 +235,7 @@ func build_resources(profile, out_abs, artifacts_abs) {
         "name": "Validation Report",
         "description": "Validation outcomes for generated assets and server.",
         "mime_type": "text/markdown",
-        "path": artifacts_abs + "/validation-report.md"
+        "path": path_join(artifacts_abs, "validation-report.md")
     })
 
     resources := push(resources, {
@@ -243,7 +243,7 @@ func build_resources(profile, out_abs, artifacts_abs) {
         "name": "Fix Backlog",
         "description": "Prioritized backlog of concrete repository improvements.",
         "mime_type": "text/markdown",
-        "path": artifacts_abs + "/fix-backlog.md"
+        "path": path_join(artifacts_abs, "fix-backlog.md")
     })
 
     docs := []
@@ -259,7 +259,7 @@ func build_resources(profile, out_abs, artifacts_abs) {
             "name": "Primary Documentation",
             "description": "Primary README/docs file detected for this repository.",
             "mime_type": "text/markdown",
-            "path": root_abs + "/" + primary_doc_rel
+            "path": path_join(root_abs, primary_doc_rel)
         })
     }
 
@@ -272,31 +272,31 @@ func build_prompts(out_abs) {
     prompts := push(prompts, {
         "name": "prepare_implementation_plan",
         "description": "Prepare an implementation plan grounded in repository evidence.",
-        "path": out_abs + "/src/prompts/prepare_implementation_plan.md"
+        "path": path_join(out_abs, "src", "prompts", "prepare_implementation_plan.md")
     })
 
     prompts := push(prompts, {
         "name": "review_patch",
         "description": "Review a patch for safety, regressions, and test completeness.",
-        "path": out_abs + "/src/prompts/review_patch.md"
+        "path": path_join(out_abs, "src", "prompts", "review_patch.md")
     })
 
     prompts := push(prompts, {
         "name": "write_tests",
         "description": "Design tests that validate behavior and guard against regressions.",
-        "path": out_abs + "/src/prompts/write_tests.md"
+        "path": path_join(out_abs, "src", "prompts", "write_tests.md")
     })
 
     prompts := push(prompts, {
         "name": "investigate_failing_test",
         "description": "Investigate failing tests with deterministic reproduction and root-cause notes.",
-        "path": out_abs + "/src/prompts/investigate_failing_test.md"
+        "path": path_join(out_abs, "src", "prompts", "investigate_failing_test.md")
     })
 
     prompts := push(prompts, {
         "name": "produce_agent_handoff",
         "description": "Produce a handoff packet for another local coding agent.",
-        "path": out_abs + "/src/prompts/produce_agent_handoff.md"
+        "path": path_join(out_abs, "src", "prompts", "produce_agent_handoff.md")
     })
 
     return prompts
@@ -1062,13 +1062,13 @@ export func generate_server_project(profile, out_abs, artifacts_abs, dry_run, ai
     ensure_dirs := ensure_generated_dirs([
         out_abs,
         artifacts_abs,
-        out_abs + "/src",
-        out_abs + "/src/tools",
-        out_abs + "/src/resources",
-        out_abs + "/src/prompts",
-        out_abs + "/src/safety",
-        out_abs + "/tests",
-        out_abs + "/examples"
+        path_join(out_abs, "src"),
+        path_join(out_abs, "src", "tools"),
+        path_join(out_abs, "src", "resources"),
+        path_join(out_abs, "src", "prompts"),
+        path_join(out_abs, "src", "safety"),
+        path_join(out_abs, "tests"),
+        path_join(out_abs, "examples")
     ])
     if !ensure_dirs["ok"] {
         return {"ok": false, "error": ensure_dirs["error"], "manifest": {}}
@@ -1079,13 +1079,13 @@ export func generate_server_project(profile, out_abs, artifacts_abs, dry_run, ai
     profile_json := to_json(profile)
     manifest_json := to_json(manifest)
 
-    write_profile := write_generated_file(out_abs + "/repo-profile.json", profile_json, write_roots, generated_files)
+    write_profile := write_generated_file(path_join(out_abs, "repo-profile.json"), profile_json, write_roots, generated_files)
     if !write_profile["ok"] {
         return {"ok": false, "error": write_profile["error"], "manifest": manifest}
     }
     generated_files := write_profile["generated_files"]
 
-    write_manifest := write_generated_file(out_abs + "/mcp.manifest.json", manifest_json, write_roots, generated_files)
+    write_manifest := write_generated_file(path_join(out_abs, "mcp.manifest.json"), manifest_json, write_roots, generated_files)
     if !write_manifest["ok"] {
         return {"ok": false, "error": write_manifest["error"], "manifest": manifest}
     }
@@ -1124,42 +1124,42 @@ export func generate_server_project(profile, out_abs, artifacts_abs, dry_run, ai
         }
     })
 
-    write_cfg := write_generated_file(out_abs + "/mcp-server.json", mcp_server_json, write_roots, generated_files)
+    write_cfg := write_generated_file(path_join(out_abs, "mcp-server.json"), mcp_server_json, write_roots, generated_files)
     if !write_cfg["ok"] {
         return {"ok": false, "error": write_cfg["error"], "manifest": manifest}
     }
     generated_files := write_cfg["generated_files"]
 
-    server_source := render_generated_server_source(out_abs + "/mcp.manifest.json", out_abs + "/repo-profile.json", out_abs + "/mcp-server.json", out_abs, artifacts_abs)
-    write_server := write_generated_file(out_abs + "/src/server.kujo", server_source, write_roots, generated_files)
+    server_source := render_generated_server_source(path_join(out_abs, "mcp.manifest.json"), path_join(out_abs, "repo-profile.json"), path_join(out_abs, "mcp-server.json"), out_abs, artifacts_abs)
+    write_server := write_generated_file(path_join(out_abs, "src", "server.kujo"), server_source, write_roots, generated_files)
     if !write_server["ok"] {
         return {"ok": false, "error": write_server["error"], "manifest": manifest}
     }
     generated_files := write_server["generated_files"]
 
     readme_text := render_generated_readme(profile, out_abs)
-    write_readme := write_generated_file(out_abs + "/README.md", readme_text, write_roots, generated_files)
+    write_readme := write_generated_file(path_join(out_abs, "README.md"), readme_text, write_roots, generated_files)
     if !write_readme["ok"] {
         return {"ok": false, "error": write_readme["error"], "manifest": manifest}
     }
     generated_files := write_readme["generated_files"]
 
     safety_text := "# Safety Policy\n\nThis generated server is read-only by default and allows only allowlisted safe commands defined in mcp.manifest.json.\n"
-    write_safety := write_generated_file(out_abs + "/src/safety/policy.md", safety_text, write_roots, generated_files)
+    write_safety := write_generated_file(path_join(out_abs, "src", "safety", "policy.md"), safety_text, write_roots, generated_files)
     if !write_safety["ok"] {
         return {"ok": false, "error": write_safety["error"], "manifest": manifest}
     }
     generated_files := write_safety["generated_files"]
 
     tools_notes := "# Generated Tools\n\nSee mcp.manifest.json for generated tool definitions.\n"
-    write_tools_notes := write_generated_file(out_abs + "/src/tools/README.md", tools_notes, write_roots, generated_files)
+    write_tools_notes := write_generated_file(path_join(out_abs, "src", "tools", "README.md"), tools_notes, write_roots, generated_files)
     if !write_tools_notes["ok"] {
         return {"ok": false, "error": write_tools_notes["error"], "manifest": manifest}
     }
     generated_files := write_tools_notes["generated_files"]
 
     resource_notes := "# Generated Resources\n\nSee mcp.manifest.json for generated resource definitions.\n"
-    write_res_notes := write_generated_file(out_abs + "/src/resources/README.md", resource_notes, write_roots, generated_files)
+    write_res_notes := write_generated_file(path_join(out_abs, "src", "resources", "README.md"), resource_notes, write_roots, generated_files)
     if !write_res_notes["ok"] {
         return {"ok": false, "error": write_res_notes["error"], "manifest": manifest}
     }
@@ -1180,21 +1180,21 @@ export func generate_server_project(profile, out_abs, artifacts_abs, dry_run, ai
     }
 
     smoke_text := render_smoke_script(out_abs)
-    write_smoke := write_generated_file(out_abs + "/tests/smoke.sh", smoke_text, write_roots, generated_files)
+    write_smoke := write_generated_file(path_join(out_abs, "tests", "smoke.sh"), smoke_text, write_roots, generated_files)
     if !write_smoke["ok"] {
         return {"ok": false, "error": write_smoke["error"], "manifest": manifest}
     }
     generated_files := write_smoke["generated_files"]
 
     examples_client := "# Client Usage\n\n1. Start server: `kujo run src/server.kujo --interpreter`\n2. Call `/mcp/v1/tools/list` and `/mcp/v1/tools/call`.\n"
-    write_client := write_generated_file(out_abs + "/examples/client-usage.md", examples_client, write_roots, generated_files)
+    write_client := write_generated_file(path_join(out_abs, "examples", "client-usage.md"), examples_client, write_roots, generated_files)
     if !write_client["ok"] {
         return {"ok": false, "error": write_client["error"], "manifest": manifest}
     }
     generated_files := write_client["generated_files"]
 
     examples_calls := "# Sample Calls\n\n- `inspect_project_structure`\n- `list_available_scripts`\n- `find_relevant_files_for_task`\n"
-    write_calls := write_generated_file(out_abs + "/examples/sample-calls.md", examples_calls, write_roots, generated_files)
+    write_calls := write_generated_file(path_join(out_abs, "examples", "sample-calls.md"), examples_calls, write_roots, generated_files)
     if !write_calls["ok"] {
         return {"ok": false, "error": write_calls["error"], "manifest": manifest}
     }

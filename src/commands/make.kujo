@@ -98,10 +98,10 @@ func resolve_output_paths(target_abs, opts) {
     artifacts_value := trim(to_string(opts["artifacts"]))
 
     if out_value == "" {
-        out_value := target_abs + "/.mcp/generated-server"
+        out_value := path_join(target_abs, ".mcp", "generated-server")
     }
     if artifacts_value == "" {
-        artifacts_value := target_abs + "/.mcp/artifacts"
+        artifacts_value := path_join(target_abs, ".mcp", "artifacts")
     }
 
     out_abs_result := resolve_absolute_output(out_value)
@@ -133,7 +133,7 @@ func write_profile_only(profile, out_abs, artifacts_abs) {
         return {"ok": false, "error": art_dir["error"]}
     }
 
-    profile_path := out_abs + "/repo-profile.json"
+    profile_path := path_join(out_abs, "repo-profile.json")
     try {
         write_file(profile_path, to_json(profile), true)
     } except err {
@@ -242,7 +242,7 @@ export func run_make_command(raw_args) {
         return {
             "ok": true,
             "error": "",
-            "summary": "Profile generated at " + out_abs + "/repo-profile.json",
+            "summary": "Profile generated at " + path_join(out_abs, "repo-profile.json"),
             "out_abs": out_abs,
             "artifacts_abs": artifacts_abs
         }

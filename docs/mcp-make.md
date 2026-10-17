@@ -149,3 +149,7 @@ All outcomes are recorded in `artifacts/validation-report.md` with explicit `pas
 
 - AI enrichment is optional. It requires a resolvable Kujo AI SDK path and provider credentials; otherwise generation falls back to deterministic, provenance-labeled inference.
 - Script safety classification is heuristic and should be reviewed for high-risk repositories.
+
+Filesystem output uses native path joins, including Windows canonical drive and
+extended paths. Generation can create missing output parents and run again in
+an existing output directory. POSIX filenames retain literal backslashes.

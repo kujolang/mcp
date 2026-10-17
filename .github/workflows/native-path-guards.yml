@@ -27,3 +27,6 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & $runtime run tests/sec_02_read_only_patterns.kujo --interpreter
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:KUJO_BIN = $runtime
+          node --test tests/make-native-paths.test.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

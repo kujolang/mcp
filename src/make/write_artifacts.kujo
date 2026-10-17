@@ -381,19 +381,19 @@ export func write_artifacts(profile, manifest, validation, out_abs, artifacts_ab
     findings_json := to_json({"findings": findings})
 
     files_to_write := [
-        {"path": artifacts_abs + "/README.md", "content": "# MCP Make Artifacts\n\nGenerated artifacts for repository-specific MCP server generation and review.\n"},
-        {"path": artifacts_abs + "/repo-map.md", "content": render_repo_map(profile)},
-        {"path": artifacts_abs + "/mcp-surface-plan.md", "content": render_mcp_surface_plan(manifest)},
-        {"path": artifacts_abs + "/safety-review.md", "content": render_safety_review(profile, manifest)},
-        {"path": artifacts_abs + "/validation-report.md", "content": render_validation_report(validation)},
-        {"path": artifacts_abs + "/fix-backlog.md", "content": fix_backlog_md},
-        {"path": artifacts_abs + "/fix-backlog.json", "content": fix_backlog_json},
-        {"path": artifacts_abs + "/agent-handoff.md", "content": render_agent_handoff(profile, out_abs, artifacts_abs)},
-        {"path": artifacts_abs + "/patchbrief.md", "content": render_patchbrief(profile, out_abs, artifacts_abs)},
-        {"path": artifacts_abs + "/shipcheck.md", "content": render_shipcheck(profile, validation)},
-        {"path": artifacts_abs + "/howto.md", "content": render_howto(out_abs, artifacts_abs)},
-        {"path": artifacts_abs + "/mcp-findings.md", "content": findings_md},
-        {"path": artifacts_abs + "/mcp-findings.json", "content": findings_json}
+        {"path": path_join(artifacts_abs, "README.md"), "content": "# MCP Make Artifacts\n\nGenerated artifacts for repository-specific MCP server generation and review.\n"},
+        {"path": path_join(artifacts_abs, "repo-map.md"), "content": render_repo_map(profile)},
+        {"path": path_join(artifacts_abs, "mcp-surface-plan.md"), "content": render_mcp_surface_plan(manifest)},
+        {"path": path_join(artifacts_abs, "safety-review.md"), "content": render_safety_review(profile, manifest)},
+        {"path": path_join(artifacts_abs, "validation-report.md"), "content": render_validation_report(validation)},
+        {"path": path_join(artifacts_abs, "fix-backlog.md"), "content": fix_backlog_md},
+        {"path": path_join(artifacts_abs, "fix-backlog.json"), "content": fix_backlog_json},
+        {"path": path_join(artifacts_abs, "agent-handoff.md"), "content": render_agent_handoff(profile, out_abs, artifacts_abs)},
+        {"path": path_join(artifacts_abs, "patchbrief.md"), "content": render_patchbrief(profile, out_abs, artifacts_abs)},
+        {"path": path_join(artifacts_abs, "shipcheck.md"), "content": render_shipcheck(profile, validation)},
+        {"path": path_join(artifacts_abs, "howto.md"), "content": render_howto(out_abs, artifacts_abs)},
+        {"path": path_join(artifacts_abs, "mcp-findings.md"), "content": findings_md},
+        {"path": path_join(artifacts_abs, "mcp-findings.json"), "content": findings_json}
     ]
 
     idx := 0

@@ -73,11 +73,7 @@ export func resolve_absolute_output(path_value) {
         while idx >= 0 {
             part := suffix_parts[idx]
             if part != "" {
-                if resolved == "/" {
-                    resolved := "/" + part
-                } else {
-                    resolved := resolved + "/" + part
-                }
+                resolved := path_join(resolved, part)
             }
             idx := idx - 1
         }
@@ -92,7 +88,11 @@ export func is_within_boundary(candidate_abs, allowed_abs) {
     if candidate_abs == allowed_abs {
         return true
     }
-    return starts_with(candidate_abs, allowed_abs + "/")
+    separator := "/"
+    if path_join("a", "b") == "a\\b" { separator := "\\" }
+    prefix := allowed_abs
+    if !ends_with(prefix, separator) { prefix := prefix + separator }
+    return starts_with(candidate_abs, prefix)
 }
 
 export func ensure_dir_recursive(dir_abs) {
@@ -108,37 +108,25 @@ export func ensure_dir_recursive(dir_abs) {
         return {"ok": false, "error": "Path exists but is not a directory: " + clean}
     }
 
-    working := ""
-    if starts_with(clean, "/") {
-        working := "/"
-    }
-
-    parts := split(clean, "/")
-    idx := 0
-    while idx < len(parts) {
-        part := parts[idx]
-        idx := idx + 1
-
-        if part == "" {
-        } else {
-            if working == "" {
-                working := part
-            } else {
-                if working == "/" {
-                    working := "/" + part
-                } else {
-                    working := working + "/" + part
-                }
-            }
-
-            if !path_exists(working) {
-                create_dir(working)
-            } else {
-                if !path_is_dir(working) {
-                    return {"ok": false, "error": "Path component is not a directory: " + working}
-                }
-            }
+    # Walk to an existing ancestor instead of splitting drive/UNC roots.
+    pending := []
+    cursor := clean
+    while !path_exists(cursor) {
+        pending := push(pending, cursor)
+        parent := dirname(cursor)
+        if parent == cursor {
+            return {"ok": false, "error": "Directory root does not exist: " + cursor}
         }
+        if parent == "" { parent := "." }
+        cursor := parent
+    }
+    if !path_is_dir(cursor) {
+        return {"ok": false, "error": "Path component is not a directory: " + cursor}
+    }
+    idx := len(pending) - 1
+    while idx >= 0 {
+        create_dir(pending[idx])
+        idx := idx - 1
     }
 
     return {"ok": true, "error": ""}

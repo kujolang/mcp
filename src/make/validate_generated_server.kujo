@@ -122,16 +122,16 @@ func manifest_consistency_checks(manifest, profile) {
 export func validate_generated_server(profile, manifest, out_abs, artifacts_abs, run_extended) {
     validation_entries := []
 
-    validation_entries := push(validation_entries, exists_check(out_abs + "/repo-profile.json", "generated_repo_profile_exists"))
-    validation_entries := push(validation_entries, exists_check(out_abs + "/mcp.manifest.json", "generated_manifest_exists"))
-    validation_entries := push(validation_entries, exists_check(out_abs + "/src/server.kujo", "generated_server_exists"))
-    validation_entries := push(validation_entries, exists_check(artifacts_abs + "/fix-backlog.json", "fix_backlog_json_exists"))
-    validation_entries := push(validation_entries, exists_check(artifacts_abs + "/mcp-findings.json", "kujo_mcp_findings_json_exists"))
+    validation_entries := push(validation_entries, exists_check(path_join(out_abs, "repo-profile.json"), "generated_repo_profile_exists"))
+    validation_entries := push(validation_entries, exists_check(path_join(out_abs, "mcp.manifest.json"), "generated_manifest_exists"))
+    validation_entries := push(validation_entries, exists_check(path_join(out_abs, "src", "server.kujo"), "generated_server_exists"))
+    validation_entries := push(validation_entries, exists_check(path_join(artifacts_abs, "fix-backlog.json"), "fix_backlog_json_exists"))
+    validation_entries := push(validation_entries, exists_check(path_join(artifacts_abs, "mcp-findings.json"), "kujo_mcp_findings_json_exists"))
 
-    validation_entries := push(validation_entries, parse_json_file_check(out_abs + "/repo-profile.json", "repo_profile_json_valid"))
-    validation_entries := push(validation_entries, parse_json_file_check(out_abs + "/mcp.manifest.json", "mcp_manifest_json_valid"))
-    validation_entries := push(validation_entries, parse_json_file_check(artifacts_abs + "/fix-backlog.json", "fix_backlog_json_valid"))
-    validation_entries := push(validation_entries, parse_json_file_check(artifacts_abs + "/mcp-findings.json", "kujo_mcp_findings_json_valid"))
+    validation_entries := push(validation_entries, parse_json_file_check(path_join(out_abs, "repo-profile.json"), "repo_profile_json_valid"))
+    validation_entries := push(validation_entries, parse_json_file_check(path_join(out_abs, "mcp.manifest.json"), "mcp_manifest_json_valid"))
+    validation_entries := push(validation_entries, parse_json_file_check(path_join(artifacts_abs, "fix-backlog.json"), "fix_backlog_json_valid"))
+    validation_entries := push(validation_entries, parse_json_file_check(path_join(artifacts_abs, "mcp-findings.json"), "kujo_mcp_findings_json_valid"))
 
     contract_result := validate_manifest_contract(manifest)
     if contract_result["passed"] {
@@ -154,8 +154,8 @@ export func validate_generated_server(profile, manifest, out_abs, artifacts_abs,
             validation_entries := push(validation_entries, validation_entry("generated_server_syntax_check", "skipped", "KUJO_BIN is not set in environment", ""))
             validation_entries := push(validation_entries, validation_entry("generated_server_self_check", "skipped", "KUJO_BIN is not set in environment", ""))
         } else {
-            check_cmd := kujo_bin + " check \"" + out_abs + "/src/server.kujo\""
-            self_check_cmd := kujo_bin + " run \"" + out_abs + "/src/server.kujo\" --interpreter --self-check"
+            check_cmd := kujo_bin + " check \"" + path_join(out_abs, "src", "server.kujo") + "\""
+            self_check_cmd := kujo_bin + " run \"" + path_join(out_abs, "src", "server.kujo") + "\" --interpreter --self-check"
             validation_entries := push(validation_entries, execute_check_best_effort("generated_server_syntax_check", check_cmd))
             validation_entries := push(validation_entries, execute_check_best_effort("generated_server_self_check", self_check_cmd))
         }

@@ -42,10 +42,10 @@ func resolve_ai_sdk_path(explicit_path) {
 }
 
 func has_required_sdk_files(ai_sdk_dir) {
-    if !file_exists(ai_sdk_dir + "/ai_sdk.kujo") {
+    if !file_exists(path_join(ai_sdk_dir, "ai_sdk.kujo")) {
         return false
     }
-    if !file_exists(ai_sdk_dir + "/providers.kujo") {
+    if !file_exists(path_join(ai_sdk_dir, "providers.kujo")) {
         return false
     }
     return true
@@ -212,7 +212,7 @@ func build_safety_review_suggestions(profile) {
 }
 
 func run_ai_enrichment_child(ai_sdk_dir, prompt_text, api_key) {
-    helper_path := ai_sdk_dir + "/.kujo_mcp_enrich_helper.kujo"
+    helper_path := path_join(ai_sdk_dir, ".kujo_mcp_enrich_helper.kujo")
 
     helper_code := "from providers import openai_provider\n"
     helper_code := helper_code + "from ai_sdk import create_client, create_message, chat_completion\n"
