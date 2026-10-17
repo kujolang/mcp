@@ -209,3 +209,5 @@ QUOTED_GEN_DIR="$TARGET_REPO_4/.mcp/generated-server"
 grep -q '"ok":true' /tmp/kujo_mcp_feat06_quoted_self_check.json
 
 echo "feat_06_mcp_make: all checks passed"
+
+node --test tests/make-native-paths.test.mjs
