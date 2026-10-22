@@ -4,6 +4,23 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [1.3.3] - 2026-10-22
+
+### Fixed
+
+- Preserve native Windows paths throughout MCP generation and run the native
+  path regression within the generator suite.
+
+### Security
+
+- Require patched Node.js versions for repository tooling and CI.
+
+### Compatibility
+
+- Keep Kujo 1.7.0 minimum and the existing protocol/configuration contracts.
+- The separately packaged Ability bridge remains 1.3.1; no new external host
+  certification is claimed.
+
 ## [1.3.2] - 2026-10-14
 
 ### Fixed
