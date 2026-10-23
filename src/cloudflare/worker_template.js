@@ -1,52 +1,180 @@
-/*
- * Generic stateless Cloudflare Worker adapter for a generated Kujo MCP.
- * The product catalog and registry metadata are injected by a Kujo generator.
- * Do not edit generated copies; regenerate them from the Kujo source.
+/* Generic stateless Cloudflare Worker adapter, catalog contract v2. Edit this framework source, never generated copies.
+ * Canonical schemas, resources and static results are exported by the Kujo generator.
+ * No network, storage, execution or credential capabilities.
  */
 const DATA = __KUJO_MCP_DATA__;
-const MAX_BODY = 131072;
-const MAX_RESPONSE = 1048576;
-const METHODS = ["initialize", "notifications/initialized", "ping", "server/discover", "tools/list", "tools/call", "resources/list", "resources/read", "prompts/list", "prompts/get"];
-
-const json = (status, body, extra = {}) => {
-  const text = JSON.stringify(body);
-  if (text.length > MAX_RESPONSE) return response(500, { error: "Response exceeds configured maximum" });
-  return new Response(text, { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "content-security-policy": "default-src 'none'; frame-ancestors 'none'", "cross-origin-resource-policy": "same-origin", "referrer-policy": "no-referrer", "x-content-type-options": "nosniff", "x-frame-options": "DENY", ...extra } });
+const MAX_BODY = 131072, MAX_RESPONSE = 1048576, MAX_DEPTH = 64;
+const VERSIONS = ['2026-07-28', '2025-06-18'];
+const headers = {'content-type':'application/json; charset=utf-8','cache-control':'no-store','content-security-policy':"default-src 'none'; frame-ancestors 'none'",'cross-origin-resource-policy':'same-origin','referrer-policy':'no-referrer','x-content-type-options':'nosniff','x-frame-options':'DENY'};
+const json = (status, body) => {
+  const text = status === 202 ? null : JSON.stringify(body);
+  if (text && new TextEncoder().encode(text).length > MAX_RESPONSE) return new Response('{"error":"Response exceeds configured maximum"}', {status:500,headers});
+  return new Response(text, {status,headers});
 };
-const response = (status, body) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
-const idOf = p => Object.prototype.hasOwnProperty.call(p, "id") ? p.id : null;
-const ok = (p, result) => ({ jsonrpc: "2.0", id: idOf(p), result });
-const err = (p, code, message) => ({ jsonrpc: "2.0", id: idOf(p), error: { code, message } });
-const norm = value => String(value ?? "").trim().toLowerCase().replace(/[\-_\/,.;()[\]`]/g, " ").replace(/\s+/g, " ");
-const terms = query => [...new Set(norm(query).split(" ").filter(t => t.length >= 2 && !["a","an","and","for","from","in","of","on","or","the","to","with"].includes(t)))].slice(0, 24);
-const itemText = item => norm([item.slug,item.title,item.description,item.category,(item.tags||[]).join(" "),item.keywords,item.launch_story].join(" "));
-const publicItem = item => ({ kind:item.kind, slug:item.slug, title:item.title, description:item.description, category:item.category, tags:item.tags, install_command:item.install_command, github_url:item.github_url, website_url:item.website_url, scope_note:item.scope_note, version:item.version, last_updated:item.last_updated, latest_release_url:item.latest_release_url||"", release_status:item.release_status||"", source_path:item.source_path, provenance:"Reviewed committed Kujolang.ai content" });
-const annotations = title => ({ title, readOnlyHint:true, destructiveHint:false, idempotentHint:true, openWorldHint:false });
-const schema = (description, properties={}, required=[]) => ({ $schema:"https://json-schema.org/draft/2020-12/schema", type:"object", description, properties, required, additionalProperties:false });
-const str = (description, maxLength, enumValues) => ({ type:"string", description, ...(maxLength ? {maxLength} : {}), ...(enumValues ? {enum:enumValues} : {}) });
-const integer = (description, minimum, maximum) => ({ type:"integer", description, minimum, maximum });
-const tools = () => [
-  {name:"get_kujo_overview", title:"Get Kujo Overview", description:"Explain Kujo, the public ecosystem catalog, and the safest next discovery action.", inputSchema:schema("No arguments"), annotations:annotations("Get Kujo Overview")},
-  {name:"list_ecosystem", title:"List Kujo Ecosystem", description:"List current Kujo projects, primitives, tooling, showcases, agent skills, or workflows from the bundled Kujolang.ai catalog.", inputSchema:schema("Catalog filters", {kind:str("Optional item type",32,["project","skill","workflow"]),category:str("Optional category",128),limit:integer("Maximum results",1,200)}), annotations:annotations("List Kujo Ecosystem")},
-  {name:"search_kujo_catalog", title:"Search Kujo Catalog", description:"Search current projects, skills, workflows, tags, and use cases using public catalog metadata.", inputSchema:schema("Catalog search", {query:str("Work or capability",512),kind:str("Optional item type",32,["project","skill","workflow"]),category:str("Optional category",128),limit:integer("Maximum results",1,50)},["query"]), annotations:annotations("Search Kujo Catalog")},
-  {name:"get_catalog_item", title:"Get Kujo Catalog Item", description:"Get one Kujo project, skill, or workflow by slug or exact title.", inputSchema:schema("Catalog lookup", {slug:str("Catalog slug or exact title",128)},["slug"]), annotations:annotations("Get Kujo Catalog Item")},
-  {name:"recommend_kujo_stack", title:"Recommend a Kujo Stack", description:"Recommend a small evidence-linked Kujo stack for a stated task.", inputSchema:schema("Stack recommendation", {task:str("The work needed",1000),limit:integer("Maximum recommendations",1,12)},["task"]), annotations:annotations("Recommend a Kujo Stack")},
-  {name:"get_installation", title:"Get Kujo Installation", description:"Return reviewed installer commands and profile membership without executing them.", inputSchema:schema("Installation lookup", {profile:str("Install profile",32,["default",...Object.keys(DATA.installation.profile_commands),"all"])}), annotations:annotations("Get Kujo Installation")},
-  {name:"list_webops_capabilities", title:"List WebOps Capabilities", description:"List Kujo WebOps skills and workflows.", inputSchema:schema("WebOps catalog", {query:str("Optional WebOps need",512),limit:integer("Maximum results",1,100)}), annotations:annotations("List WebOps Capabilities")}
-];
-const publicSummary = () => ({ name:DATA.source.name, url:DATA.source.url, source_version:DATA.source.version, runtime_version:DATA.items.find(item=>item.kind==="project"&&item.slug==="kujo")?.version||"", runtime_release_url:DATA.items.find(item=>item.kind==="project"&&item.slug==="kujo")?.latest_release_url||"", catalog_revision:DATA.source.snapshot_sha256, counts:DATA.counts, categories:["Primitives","Tooling","Showcase","Agent Skill","Workflow"], default_install_command:DATA.installation.default_command });
-const search = (query, kind="", category="", limit=10) => { const ts=terms(query); return DATA.items.map(item=>({item,score:ts.reduce((s,t)=>s+(itemText(item).includes(t)?1:0)+(norm(item.title+" "+item.slug).includes(t)?2:0),0),matched_terms:ts.filter(t=>itemText(item).includes(t))})).filter(x=>x.score>0 && (!kind||x.item.kind===kind) && (!category||x.item.category.toLowerCase().includes(category.toLowerCase()))).sort((a,b)=>b.score-a.score).slice(0,limit).map(x=>({score:x.score,matched_terms:x.matched_terms,item:publicItem(x.item)})); };
-const tool = (name, a) => { const bad = (m) => ({resultType:"complete",content:[{type:"text",text:m}],structuredContent:{error:m},isError:true}); const good = d => ({resultType:"complete",content:[{type:"text",text:JSON.stringify(d,null,2)}],structuredContent:d,isError:false});
-  if (a === null || typeof a !== "object" || Array.isArray(a)) return bad("arguments must be an object");
-  const allowed={get_kujo_overview:[],list_ecosystem:["kind","category","limit"],search_kujo_catalog:["query","kind","category","limit"],get_catalog_item:["slug"],recommend_kujo_stack:["task","limit"],get_installation:["profile"],list_webops_capabilities:["query","limit"]};
-  if (!Object.hasOwn(allowed,name)) return null; const extra=Object.keys(a).find(k=>!allowed[name].includes(k)); if(extra)return bad("unknown argument: "+extra);
-  if(name==="get_kujo_overview") return good({...publicSummary(),description:"Kujo is a VM-first programming language and local-first ecosystem for AI-native software, agent workflows, evidence, safety, and practical automation.",discovery:["Use list_ecosystem for a category","Use search_kujo_catalog for a capability","Use recommend_kujo_stack for a task"],trust_boundary:"This server is public, read-only, stateless, and returns bundled public catalog metadata. Commands are never executed."});
-  if(name==="list_ecosystem"){const k=a.kind||"",c=a.category||"",l=a.limit??100;if(k&&!['project','skill','workflow'].includes(k))return bad("kind must be project, skill, or workflow");if(typeof l!=="number"||!Number.isInteger(l)||l<1||l>200)return bad("limit must be between 1 and 200");const items=DATA.items.filter(i=>(!k||i.kind===k)&&(!c||i.category.toLowerCase().includes(String(c).toLowerCase()))).slice(0,l).map(publicItem);return good({items,returned:items.length,filters:{kind:k,category:c}})}
-  if(name==="search_kujo_catalog"){if(typeof a.query!=="string"||!a.query.trim()||a.query.length>512)return bad("query is required and must be a non-empty string of at most 512 characters");const l=a.limit??10;if(!Number.isInteger(l)||l<1||l>50)return bad("limit must be between 1 and 50");return good({query:a.query,results:search(a.query,a.kind||"",a.category||"",l),returned:search(a.query,a.kind||"",a.category||"",l).length})}
-  if(name==="get_catalog_item"){if(typeof a.slug!=="string"||!a.slug.trim()||a.slug.length>128)return bad("slug is required and must be a non-empty string");const w=norm(a.slug),i=DATA.items.find(x=>norm(x.slug)===w||norm(x.title)===w);return i?good(publicItem(i)):bad("Catalog item not found: "+a.slug)}
-  if(name==="recommend_kujo_stack"){if(typeof a.task!=="string"||!a.task.trim()||a.task.length>1000)return bad("task is required and must be a non-empty string");const l=a.limit??6;return good({task:a.task,recommendations:search(a.task,"","",l).map(x=>({...x.item,match_score:x.score,matched_terms:x.matched_terms,selection_note:"Keyword evidence from reviewed public catalog metadata; confirm fit in the linked source."}))})}
-  if(name==="get_installation"){const p=a.profile||"default", map={default:{command:DATA.installation.default_command,members:DATA.installation.profiles.core},core:{command:DATA.installation.profile_commands.core,members:DATA.installation.profiles.core},ai:{command:DATA.installation.profile_commands.ai,members:DATA.installation.profiles.ai},quality:{command:DATA.installation.profile_commands.quality,members:DATA.installation.profiles.quality},showcases:{command:DATA.installation.profile_commands.showcases,members:DATA.installation.profiles.showcases},operating:{command:DATA.installation.profile_commands.operating,members:DATA.installation.profiles.operating},all:{command:DATA.installation.all_command,members:[...new Set(Object.values(DATA.installation.profiles).flat())]}};for(const [name, command] of Object.entries(DATA.installation.profile_commands)) { if(Object.hasOwn(DATA.installation.profiles,name)) map[name]={command,members:DATA.installation.profiles[name]}; } return Object.hasOwn(map,p)?good({profile:p,command:map[p].command,members:map[p].members,execution:"inert guidance; this server never executes installation commands"}):bad("profile must be one of: "+["default",...Object.keys(DATA.installation.profile_commands),"all"].join(", "))}
-  if(name==="list_webops_capabilities"){const l=a.limit??100;return good({capabilities:search(a.query||"webops", "skill", "", l).concat(search(a.query||"webops", "workflow", "", l)).slice(0,l)})}
+const object = p => p !== null && typeof p === 'object' && !Array.isArray(p);
+const own = (p,k) => object(p) && Object.hasOwn(p,k);
+const idOf = p => own(p,'id') && (typeof p.id==='string'||Number.isSafeInteger(p.id)) ? p.id : null;
+const ok = (p,result) => ({jsonrpc:'2.0',id:idOf(p),result});
+const err = (p,code,message,data) => ({jsonrpc:'2.0',id:idOf(p),error:{code,message,...(data?{data}:{})}});
+const good = d => ({resultType:'complete',content:[{type:'text',text:JSON.stringify(d)}],structuredContent:d,isError:false});
+const bad = message => ({resultType:'complete',content:[{type:'text',text:message}],structuredContent:{error:message},isError:true});
+const norm = value => String(value??'').trim().toLowerCase().replace(/[-_\/.,:;()[\]`]/g,' ').replace(/\s+/g,' ');
+const terms = query => [...new Set(norm(query).split(' ').filter(t=>t.length>=2&&!['a','an','and','for','from','in','of','on','or','the','to','with'].includes(t)))].slice(0,24);
+const publicItem = item => ({kind:item.kind,slug:item.slug,title:item.title,description:item.description,category:item.category,tags:item.tags,install_command:item.install_command,github_url:item.github_url,website_url:item.website_url,scope_note:item.scope_note,version:item.version,last_updated:item.last_updated,latest_release_url:item.latest_release_url||'',release_status:item.release_status||'',source_path:item.source_path,provenance:'Reviewed committed Kujolang.ai content'});
+// The generator exports the exact native normalization; build no per-request index.
+const index = DATA._search_index;
+const matches = (item,kind,category) => (!kind||item.kind.toLowerCase()===kind.toLowerCase())&&(!category||item.category.toLowerCase().includes(category.toLowerCase()));
+const search = (query,kind='',category='',limit=10,prefix='') => {
+  const ts=terms(query),scored=[];
+  for(let i=0;i<DATA.items.length;i++){
+    const item=DATA.items[i],entry=index[i];
+    if(!matches(item,kind,category)||!item.slug.startsWith(prefix))continue;
+    const matched_terms=ts.filter(t=>entry.search.includes(t));
+    const score=matched_terms.reduce((s,t)=>s+1+(entry.identity.includes(t)?2:0),0);
+    if(score)scored.push({score,matched_terms,i});
+  }
+  return scored.sort((a,b)=>b.score-a.score||a.i-b.i).slice(0,limit).map(x=>({score:x.score,matched_terms:x.matched_terms,item:publicItem(DATA.items[x.i])}));
 };
-const handle = p => { if(!p||p.jsonrpc!=="2.0"||typeof p.method!=="string")return err(p||{},-32600,"Invalid Request"); if(p.method==="notifications/initialized")return null; if(!METHODS.includes(p.method))return err(p,-32601,"Method not found: "+p.method); if(p.method==="ping")return ok(p,{}); if(p.method==="initialize"){const v=p.params?.protocolVersion||"2026-07-28";if(!["2026-07-28","2025-06-18"].includes(v))return err(p,-32022,"Unsupported protocol version: "+v);return ok(p,{protocolVersion:v,capabilities:{tools:{listChanged:false},resources:{listChanged:false},prompts:{listChanged:false}},serverInfo:{name:"kujolang-mcp",version:DATA.server_version||"0.1.0"},instructions:"Public read-only Kujo catalog discovery."})} if(p.method==="server/discover")return ok(p,{protocolVersion:"2026-07-28",capabilities:{tools:{},resources:{},prompts:{}},serverInfo:{name:"kujolang-mcp",version:DATA.server_version||"0.1.0"},catalog_revision:DATA.source.snapshot_sha256}); if(p.method==="tools/list")return ok(p,{tools:tools(),cacheScope:"public",catalog_revision:DATA.source.snapshot_sha256}); if(p.method==="resources/list")return ok(p,{resources:[{uri:"kujolang://overview",name:"Kujo Overview"},{uri:"kujolang://catalog/projects",name:"Kujo Projects"},{uri:"kujolang://catalog/skills",name:"Kujo Skills"},{uri:"kujolang://catalog/workflows",name:"Kujo Workflows"},{uri:"kujolang://installation",name:"Installation"},{uri:"kujolang://security",name:"Safety"}]}); if(p.method==="prompts/list")return ok(p,{prompts:[{name:"choose_kujo_stack",description:"Select a Kujo stack for a task."},{name:"plan_kujo_adoption",description:"Plan a cautious Kujo adoption."},{name:"discover_webops",description:"Find WebOps capabilities."}]}); if(p.method==="tools/call"){if(!p.params||typeof p.params.name!=="string")return err(p,-32602,"params.name must be a non-empty string");const result=tool(p.params.name,p.params.arguments||{});return result?ok(p,{...result}):err(p,-32601,"Tool not found: "+p.params.name)} if(p.method==="resources/read"){const u=p.params?.uri;if(typeof u!=="string")return err(p,-32602,"params.uri must be a non-empty string");const map={"kujolang://overview":JSON.stringify(publicSummary()),"kujolang://catalog/projects":JSON.stringify(DATA.items.filter(i=>i.kind==="project").map(publicItem)),"kujolang://catalog/skills":JSON.stringify(DATA.items.filter(i=>i.kind==="skill").map(publicItem)),"kujolang://catalog/workflows":JSON.stringify(DATA.items.filter(i=>i.kind==="workflow").map(publicItem)),"kujolang://installation":JSON.stringify(DATA.installation),"kujolang://security":"Public, read-only, stateless, bounded, deterministic. No filesystem, network fetch, shell, write, install, deploy, secret, or user-data capabilities."};return map[u]!==undefined?ok(p,{contents:[{uri:u,mimeType:"application/json",text:map[u]}]}):err(p,-32002,"Unknown resource: "+u)} if(p.method==="prompts/get"){const n=p.params?.name;if(!["choose_kujo_stack","plan_kujo_adoption","discover_webops"].includes(n))return err(p,-32602,"Prompt not found: "+n);return ok(p,{description:"Kujo public guidance prompt.",messages:[{role:"user",content:{type:"text",text:"Use the read-only Kujo catalog and cite its source links. Commands are guidance only and must not be executed by this server."}}]})} return err(p,-32601,"Method not found") };
-export default { async fetch(request) { const url=new URL(request.url); const host=url.hostname.toLowerCase(); if(host!=="mcp.kujolang.ai"&&!host.endsWith(".workers.dev"))return json(403,{error:"Host is not allowed"}); if(url.pathname==="/health"&&request.method==="GET") return json(200,{status:"ok",service:"kujolang-mcp",server:"kujolang-mcp",version:DATA.server_version||"0.1.0",catalog_revision:DATA.source.snapshot_sha256,protocol_versions:["2026-07-28","2025-06-18"]}); if((url.pathname!=="/mcp"&&url.pathname!=="/mcp/v1")||request.method!=="POST") return json(url.pathname==="/mcp"||url.pathname==="/mcp/v1"?405:404,{error:"Not found"}); if(request.headers.get("content-type")?.split(";")[0].trim()!=="application/json")return json(415,{error:"Content-Type must be application/json"}); const length=Number(request.headers.get("content-length")||0);if(length>MAX_BODY)return json(413,{error:"Request body exceeds configured maximum"});let payload;try{const body=await request.text();if(body.length>MAX_BODY)return json(413,{error:"Request body exceeds configured maximum"});payload=JSON.parse(body)}catch{return json(200,{jsonrpc:"2.0",id:null,error:{code:-32700,message:"Parse error"}})}const result=handle(payload);return result?json(200,result):new Response(null,{status:202,headers:{"cache-control":"no-store"}})} };
+const list = (kind,category,limit) => DATA.items.filter(i=>matches(i,kind,category)).slice(0,limit).map(publicItem);
+const tools = () => DATA.registry.tools;
+const stringArg = (a,k,f,max) => {
+  if(!own(a,k))return {value:f};
+  if(typeof a[k]!=='string')return {error:k+' must be a string'};
+  const value=a[k].trim();
+  // Schema string limits count Unicode code points, as does Kujo.
+  if([...value].length>max)return {error:k+' must be at most '+max+' characters'};
+  return {value};
+};
+const intArg = (a,k,f,min,max) => !own(a,k)?{value:f}:!Number.isInteger(a[k])?{error:k+' must be an integer'}:a[k]<min||a[k]>max?{error:k+' must be between '+min+' and '+max}:{value:a[k]};
+const allowed = {get_kujo_overview:[],list_ecosystem:['kind','category','limit'],search_kujo_catalog:['query','kind','category','limit'],get_catalog_item:['slug'],recommend_kujo_stack:['task','limit'],get_installation:['profile'],list_webops_capabilities:['query','limit']};
+const tool = (name,a) => {
+  if(!own(allowed,name))return null;
+  const extra=Object.keys(a).sort().find(k=>!allowed[name].includes(k));if(extra)return bad('unknown argument: '+extra);
+  if(name==='get_kujo_overview')return good(DATA.registry.overview);
+  if(name==='list_ecosystem'||name==='search_kujo_catalog'){
+    const query=stringArg(a,'query','',512),kind=stringArg(a,'kind','',32),category=stringArg(a,'category','',128),limit=intArg(a,'limit',name==='list_ecosystem'?100:10,1,name==='list_ecosystem'?200:50);
+    if(name==='search_kujo_catalog'){if(query.error)return bad(query.error);if(!query.value)return bad('query is required and must be a non-empty string');}
+    if(kind.error)return bad(kind.error);if(kind.value&&!['project','skill','workflow'].includes(kind.value))return bad('kind must be project, skill, or workflow');if(category.error)return bad(category.error);if(limit.error)return bad(limit.error);
+    if(name==='list_ecosystem'){const items=list(kind.value,category.value,limit.value);return good({items,returned:items.length,filters:{kind:kind.value,category:category.value}});}
+    const results=search(query.value,kind.value,category.value,limit.value);return good({query:query.value,results,returned:results.length});
+  }
+  if(name==='get_catalog_item'){
+    const slug=stringArg(a,'slug','',128);if(slug.error||!slug.value)return bad('slug is required and must be a non-empty string');
+    const w=norm(slug.value),i=index.findIndex(x=>x.slug===w||x.title===w);return i<0?bad('Catalog item not found: '+slug.value):good(publicItem(DATA.items[i]));
+  }
+  if(name==='recommend_kujo_stack'){
+    const task=stringArg(a,'task','',1000),limit=intArg(a,'limit',6,1,12);if(task.error||!task.value)return bad('task is required and must be a non-empty string');if(limit.error)return bad(limit.error);
+    return good({task:task.value,recommendations:search(task.value,'','',limit.value),method:'Deterministic term matching over the released Kujolang.ai catalog.',next_step:'Inspect each result with get_catalog_item before installing or executing anything.'});
+  }
+  if(name==='get_installation'){
+    const p=stringArg(a,'profile','default',32);if(p.error)return bad(p.error);const selected=p.value.toLowerCase()||'default';
+    return own(DATA.registry.installations,selected)?good(DATA.registry.installations[selected]):bad('profile must be one of: default, core, agent, ai, quality, showcases, operating, all');
+  }
+  const q=stringArg(a,'query','webops',512),limit=intArg(a,'limit',50,1,100);if(q.error)return bad(q.error);if(limit.error)return bad(limit.error);
+  const query=q.value||'webops',capabilities=search('webops '+query,'','',limit.value,'webops-');return good({query,capabilities,returned:capabilities.length});
+};
+const prompt = (name,a) => {
+  if(!['choose_kujo_stack','plan_kujo_adoption','discover_webops'].includes(name))return {error:'Prompt not found: '+name};
+  const extra=Object.keys(a).sort().find(k=>!(name==='plan_kujo_adoption'?['task','constraints']:['task']).includes(k));if(extra)return {error:'unknown argument: '+extra};
+  const task=stringArg(a,'task','',1000),constraints=stringArg(a,'constraints','',2000);if(task.error||!task.value)return {error:'task is required and must be a non-empty string'};if(constraints.error)return {error:constraints.error};
+  const templates=DATA.registry.prompt_templates[name];
+  return {description:templates.description+task.value,messages:[{role:'user',content:{type:'text',text:templates.prefix+task.value+(name==='plan_kujo_adoption'?'. Constraints: '+constraints.value:'')}}]};
+};
+const handle = p => {
+  if(!object(p))return err({},-32600,'Request must be a JSON object');
+  if(p.jsonrpc!=='2.0')return err(p,-32600,'jsonrpc must equal 2.0');
+  if(typeof p.method!=='string'||!p.method.trim())return err(p,-32600,'method must be a non-empty string');
+  if(own(p,'id')&&typeof p.id!=='string'&&!Number.isSafeInteger(p.id))return err({},-32600,'id must be a string or safe integer');
+  if(own(p,'params')&&!object(p.params))return err(p,-32602,'params must be an object');
+  if(!own(p,'id'))return ['notifications/initialized','notifications/cancelled'].includes(p.method)?null:err({},-32600,'Method requires a request id');
+  const a=p.params||{};
+  if(p.method==='notifications/initialized')return err(p,-32600,'Notification must not contain an id');
+  if(p.method==='ping')return ok(p,{});
+  if(p.method==='server/discover')return ok(p,DATA.registry.discovery);
+  if(p.method==='initialize'){const v=typeof a.protocolVersion==='string'?a.protocolVersion:'2025-06-18';return ok(p,{...DATA.registry.discovery,protocolVersion:VERSIONS.includes(v)?v:VERSIONS[0]});}
+  if(p.method==='tools/list')return ok(p,{resultType:'complete',tools:tools(),ttlMs:300000,cacheScope:'public'});
+  if(p.method==='resources/list')return ok(p,{resources:DATA.registry.resources});
+  if(p.method==='prompts/list')return ok(p,{prompts:DATA.registry.prompts});
+  if(['tools/call','prompts/get','resources/read'].includes(p.method)){
+    const field=p.method==='resources/read'?'uri':'name';
+    if(typeof a[field]!=='string'||!a[field].trim())return err(p,-32602,'params.'+field+' must be a non-empty string');
+    if(p.method==='resources/read'){const u=a.uri.trim();return own(DATA.registry.resource_contents,u)?ok(p,{contents:DATA.registry.resource_contents[u]}):err(p,-32002,'Resource not found: '+u);}
+    if(own(a,'arguments')&&!object(a.arguments))return err(p,-32602,'params.arguments must be an object');
+    if(p.method==='tools/call'){const result=tool(a.name.trim(),a.arguments||{});return result?ok(p,result):err(p,-32601,'Tool not found: '+a.name.trim());}
+    const result=prompt(a.name.trim(),a.arguments||{});return result.error?err(p,-32602,result.error):ok(p,result);
+  }
+  return err(p,-32601,'Method not found: '+p.method);
+};
+function jsonTextSafe(text){
+  let depth=0,start=0,quoted=false,escaped=false;const seen=[];
+  for(let i=0;i<text.length;i++){
+    const ch=text[i];
+    if(quoted){
+      if(escaped)escaped=false;else if(ch==='\\')escaped=true;else if(ch==='"'){
+        quoted=false;let j=i+1;while(j<text.length&&/\s/.test(text[j]))j++;
+        if(text[j]===':'){const key=JSON.parse(text.slice(start,i+1));if(!seen[depth]||seen[depth].has(key))return false;seen[depth].add(key);}
+      }
+    }else if(ch==='"'){quoted=true;start=i;}else if(ch==='{'||ch==='['){if(++depth>MAX_DEPTH)return false;seen[depth]=new Set();}else if(ch==='}'||ch===']'){if(--depth<0)return false;}
+  }
+  return depth===0&&!quoted;
+}
+async function readBody(request){
+  const declared=request.headers.get('content-length');
+  if(declared!==null&&!/^\d+$/.test(declared))return {status:400,error:'Invalid Content-Length'};
+  if(declared!==null&&Number(declared)>MAX_BODY)return {status:413,error:'Request body exceeds configured maximum'};
+  if(!request.body)return {text:''};
+  const reader=request.body.getReader(),chunks=[];let bytes=0;
+  try{
+    while(true){const {done,value}=await reader.read();if(done)break;bytes+=value.byteLength;if(bytes>MAX_BODY){await reader.cancel();return {status:413,error:'Request body exceeds configured maximum'};}chunks.push(value);}
+    if(declared!==null&&Number(declared)!==bytes)return {status:400,error:'Content-Length mismatch'};
+    const buffer=new Uint8Array(bytes);let offset=0;for(const chunk of chunks){buffer.set(chunk,offset);offset+=chunk.length;}
+    return {text:new TextDecoder('utf-8',{fatal:true}).decode(buffer)};
+  }finally{reader.releaseLock();}
+}
+const mediaType = value => /^application\/json([ \t]*;[ \t]*[a-z0-9!#$%&'*+.^_`|~-]+[ \t]*=[ \t]*([a-z0-9!#$%&'*+.^_`|~-]+|"[^"\r\n]*"))*[ \t]*$/i.test(value||'');
+function acceptsJson(value){
+  if(!value?.trim())return true;
+  let specificity=-1,accepted=false;
+  for(const part of value.toLowerCase().split(',')){
+    const [media,...parameters]=part.split(';'),score=['*/*','application/*','application/json'].indexOf(media.trim());
+    if(score>=0&&score>=specificity){specificity=score;accepted=!parameters.some(p=>/^q[ \t]*=[ \t]*0(\.0*)?$/.test(p.trim()));}
+  }
+  return accepted;
+}
+function protocolGuard(request,p){
+  const version=request.headers.get('mcp-protocol-version')||'';
+  if(version&&!VERSIONS.includes(version))return err(p,-32022,'Unsupported MCP protocol version',{requested:version,supported:VERSIONS});
+  const bodyVersion=p?.params?._meta?.['io.modelcontextprotocol/protocolVersion']||'';
+  if((bodyVersion&&bodyVersion!==version)||(version==='2026-07-28'&&bodyVersion!==version))return err(p,-32020,'MCP-Protocol-Version header must match request metadata');
+  if(version==='2026-07-28'){
+    if(request.headers.get('mcp-method')!==p?.method)return err(p,-32020,'Mcp-Method header must match the JSON-RPC method');
+    if(['tools/call','prompts/get','resources/read'].includes(p.method)){
+      let name=request.headers.get('mcp-name')||'';
+      if(name.startsWith('=?base64?')&&name.endsWith('?=')){try{name=new TextDecoder('utf-8',{fatal:true}).decode(Uint8Array.from(atob(name.slice(9,-2)),c=>c.charCodeAt(0)));}catch{return err(p,-32020,'Invalid Mcp-Name encoding');}}
+      if(name!==(p.params?.[p.method==='resources/read'?'uri':'name']??''))return err(p,-32020,'Mcp-Name header must match request parameters');
+    }
+  }
+  return null;
+}
+export default {async fetch(request){
+  const url=new URL(request.url);
+  if(url.hostname.toLowerCase()!=='mcp.kujolang.ai')return json(403,{error:'Host is not allowed'});
+  if(request.headers.has('origin'))return json(403,{error:'Origin header is not allowed'});
+  if(url.pathname==='/health'&&request.method==='GET')return json(200,{status:'ok',server:'kujolang-mcp',version:DATA.server_version||'0.1.0',catalog:DATA.counts,catalog_source_version:DATA.source.version,catalog_revision:DATA.source.snapshot_sha256});
+  if(!['/mcp','/mcp/v1'].includes(url.pathname))return json(404,{error:'Not found'});
+  if(request.method!=='POST')return json(405,{error:'This stateless MCP endpoint accepts JSON-RPC messages with POST'});
+  if(!acceptsJson(request.headers.get('accept')))return json(406,{error:'Accept must permit application/json'});
+  if(!mediaType(request.headers.get('content-type')))return json(415,{error:'Content-Type must be application/json'});
+  let p;
+  try{const body=await readBody(request);if(body.status)return json(body.status,{error:body.error});if(!jsonTextSafe(body.text))return json(400,err({},-32700,'Invalid, duplicate-key, or over-depth JSON'));p=JSON.parse(body.text);}catch{return json(200,err({},-32700,'Parse error'));}
+  const guard=protocolGuard(request,p);if(guard)return json(400,guard);
+  const result=handle(p);if(result===null)return json(202,null);
+  if(object(p)&&!own(p,'id'))return json(400,result);
+  let status=200;
+  if(request.headers.get('mcp-protocol-version')==='2026-07-28'){
+    if(result.result)result.result={...result.result,resultType:'complete'};
+    if(result.error?.code===-32601)status=404;
+    if(result.error?.code===-32002)result.error.code=-32602;
+  }
+  return json(status,result);
+}};
