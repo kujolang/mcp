@@ -33,3 +33,21 @@ for(const body of ['\ufeff{"jsonrpc":"2.0","id":1,"method":"ping"}','{"jsonrpc":
  const response=await worker.fetch(new Request('https://mcp.kujolang.ai/mcp',{method:'POST',headers:{'content-type':'application/json'},body}));assert.equal((await response.json()).error.code,-32700);
 }
 console.log('Cloudflare cancellation, framing, Accept and Unicode regressions passed');
+
+for(const query of ['\u0085kujo\u0085','kujo\u0085runtime']){
+ const response=await call('tools/call',{name:'search_kujo_catalog',arguments:{query}});
+ assert.equal(response.result.structuredContent.returned,1);
+ assert.equal(response.result.structuredContent.query,query.replace(/^\u0085|\u0085$/g,''));
+}
+const bomQuery=await call('tools/call',{name:'search_kujo_catalog',arguments:{query:'\ufeffkujo\ufeff'}});
+assert.equal(bomQuery.result.structuredContent.returned,0);
+for(const literal of ['1e400','-1e400']){
+ const response=await worker.fetch(new Request('https://mcp.kujolang.ai/mcp',{method:'POST',headers:{'content-type':'application/json'},body:'{"jsonrpc":"2.0","id":1,"method":"ping","params":{"n":'+literal+'}}'}));
+ assert.equal((await response.json()).error.code,-32700);
+}
+console.log('Cloudflare Unicode normalization and finite-number regressions passed');
+for(const literal of ['1.0','1e0','9007199254740991.0','1.5']){
+ const response=await worker.fetch(new Request('https://mcp.kujolang.ai/mcp',{method:'POST',headers:{'content-type':'application/json'},body:'{"jsonrpc":"2.0","id":'+literal+',"method":"ping"}'}));
+ const message=await response.json();assert.equal(message.id,null);assert.equal(message.error.code,-32600);
+}
+console.log('Cloudflare integer-token request ID regressions passed');
