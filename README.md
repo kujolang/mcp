@@ -121,7 +121,7 @@ bash scripts/find_kujo_runtime.sh
     "mcp": {
       "type": "stdio",
       "command": "kujo-runtime",
-      "args": ["run", "/path/to/mcp/server.kujo", "--interpreter"]
+      "args": ["run", "/path/to/mcp/server.kujo"]
     }
   }
 }
@@ -167,7 +167,7 @@ kujo mcp make ./repo-folder --dry-run
 Development/diagnostic primitive (not the normal user experience):
 
 ```bash
-kujo run mcp.kujo --interpreter make ./repo-folder
+kujo run mcp.kujo -- make ./repo-folder
 ```
 
 `--artifacts-only` skips the server scaffold and produces only the profile and review artifacts.

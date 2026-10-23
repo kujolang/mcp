@@ -13,7 +13,7 @@ Use a local stdio launch when the server should run from your machine during dev
     "mcp-local": {
       "type": "stdio",
       "command": "kujo-runtime",
-      "args": ["run", "/path/to/mcp/server.kujo", "--interpreter"]
+      "args": ["run", "/path/to/mcp/server.kujo"]
     }
   }
 }

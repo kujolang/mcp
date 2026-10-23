@@ -41,7 +41,7 @@ Options apply whether or not an explicit repository is supplied; `kujo mcp make 
 
 ## How the Command Resolves the MCP Package
 
-`kujo mcp make` does not duplicate generator logic in the runtime. It resolves the canonical `mcp` package in this order and delegates to its stable `mcp.kujo make` entrypoint through `kujo run` (no `--interpreter` flag required):
+`kujo mcp make` does not duplicate generator logic in the runtime. It resolves the canonical `mcp` package in this order and delegates to its stable `mcp.kujo make` entrypoint through `kujo run` (no ` ` flag required):
 
 1. `KUJO_MCP_PATH` - explicit package-root override for development, tests, and nonstandard installations.
 2. Walk-up discovery: the nearest ancestor of the target repository whose `kennel.toml` declares `[package] name = "mcp"`.
@@ -55,7 +55,7 @@ If none of these resolve, the CLI fails with install guidance instead of silentl
 The direct primitive remains available for development and debugging:
 
 ```bash
-kujo run mcp.kujo --interpreter make <repo-path>
+kujo run mcp.kujo -- make <repo-path>
 ```
 
 This is an internal path, not the normal user-facing workflow.
