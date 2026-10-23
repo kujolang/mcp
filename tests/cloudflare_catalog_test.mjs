@@ -12,3 +12,24 @@ const agent=await call('tools/call',{name:'get_installation',arguments:{profile:
 const item=await call('tools/call',{name:'get_catalog_item',arguments:{slug:'kujo'}});assert.equal(item.result.structuredContent.latest_release_url,data.items[0].latest_release_url);assert.equal(item.result.structuredContent.release_status,'published GitHub Release');
 for(const profile of ['unknown','constructor','__proto__']){const invalid=await call('tools/call',{name:'get_installation',arguments:{profile}});assert.equal(invalid.result.isError,true)}
 console.log('Cloudflare catalog metadata and dynamic profile regressions passed');
+// Rejection must not wait for or inherit errors from source cancellation.
+for(const cancel of [()=>new Promise(()=>{}),()=>Promise.reject(Error('cancel failed'))]){
+ const stream=new ReadableStream({pull(controller){controller.enqueue(new Uint8Array(131073));},cancel});
+ let timer;
+ try{
+  const response=await Promise.race([
+   worker.fetch(new Request('https://mcp.kujolang.ai/mcp',{method:'POST',headers:{'content-type':'application/json'},body:stream,duplex:'half'})),
+   new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('oversize rejection blocked on cancellation')),1000);}),
+  ]);
+  assert.equal(response.status,413);
+ }finally{clearTimeout(timer);}
+}
+const emptyMismatch=await worker.fetch(new Request('https://mcp.kujolang.ai/mcp',{method:'POST',headers:{'content-type':'application/json','content-length':'1'}}));
+assert.equal(emptyMismatch.status,400);
+for(const accept of ['application/json;q=garbage','application/json;q=2','application/json;q=0;q=1']){
+ const response=await worker.fetch(new Request('https://mcp.kujolang.ai/mcp',{method:'POST',headers:{'content-type':'application/json',accept},body:'{}'}));assert.equal(response.status,406);
+}
+for(const body of ['\ufeff{"jsonrpc":"2.0","id":1,"method":"ping"}','{"jsonrpc":"2.0","id":"\\ud800","method":"ping"}']){
+ const response=await worker.fetch(new Request('https://mcp.kujolang.ai/mcp',{method:'POST',headers:{'content-type':'application/json'},body}));assert.equal((await response.json()).error.code,-32700);
+}
+console.log('Cloudflare cancellation, framing, Accept and Unicode regressions passed');
