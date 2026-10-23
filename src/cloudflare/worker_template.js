@@ -112,7 +112,7 @@ function jsonTextSafe(text){
     if(quoted){
       if(escaped)escaped=false;else if(ch==='\\')escaped=true;else if(ch==='"'){
         quoted=false;let j=i+1;while(j<text.length&&/\s/.test(text[j]))j++;
-        if(text[j]===':'){const key=JSON.parse(text.slice(start,i+1));if(!seen[depth]||seen[depth].has(key))return false;seen[depth].add(key);}
+        if(text[j]===':'){const key=JSON.parse(text.slice(start,i+1));if(!seen[depth]||seen[depth].size>=1024||seen[depth].has(key))return false;seen[depth].add(key);}
       }
     }else if(ch==='"'){quoted=true;start=i;}else if(ch==='{'||ch==='['){if(++depth>MAX_DEPTH)return false;seen[depth]=new Set();}else if(ch==='}'||ch===']'){if(--depth<0)return false;}
   }
