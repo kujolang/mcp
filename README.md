@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 [![built with Kujo](https://img.shields.io/badge/built%20with-Kujo-white.svg)](https://github.com/kujolang/kujo)
 [![CI](https://github.com/kujolang/mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/kujolang/mcp/actions/workflows/ci.yml)
-![Protocol: MCP](https://img.shields.io/badge/protocol-MCP-0969da)
+![Protocol: MCP](https://img.shields.io/badge/protocol-MCP-black)
 
 Build MCP (Model Context Protocol) servers in [Kujo](https://github.com/kujolang/kujo).
 
